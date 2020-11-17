@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "types": ["node"],
+    "emitDecoratorMetadata": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ESNext"]
+  },
+  "exclude": ["**/*.spec.ts"],
+  "include": ["**/*.ts"]
+}

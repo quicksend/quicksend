@@ -29,7 +29,9 @@
           { "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] }
         ]
       }
-    ]
+    ],
+    "comma-dangle": ["warn", "never"],
+    "quotes": ["warn", "double"]
   },
   "overrides": [
     {

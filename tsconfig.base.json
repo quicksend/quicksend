@@ -15,7 +15,13 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@quicksend/config": ["libs/config/src/index.ts"],
+      "@quicksend/models": ["libs/models/src/index.ts"],
+      "@quicksend/interfaces": ["libs/interfaces/src/index.ts"],
+      "@quicksend/multiparter": ["libs/multiparter/src/index.ts"],
+      "@quicksend/utils": ["libs/utils/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

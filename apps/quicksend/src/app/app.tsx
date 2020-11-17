@@ -1,9 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import styled from 'styled-components';
+import styled from "styled-components";
 
-import { ReactComponent as Logo } from './logo.svg';
-import star from './star.svg';
+import { ReactComponent as Logo } from "./logo.svg";
+import star from "./star.svg";
 
 const StyledApp = styled.div`
   font-family: sans-serif;
@@ -155,7 +155,7 @@ export const App = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {' '}
+            {" "}
             If you like Nx, please give it a star:
             <div className="github-star-badge">
               <img src={star} className="material-icons" alt="" />
@@ -223,7 +223,7 @@ nx g @nrwl/react:component xyz --project ui`}</pre>
         </details>
         <details>
           <summary>View dependency graph</summary>
-          <pre>{`nx dep-graph`}</pre>
+          <pre>{"nx dep-graph"}</pre>
         </details>
         <details>
           <summary>Run affected commands</summary>

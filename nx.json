@@ -14,14 +14,6 @@
     ".eslintrc.json": "*",
     "nx.json": "*"
   },
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
-      "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
-      }
-    }
-  },
   "projects": {
     "quicksend": {
       "tags": []
@@ -29,6 +21,24 @@
     "quicksend-e2e": {
       "tags": [],
       "implicitDependencies": ["quicksend"]
+    },
+    "api": {
+      "tags": []
+    },
+    "config": {
+      "tags": []
+    },
+    "models": {
+      "tags": []
+    },
+    "interfaces": {
+      "tags": []
+    },
+    "multiparter": {
+      "tags": []
+    },
+    "utils": {
+      "tags": []
     }
   }
 }

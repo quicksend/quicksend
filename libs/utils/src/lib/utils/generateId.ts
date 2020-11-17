@@ -1,0 +1,12 @@
+import * as crypto from "crypto";
+
+export const generateId = (size = 4): Promise<string> =>
+  new Promise((resolve, reject) => {
+    crypto.randomBytes(size, (error, buffer) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(buffer.toString("hex"));
+      }
+    });
+  });
