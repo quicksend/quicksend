@@ -51,7 +51,9 @@ export class ItemProcessor {
       const pendingDeletes = new Counter();
 
       const releaseQueryRunner = (error?: Error) => {
-        return new Promise((res) => pendingDeletes.onceItEqualsTo(0, res))
+        return new Promise<void>((res) => {
+          pendingDeletes.onceItEqualsTo(0, () => res());
+        })
           .then(() => queryRunner.release())
           .then(() => job.progress(100))
           .then(() => (error ? reject(error) : resolve()))

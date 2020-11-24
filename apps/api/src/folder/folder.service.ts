@@ -1,4 +1,9 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import {
+  Inject,
+  Injectable,
+  forwardRef,
+  OnApplicationBootstrap
+} from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 
@@ -15,7 +20,7 @@ import {
 } from "./folder.exceptions";
 
 @Injectable()
-export class FolderService {
+export class FolderService implements OnApplicationBootstrap {
   constructor(
     @Inject(forwardRef(() => FileService))
     private readonly fileService: FileService,
@@ -24,6 +29,10 @@ export class FolderService {
 
   get folderRepository() {
     return this.uowService.getRepository(FolderEntity);
+  }
+
+  onApplicationBootstrap() {
+    console.log("hello from folder service");
   }
 
   async create(payload: {

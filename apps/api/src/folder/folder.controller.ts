@@ -20,7 +20,7 @@ import { UserEntity } from "../user/user.entity";
 import { FolderService } from "./folder.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderNotFound } from "./folder.exceptions";
+import { FolderNotFoundException } from "./folder.exceptions";
 
 @Controller("folders")
 @UseGuards(AuthGuard)
@@ -59,7 +59,7 @@ export class FolderController {
     @Param("id") id: string
   ): Promise<FolderEntity> {
     const folder = await this.folderService.findOne({ id, user });
-    if (!folder) throw new FolderNotFound(id);
+    if (!folder) throw new FolderNotFoundException(id);
 
     return folder;
   }
