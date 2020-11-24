@@ -5,7 +5,6 @@ import { Process, Processor } from "@nestjs/bull";
 import { Connection } from "typeorm";
 import { Job } from "bull";
 
-import { config } from "@quicksend/config";
 import { Counter } from "@quicksend/utils";
 
 import { StorageService } from "../storage/storage.service";
