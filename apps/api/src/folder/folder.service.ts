@@ -5,21 +5,20 @@ import { FindConditions } from "typeorm";
 import { FileService } from "../file/file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderEntity } from "./entities/folder.entity";
-import { UserEntity } from "../user/entities/user.entity";
+import { FolderEntity } from "./folder.entity";
+import { UserEntity } from "../user/user.entity";
 
 import {
   FolderAlreadyExists,
   FolderNotFound,
   ParentFolderNotFound
-} from "./folder.exception";
+} from "./folder.exceptions";
 
 @Injectable()
 export class FolderService {
   constructor(
     @Inject(forwardRef(() => FileService))
     private readonly fileService: FileService,
-
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -64,6 +63,10 @@ export class FolderService {
   ): Promise<FolderEntity> {
     const folder = await this.folderRepository.findOne(conditions);
     if (!folder) throw new FolderNotFound();
+
+    if (folder.isRoot) {
+      // Throw error
+    }
 
     return this.folderRepository.remove(folder);
   }

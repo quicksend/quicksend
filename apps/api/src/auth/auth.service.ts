@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-  InvalidCredentialsException,
-  UserNotActivated
-} from "./auth.exceptions";
+import { UserService } from "../user/user.service";
 
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 
-import { UserService } from "../user/user.service";
+import {
+  InvalidCredentialsException,
+  UserNotActivated
+} from "./auth.exceptions";
 
 @Injectable()
 export class AuthService {

@@ -1,8 +1,12 @@
-import { FailedFile } from "@quicksend/multiparter";
-import { FileEntity } from "../entities/file.entity";
+import { IncomingFile } from "@quicksend/multiparter";
+
+import { FileEntity } from "../file.entity";
 
 export class UploadResultsDto {
-  failed!: FailedFile[];
+  failed!: Array<{
+    error: string;
+    file: IncomingFile;
+  }>;
 
   succeeded!: FileEntity[];
 }

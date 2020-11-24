@@ -1,8 +1,11 @@
 import { EventEmitter } from "events";
 
 export class Counter extends EventEmitter {
-  constructor(private _value = 0) {
+  private _value: number;
+
+  constructor(value = 0) {
     super();
+    this._value = value;
   }
 
   get value(): number {

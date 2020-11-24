@@ -2,12 +2,11 @@ import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { FolderController } from "./folder.controller";
+import { FolderEntity } from "./folder.entity";
 import { FolderService } from "./folder.service";
 
 import { FileModule } from "../file/file.module";
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
-
-import { FolderEntity } from "./entities/folder.entity";
 
 @Module({
   imports: [

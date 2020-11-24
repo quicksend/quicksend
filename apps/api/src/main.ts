@@ -17,9 +17,11 @@ import { NestFactory, Reflector } from "@nestjs/core";
 
 import { config } from "@quicksend/config";
 
-import { AppModule } from "./app.module";
+import { RedisConfig } from "./common/config/redis.config";
 
 import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
+
+import { AppModule } from "./app.module";
 
 (async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -52,10 +54,7 @@ import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal
       saveUninitialized: false,
       secret: config.get("secrets").sessions,
       store: new (RedisStore(session))({
-        client: new Redis({
-          host: config.get("redis").hostname,
-          port: config.get("redis").port
-        })
+        client: new Redis(new RedisConfig())
       })
     })
   );

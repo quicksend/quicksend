@@ -14,13 +14,13 @@ import { CreateFolderDto } from "./dto/create-folder.dto";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 
-import { FolderEntity } from "./entities/folder.entity";
-import { UserEntity } from "../user/entities/user.entity";
+import { FolderEntity } from "./folder.entity";
+import { UserEntity } from "../user/user.entity";
 
 import { FolderService } from "./folder.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderNotFound } from "./folder.exception";
+import { FolderNotFound } from "./folder.exceptions";
 
 @Controller("folders")
 @UseGuards(AuthGuard)
@@ -42,7 +42,7 @@ export class FolderController {
   }
 
   @Delete(":id")
-  async deleteOne(
+  async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
@@ -54,7 +54,7 @@ export class FolderController {
   }
 
   @Get(":id")
-  async findOne(
+  async find(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {

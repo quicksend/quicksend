@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -20,8 +21,8 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { FileService } from "./file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FileEntity } from "./entities/file.entity";
-import { UserEntity } from "../user/entities/user.entity";
+import { FileEntity } from "./file.entity";
+import { UserEntity } from "../user/user.entity";
 
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
@@ -36,7 +37,7 @@ export class FileController {
   ) {}
 
   @Delete(":id")
-  async deleteOne(
+  async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
@@ -46,7 +47,7 @@ export class FileController {
   }
 
   @Get(":id")
-  async findOne(
+  async find(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
@@ -59,19 +60,22 @@ export class FileController {
   @Post("upload")
   async upload(
     @CurrentUser() user: UserEntity,
-    @Query("folder", new DefaultValuePipe(null))
-    folder: string | null,
+    @Query("parent", new DefaultValuePipe(null)) parent: string | null,
     @Req() req: Request
   ): Promise<UploadResultsDto> {
     const results = await this.uowService.withTransaction(() =>
       this.fileService.handleUpload(req, {
-        parent: folder,
+        parent,
         user
       })
     );
 
     return {
-      failed: results.failed,
+      failed: results.failed.map(({ error, file }) => ({
+        error: error.message,
+        file
+      })),
+
       succeeded: results.succeeded.map((file) => plainToClass(FileEntity, file))
     };
   }

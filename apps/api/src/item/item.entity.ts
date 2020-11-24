@@ -12,10 +12,12 @@ import { IsDate } from "class-validator";
 
 import { ItemModel } from "@quicksend/models";
 
-import { FileEntity } from "../../file/entities/file.entity";
+import { FileEntity } from "../file/file.entity";
 
-@Entity({ name: "items" })
+@Entity({ name: ItemEntity.TABLE_NAME })
 export class ItemEntity implements ItemModel {
+  static readonly TABLE_NAME = "item";
+
   @CreateDateColumn()
   @IsDate()
   createdAt!: Date;

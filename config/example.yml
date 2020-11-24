@@ -39,7 +39,7 @@ storage:
     files: 5
     fileSize: 10000000
   options:
-    directory: "/uploads"
+    directory: "/home/uploads"
 
 throttler:
   limit: 250

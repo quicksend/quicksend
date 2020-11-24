@@ -1,6 +1,4 @@
-import { Readable } from "stream";
-
-import { File } from "./file.interface";
+import { IncomingFile } from "./incoming-file.interface";
 import { StorageEngine } from "./storage-engine.interface";
 
 export interface MultiparterOptions {
@@ -10,7 +8,5 @@ export interface MultiparterOptions {
 
   field: string;
 
-  filter?: (file: File) => Promise<boolean>;
-
-  transformers?: ((file: File) => Readable)[];
+  filter?: (file: IncomingFile) => Promise<boolean>;
 }

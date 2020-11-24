@@ -16,11 +16,13 @@ import { IsAlphanumeric, IsDate, IsEmail } from "class-validator";
 
 import { UserModel } from "@quicksend/models";
 
-import { FileEntity } from "../../file/entities/file.entity";
-import { FolderEntity } from "../../folder/entities/folder.entity";
+import { FileEntity } from "../file/file.entity";
+import { FolderEntity } from "../folder/folder.entity";
 
-@Entity({ name: "users" })
+@Entity({ name: UserEntity.TABLE_NAME })
 export class UserEntity implements UserModel {
+  static readonly TABLE_NAME = "user";
+
   @Column({ default: false })
   @Exclude()
   activated!: boolean;

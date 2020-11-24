@@ -1,4 +1,4 @@
-import { createHash, Hash } from "crypto";
+import { Hash, createHash } from "crypto";
 
 import { PassThrough, TransformCallback } from "stream";
 

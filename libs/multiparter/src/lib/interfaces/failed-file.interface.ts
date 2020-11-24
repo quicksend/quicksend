@@ -1,6 +1,6 @@
 import { IncomingFile } from "./incoming-file.interface";
 
 export interface FailedFile {
-  error: string;
+  error: Error;
   file: IncomingFile;
 }

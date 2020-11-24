@@ -1,13 +1,12 @@
 import { Body, Controller, Delete, Post, Req } from "@nestjs/common";
 
+import { Request } from "../common/interfaces/request.interface";
+
 import { AuthService } from "./auth.service";
+import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
-
-import { Request } from "../common/interfaces/request.interface";
-
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 @Controller("auth")
 export class AuthController {

@@ -21,6 +21,7 @@ dependencies:
   js-yaml: 3.14.0
   nestjs-rate-limiter: 2.5.6
   pg: 8.4.1
+  pg-query-stream: 3.4.2
   pump: 3.0.0
   react: 16.13.1
   react-dom: 16.13.1_react@16.13.1
@@ -10761,6 +10762,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-3iBXuv7XKvxeMrIgym7njT+HlZkwZqqGX4Bu9cci8xHZNT+Um1gWKqCsAzcC0d95rcKMU5WBg6YRUcHyV0HZKQ==
+  /pg-cursor/2.5.1:
+    dev: false
+    resolution:
+      integrity: sha512-84ku3o+Nkg3vh3fLqW5wLPSGUXNZJl42Yd733EqXUpMe9HVzOTWmEury0l18kYadmB9f9ZnEMRcd8Dv/HhoYaw==
   /pg-int8/1.0.1:
     dev: false
     engines:
@@ -10779,6 +10784,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-64/bYByMrhWULUaCd+6/72c9PMWhiVFs3EVxl9Ct6a3v/U8+rKgqP2w+kKg/BIGgMJyB+Bk/eNivT32Al+Jghw==
+  /pg-query-stream/3.4.2:
+    dependencies:
+      pg-cursor: 2.5.1
+    dev: false
+    resolution:
+      integrity: sha512-kaTzsi5TQ3XG1KUznEV3MnstM1U4k5Z9cZ02PNmKLMFeYiPEn83FUc2pPVPiKKv93ITI8e5oCh+zEOunjy0ZwQ==
   /pg-types/2.2.0:
     dependencies:
       pg-int8: 1.0.1
@@ -14722,6 +14733,7 @@ specifiers:
   js-yaml: ^3.14.0
   nestjs-rate-limiter: ^2.5.6
   pg: ^8.4.1
+  pg-query-stream: ^3.4.2
   prettier: 2.0.4
   pump: ^3.0.0
   react: 16.13.1

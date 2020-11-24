@@ -1,13 +1,6 @@
-import { FolderModel } from "./folder.model";
-import { ItemModel } from "./item.model";
-import { UserModel } from "./user.model";
+import { FolderModel, GenericFileModel, ItemModel } from "@quicksend/models";
 
-export interface FileModel {
-  createdAt: Date;
-  deletedAt: Date;
-  id: string;
+export interface FileModel extends GenericFileModel {
   item: ItemModel;
-  name: string;
   parent: FolderModel;
-  user: UserModel;
 }

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   HttpStatus,
-  NotFoundException,
   PayloadTooLargeException,
   UnsupportedMediaTypeException
 } from "@nestjs/common";
@@ -16,12 +15,6 @@ export class FileTooLarge extends PayloadTooLargeException {
 
   static get description(): string {
     return `${FileTooLarge.name}: ${FileTooLarge.message}`;
-  }
-}
-
-export class ItemNotFound extends NotFoundException {
-  constructor(name?: string) {
-    super(name ? `Item '${name}' does not exist!` : "Item does not exist!");
   }
 }
 

@@ -1,5 +1,7 @@
 import { APP_INTERCEPTOR } from "@nestjs/core";
 
+import { BullModule, InjectQueue } from "@nestjs/bull";
+
 import {
   MiddlewareConsumer,
   Module,
@@ -7,33 +9,46 @@ import {
   RequestMethod
 } from "@nestjs/common";
 
+import { RateLimiterModule, RateLimiterInterceptor } from "nestjs-rate-limiter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { UI as BullBoard } from "bull-board";
-import { RateLimiterInterceptor, RateLimiterModule } from "nestjs-rate-limiter";
+import { UI as BullBoard, setQueues } from "bull-board";
+import { Queue } from "bull";
+
+import { AppController } from "./app.controller";
+
+import { RateLimiterConfig } from "./common/config/ratelimiter.config";
+import { SharedBullConfig } from "./common/config/shared-bull.config";
+import { TypeOrmConfig } from "./common/config/typeorm.config";
+
+import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
 import { AuthModule } from "./auth/auth.module";
 import { FileModule } from "./file/file.module";
 import { FolderModule } from "./folder/folder.module";
+import { ItemModule } from "./item/item.module";
+import { StorageModule } from "./storage/storage.module";
 import { UserModule } from "./user/user.module";
-
-import { RateLimiterConfig } from "./common/config/ratelimiter.config";
-import { RedisConfig } from "./common/config/redis.config";
-import { TypeOrmConfig } from "./common/config/typeorm.config";
-
-import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
 @Module({
   imports: [
     AuthModule,
 
+    BullModule.forRootAsync({
+      useClass: SharedBullConfig
+    }),
+
     FileModule,
 
     FolderModule,
 
+    ItemModule,
+
     RateLimiterModule.registerAsync({
       useClass: RateLimiterConfig
     }),
+
+    StorageModule,
 
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfig
@@ -41,17 +56,23 @@ import { SessionCheckMiddleware } from "./common/middlewares/session-check.middl
 
     UserModule
   ],
+  controllers: [AppController],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: RateLimiterInterceptor
-    },
-
-    RedisConfig
+    }
   ]
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
+  constructor(
+    @InjectQueue("item") itemProcessor: Queue,
+    @InjectQueue("storage") storageProcessor: Queue
+  ) {
+    setQueues([itemProcessor, storageProcessor]);
+  }
+
+  configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(SessionCheckMiddleware)
       .forRoutes({ method: RequestMethod.ALL, path: "*" });

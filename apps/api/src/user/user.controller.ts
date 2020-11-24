@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Post } from "@nestjs/common";
 
-import { PasswordIsIncorrectException } from "./user.exceptions";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
+
+import { UserEntity } from "./user.entity";
 import { UserService } from "./user.service";
 
 import { DeleteUserDto } from "./dto/delete-user.dto";
 
-import { UserEntity } from "./entities/user.entity";
-
-import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { PasswordIsIncorrectException } from "./user.exceptions";
 
 @Controller("user")
 export class UserController {
@@ -19,7 +19,7 @@ export class UserController {
   }
 
   @Post("@me/delete")
-  deleteOne(
+  delete(
     @Body() dto: DeleteUserDto,
     @CurrentUser() user: UserEntity
   ): Promise<void> {

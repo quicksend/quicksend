@@ -4,12 +4,11 @@ import * as path from "path";
 
 import { EventEmitter } from "events";
 import { IncomingMessage } from "http";
+import { Readable } from "stream";
 
 import { FailedFile } from "./interfaces/failed-file.interface";
-import { File } from "./interfaces/file.interface";
 import { IncomingFile } from "./interfaces/incoming-file.interface";
 import { MultiparterOptions } from "./interfaces/multiparter-options.interface";
-import { SavedFile } from "./interfaces/saved-file.interface";
 
 import {
   FileTooLarge,
@@ -23,17 +22,19 @@ import { Counter, HashCalculator, StreamMeter } from "@quicksend/utils";
 
 import { generateId, pump, settlePromises } from "@quicksend/utils";
 
+export type TransformerGenerator = (file: IncomingFile) => Readable;
+
 export class Multiparter extends EventEmitter {
-  readonly duplicates: SavedFile[] = [];
   readonly failed: FailedFile[] = [];
   readonly files: IncomingFile[] = [];
-  readonly succeeded: SavedFile[] = [];
+  readonly succeeded: IncomingFile[] = [];
 
   private _aborted = false;
   private _busboy: busboy.Busboy | null = null;
   private _finished = false;
 
-  private readonly pendingWrites = new Counter();
+  private readonly _transformers: TransformerGenerator[] = [];
+  private readonly _pendingWrites = new Counter();
 
   constructor(private readonly options: MultiparterOptions) {
     super();
@@ -47,16 +48,16 @@ export class Multiparter extends EventEmitter {
     return this._busboy;
   }
 
-  get engine() {
-    return this.options.engine;
-  }
-
-  get filter() {
-    return this.options.filter || (async () => true);
-  }
-
   get finished() {
     return this._finished;
+  }
+
+  get pendingWrites() {
+    return this._pendingWrites.value;
+  }
+
+  get storageEngine() {
+    return this.options.engine;
   }
 
   abort(error: Error | null) {
@@ -64,15 +65,21 @@ export class Multiparter extends EventEmitter {
 
     this._aborted = true;
 
-    this.pendingWrites.whenItEqualsTo(0, () =>
+    this._pendingWrites.whenItEqualsTo(0, () =>
       settlePromises(
         this.files
-          .map((file) => () => this.engine.delete(file.discriminator))
+          .map((file) => () => this.storageEngine.delete(file.discriminator))
           .map((fn) => fn())
       )
         .then(() => this.emit("aborted", error))
         .catch((err) => this.emit("aborted", err))
     );
+  }
+
+  addTransformer(transformer: TransformerGenerator): this {
+    this._transformers.push(transformer);
+
+    return this;
   }
 
   parse(req: IncomingMessage) {
@@ -129,7 +136,7 @@ export class Multiparter extends EventEmitter {
         resolve(this);
       });
 
-      req.pipe(busboy); // Don't start piping until all event listeners are attached
+      req.pipe(busboy);
     });
   }
 
@@ -142,24 +149,35 @@ export class Multiparter extends EventEmitter {
   }
 
   private _finish() {
-    if (!this.finished && this.pendingWrites.is(0)) {
+    if (!this._finished && this._pendingWrites.is(0)) {
       this._finished = true;
       this.emit("finished");
     }
   }
 
-  private async _handleFile(readable: NodeJS.ReadableStream, metadata: File) {
+  private async _handleFile(
+    readable: NodeJS.ReadableStream,
+    metadata: {
+      encoding: string;
+      filename: string;
+      mimetype: string;
+    }
+  ) {
     try {
       const discriminator = await generateId(8);
 
-      const incomingFile = Object.freeze({
-        ...metadata,
-        discriminator
-      });
+      const filter = this.options.filter || (async () => true);
 
-      const accept = await this.filter(metadata).catch((error: Error) => {
+      const incomingFile: IncomingFile = {
+        ...metadata,
+        discriminator,
+        hash: null,
+        size: 0
+      };
+
+      const accept = await filter(incomingFile).catch((error: Error) => {
         this.failed.push({
-          error: error.message,
+          error,
           file: incomingFile
         });
       });
@@ -168,53 +186,41 @@ export class Multiparter extends EventEmitter {
 
       const hash = new HashCalculator("sha256");
       const meter = new StreamMeter();
-      const writable = await this.engine.createWritable(discriminator);
+      const writable = await this.storageEngine.createWritable(discriminator);
 
       let fileTooLarge = false;
+
+      meter.on("data", () => (incomingFile.size += meter.size));
 
       readable
         .once("data", () => this.files.push(incomingFile))
         .once("limit", () => (fileTooLarge = true));
 
-      this.pendingWrites.increment();
+      this._pendingWrites.increment();
 
       await pump([
         readable,
         meter,
-        ...(this.options.transformers || []).map((transform) =>
-          transform(metadata)
-        ),
+        ...this._transformers.map((transform) => transform(incomingFile)),
         hash,
         writable
       ]);
 
-      this.pendingWrites.decrement();
+      this._pendingWrites.decrement();
+
+      incomingFile.hash = hash.digest;
 
       if (fileTooLarge) {
-        return this.failed.push({
-          error: new FileTooLarge(incomingFile.filename).message,
+        this.failed.push({
+          error: new FileTooLarge(incomingFile.filename),
           file: incomingFile
         });
+      } else {
+        this.succeeded.push(incomingFile);
+        this._finish();
       }
-
-      const savedFile = Object.freeze({
-        ...incomingFile,
-        hash: hash.digest,
-        size: meter.size
-      });
-
-      const isDuplicate = this.succeeded.find(
-        (file) => file.hash === savedFile.hash
-      );
-
-      if (isDuplicate) {
-        this.duplicates.push(savedFile);
-      }
-
-      this.succeeded.push(savedFile);
-      this._finish();
     } catch (error) {
-      this.pendingWrites.decrement();
+      this._pendingWrites.decrement();
       this.abort(error);
     }
   }

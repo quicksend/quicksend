@@ -4,26 +4,22 @@ import { FindConditions, FindOneOptions } from "typeorm";
 
 import { CreateUser } from "@quicksend/interfaces";
 
-import { FolderService } from "../folder/folder.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderEntity } from "../folder/entities/folder.entity";
-import { UserEntity } from "./entities/user.entity";
+import { FolderEntity } from "../folder/folder.entity";
+import { UserEntity } from "./user.entity";
 
 import { EmailTaken, UsernameTaken } from "./user.exceptions";
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly folderService: FolderService,
-    private readonly uowService: UnitOfWorkService
-  ) {}
+  constructor(private readonly uowService: UnitOfWorkService) {}
 
-  get folderRepository() {
+  private get folderRepository() {
     return this.uowService.getRepository(FolderEntity);
   }
 
-  get userRepository() {
+  private get userRepository() {
     return this.uowService.getRepository(UserEntity);
   }
 
@@ -46,13 +42,15 @@ export class UserService {
       throw new UsernameTaken();
     }
 
-    const user = await this.userRepository.save(
-      this.userRepository.create(payload)
-    );
+    const user = this.userRepository.create(payload);
+    const rootFolder = this.folderRepository.create({
+      isRoot: true,
+      name: "/",
+      user
+    });
 
-    await this.folderRepository.save(
-      this.folderRepository.create({ isRoot: true, name: "/", user })
-    );
+    await this.userRepository.save(user);
+    await this.folderRepository.save(rootFolder);
 
     return user;
   }

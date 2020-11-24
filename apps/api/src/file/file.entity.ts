@@ -4,22 +4,21 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn
 } from "typeorm";
 
 import { Exclude } from "class-transformer";
 import { IsDate } from "class-validator";
 
-import { FolderModel } from "@quicksend/models";
+import { FileModel } from "@quicksend/models";
 
-import { FileEntity } from "../../file/entities/file.entity";
-import { UserEntity } from "../../user/entities/user.entity";
+import { FolderEntity } from "../folder/folder.entity";
+import { ItemEntity } from "../item/item.entity";
+import { UserEntity } from "../user/user.entity";
 
-@Entity({ name: "folders" })
-export class FolderEntity implements FolderModel {
-  @OneToMany(() => FolderEntity, (folder) => folder.parent)
-  children!: FolderEntity[];
+@Entity({ name: FileEntity.TABLE_NAME })
+export class FileEntity implements FileModel {
+  static readonly TABLE_NAME = "file";
 
   @CreateDateColumn()
   @IsDate()
@@ -30,23 +29,25 @@ export class FolderEntity implements FolderModel {
   @IsDate()
   deletedAt!: Date;
 
-  @OneToMany(() => FileEntity, (file) => file.parent)
-  files!: FileEntity[];
-
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column({ default: false })
-  isRoot!: boolean;
+  @ManyToOne(() => ItemEntity, (item) => item.files, {
+    eager: true
+  })
+  item!: ItemEntity;
 
   @Column()
   name!: string;
 
   @ManyToOne(() => FolderEntity, (folder) => folder.children, {
+    eager: true,
     onDelete: "CASCADE"
   })
   parent!: FolderEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.folders)
+  @ManyToOne(() => UserEntity, (user) => user.files, {
+    eager: true
+  })
   user!: UserEntity;
 }
