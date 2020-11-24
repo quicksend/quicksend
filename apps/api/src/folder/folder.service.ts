@@ -9,9 +9,9 @@ import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import {
-  FolderAlreadyExists,
-  FolderNotFound,
-  ParentFolderNotFound
+  FolderAlreadyExistsException,
+  FolderNotFoundException,
+  ParentFolderNotFoundException
 } from "./folder.exceptions";
 
 @Injectable()
@@ -38,7 +38,7 @@ export class FolderService {
     );
 
     if (!parent) {
-      throw new ParentFolderNotFound();
+      throw new ParentFolderNotFoundException();
     }
 
     const folder = this.folderRepository.create({
@@ -52,7 +52,7 @@ export class FolderService {
       (await this.folderRepository.findOne(folder));
 
     if (exist) {
-      throw new FolderAlreadyExists(payload.name, parent.name);
+      throw new FolderAlreadyExistsException(payload.name, parent.name);
     }
 
     return this.folderRepository.save(folder);
@@ -62,7 +62,7 @@ export class FolderService {
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
     const folder = await this.folderRepository.findOne(conditions);
-    if (!folder) throw new FolderNotFound();
+    if (!folder) throw new FolderNotFoundException();
 
     if (folder.isRoot) {
       // Throw error

@@ -1,6 +1,6 @@
 import { ConflictException, NotFoundException } from "@nestjs/common";
 
-export class FolderAlreadyExists extends ConflictException {
+export class FolderAlreadyExistsException extends ConflictException {
   constructor(name: string | number, path?: string) {
     path
       ? super(`Folder '${name}' already exists at '${path}'`)
@@ -8,7 +8,7 @@ export class FolderAlreadyExists extends ConflictException {
   }
 }
 
-export class FolderNotFound extends NotFoundException {
+export class FolderNotFoundException extends NotFoundException {
   constructor(name?: string | number) {
     name
       ? super(`Folder '${name}' does not exist!`)
@@ -16,7 +16,7 @@ export class FolderNotFound extends NotFoundException {
   }
 }
 
-export class ParentFolderNotFound extends NotFoundException {
+export class ParentFolderNotFoundException extends NotFoundException {
   constructor(name?: string | number) {
     name
       ? super(`Parent folder '${name}' does not exist!`)

@@ -22,7 +22,7 @@ import {
   FileNotFoundException
 } from "./file.exceptions";
 
-import { ParentFolderNotFound } from "../folder/folder.exceptions";
+import { ParentFolderNotFoundException } from "../folder/folder.exceptions";
 
 import { settlePromises } from "@quicksend/utils";
 
@@ -104,7 +104,7 @@ export class FileService {
       );
 
       if (!parent) {
-        throw new ParentFolderNotFound();
+        throw new ParentFolderNotFoundException();
       }
 
       for (const fileWritten of multiparter.succeeded) {
