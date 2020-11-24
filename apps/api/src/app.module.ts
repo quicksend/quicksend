@@ -6,14 +6,17 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
+  OnModuleInit,
   RequestMethod
 } from "@nestjs/common";
 
 import { RateLimiterModule, RateLimiterInterceptor } from "nestjs-rate-limiter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { UI as BullBoard, setQueues } from "bull-board";
 import { Queue } from "bull";
+import { router, setQueues } from "bull-board";
+
+import { config } from "@quicksend/config";
 
 import { AppController } from "./app.controller";
 
@@ -64,12 +67,28 @@ import { UserModule } from "./user/user.module";
     }
   ]
 })
-export class AppModule implements NestModule {
+export class AppModule implements NestModule, OnModuleInit {
   constructor(
-    @InjectQueue("item") itemProcessor: Queue,
-    @InjectQueue("storage") storageProcessor: Queue
+    @InjectQueue("item") private readonly itemProcessor: Queue,
+    @InjectQueue("storage") private readonly storageProcessor: Queue
   ) {
-    setQueues([itemProcessor, storageProcessor]);
+    setQueues([this.itemProcessor, this.storageProcessor]);
+  }
+
+  async onModuleInit(): Promise<void> {
+    await this.itemProcessor.removeJobs("*");
+    await this.itemProcessor.add(
+      "deleteOrphanedItems",
+      {
+        threshold: config.get("advanced").garbageCollector.threshold
+      },
+      {
+        removeOnComplete: true,
+        repeat: {
+          every: config.get("advanced").garbageCollector.frequency
+        }
+      }
+    );
   }
 
   configure(consumer: MiddlewareConsumer): void {
@@ -77,8 +96,6 @@ export class AppModule implements NestModule {
       .apply(SessionCheckMiddleware)
       .forRoutes({ method: RequestMethod.ALL, path: "*" });
 
-    consumer
-      .apply(BullBoard)
-      .forRoutes({ method: RequestMethod.ALL, path: "queues" });
+    consumer.apply(router).forRoutes({ method: RequestMethod.ALL, path: "/" });
   }
 }

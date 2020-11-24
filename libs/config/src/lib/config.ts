@@ -12,6 +12,20 @@ convict.addParser({
 });
 
 const config = convict<Config>({
+  advanced: {
+    garbageCollector: {
+      frequency: {
+        doc: "",
+        default: 60000,
+        format: "nat"
+      },
+      threshold: {
+        default: 250,
+        format: "nat"
+      }
+    }
+  },
+
   branding: {
     default: "Quicksend",
     format: String
@@ -161,7 +175,7 @@ const config = convict<Config>({
       },
       fileSize: {
         doc: "maximum size per file when uploading",
-        default: 25 * 1024 * 1024,
+        default: 100 * 1024 * 1024,
         format: "nat"
       }
     },

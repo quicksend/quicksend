@@ -13,7 +13,7 @@ export const AUTH_GUARD_SCOPES = "AUTH_GUARD_SCOPES";
 export class AuthGuard implements CanActivate {
   constructor(private readonly userService: UserService) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request>();
 
     return this._handleSession(req);

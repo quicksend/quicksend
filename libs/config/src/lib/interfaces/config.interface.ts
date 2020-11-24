@@ -1,4 +1,11 @@
 export interface Config {
+  advanced: {
+    garbageCollector: {
+      frequency: number;
+      threshold: number;
+    };
+  };
+
   branding: string;
 
   database: {

@@ -59,7 +59,5 @@ import { AppModule } from "./app.module";
     })
   );
 
-  await app.listen(port);
-
-  Logger.log(`Listening on port ${port}`);
+  app.listen(port, () => Logger.log(`Listening on port ${port}`));
 })();
