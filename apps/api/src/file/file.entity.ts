@@ -33,9 +33,10 @@ export class FileEntity implements FileModel {
   id!: string;
 
   @ManyToOne(() => ItemEntity, (item) => item.files, {
-    eager: true
+    eager: true,
+    onDelete: "SET NULL"
   })
-  item!: ItemEntity;
+  item!: ItemEntity | null;
 
   @Column()
   name!: string;

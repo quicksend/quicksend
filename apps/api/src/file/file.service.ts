@@ -2,6 +2,7 @@ import { Inject, Injectable, forwardRef } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 import { IncomingMessage } from "http";
+import { Readable } from "stream";
 
 import { FailedFile, MultiparterOptions } from "@quicksend/multiparter";
 
@@ -15,7 +16,12 @@ import { UserEntity } from "../user/user.entity";
 
 import { UploadResults } from "./interfaces/upload-results.interface";
 
-import { FileAlreadyExists, FileNotFound } from "./file.exceptions";
+import {
+  FileAlreadyExistsException,
+  FileIsGhostedException,
+  FileNotFoundException
+} from "./file.exceptions";
+
 import { ParentFolderNotFound } from "../folder/folder.exceptions";
 
 import { settlePromises } from "@quicksend/utils";
@@ -34,25 +40,38 @@ export class FileService {
     return this.uowService.getRepository(FileEntity);
   }
 
+  async createDownloadStream(
+    conditions: FindConditions<FileEntity>
+  ): Promise<Readable> {
+    const file = await this.fileRepository.findOne(conditions);
+
+    if (!file) throw new FileNotFoundException();
+    if (!file.item) throw new FileIsGhostedException("download");
+
+    return this.storageService.read(file.item.discriminator);
+  }
+
   async deleteOne(conditions: FindConditions<FileEntity>): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(conditions);
-    if (!file) throw new FileNotFound();
+    if (!file) throw new FileNotFoundException();
 
     await this.fileRepository.remove(file);
 
-    const count = await this.fileRepository.count({
-      take: 1,
-      where: {
-        item: file.item.id
+    if (file.item) {
+      const count = await this.fileRepository.count({
+        take: 1,
+        where: {
+          item: file.item.id
+        }
+      });
+
+      // If there are no other files that reference the related item, then it should be deleted
+      if (count === 0) {
+        const { discriminator } = file.item;
+
+        await this.itemService.deleteOne({ discriminator });
+        await this.storageService.delete(discriminator);
       }
-    });
-
-    // If there are no other files that reference the related item, then it should be deleted
-    if (count === 0) {
-      const { discriminator } = file.item;
-
-      await this.itemService.deleteOne({ discriminator });
-      await this.storageService.delete(discriminator);
     }
 
     return file;
@@ -101,7 +120,7 @@ export class FileService {
 
         if (filenameConflict) {
           failed.push({
-            error: new FileAlreadyExists(file.name, parent.name),
+            error: new FileAlreadyExistsException(file.name, parent.name),
             file: fileWritten
           });
 

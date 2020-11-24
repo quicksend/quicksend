@@ -1,7 +1,12 @@
-import { GenericFileModel } from "@quicksend/models";
+import { UserModel } from "@quicksend/models";
 
-export interface FolderModel extends GenericFileModel {
-  children: GenericFileModel[];
+export interface FolderModel {
+  children: FolderModel[];
+  createdAt: Date;
+  deletedAt: Date;
+  id: string;
   isRoot: boolean;
+  name: string;
   parent: FolderModel;
+  user: UserModel;
 }
