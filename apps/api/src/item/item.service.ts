@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 
+import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { ItemEntity } from "./item.entity";
@@ -10,7 +11,10 @@ import { ItemNotFound } from "./item.exceptions";
 
 @Injectable()
 export class ItemService {
-  constructor(private readonly uowService: UnitOfWorkService) {}
+  constructor(
+    private readonly storageService: StorageService,
+    private readonly uowService: UnitOfWorkService
+  ) {}
 
   private get itemRepository() {
     return this.uowService.getRepository(ItemEntity);
@@ -36,6 +40,7 @@ export class ItemService {
     if (!item) throw new ItemNotFound();
 
     await this.itemRepository.remove(item);
+    await this.storageService.delete(item.discriminator);
 
     return item;
   }

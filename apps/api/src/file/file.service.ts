@@ -67,10 +67,9 @@ export class FileService {
 
       // If there are no other files that reference the related item, then it should be deleted
       if (count === 0) {
-        const { discriminator } = file.item;
-
-        await this.itemService.deleteOne({ discriminator });
-        await this.storageService.delete(discriminator);
+        await this.itemService.deleteOne({
+          discriminator: file.item.discriminator
+        });
       }
     }
 
