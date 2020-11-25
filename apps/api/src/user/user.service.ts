@@ -43,13 +43,15 @@ export class UserService {
     }
 
     const user = this.userRepository.create(payload);
+
+    await this.userRepository.save(user);
+
     const rootFolder = this.folderRepository.create({
       isRoot: true,
       name: "/",
       user
     });
 
-    await this.userRepository.save(user);
     await this.folderRepository.save(rootFolder);
 
     return user;
