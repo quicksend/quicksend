@@ -7,8 +7,8 @@ import {
   Connection,
   EntityManager,
   EntitySchema,
-  Repository,
   ObjectType,
+  Repository,
   getRepository
 } from "typeorm";
 
