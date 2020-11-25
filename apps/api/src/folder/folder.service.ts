@@ -1,9 +1,9 @@
 import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 
-import { FindConditions } from "typeorm";
+import { FindConditions, Repository } from "typeorm";
 
 import { FileService } from "../file/file.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
@@ -19,12 +19,10 @@ export class FolderService {
   constructor(
     @Inject(forwardRef(() => FileService))
     private readonly fileService: FileService,
-    private readonly uowService: UnitOfWorkService
-  ) {}
 
-  get folderRepository() {
-    return this.uowService.getRepository(FolderEntity);
-  }
+    @InjectRepository(FolderEntity)
+    private readonly folderRepository: Repository<FolderEntity>
+  ) {}
 
   async create(payload: {
     name: string;

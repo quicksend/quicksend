@@ -6,15 +6,12 @@ import { FolderEntity } from "./folder.entity";
 import { FolderService } from "./folder.service";
 
 import { FileModule } from "../file/file.module";
-import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
 
 @Module({
   imports: [
     forwardRef(() => FileModule),
 
-    TypeOrmModule.forFeature([FolderEntity]),
-
-    UnitOfWorkModule
+    TypeOrmModule.forFeature([FolderEntity])
   ],
   controllers: [FolderController],
   exports: [FolderService],

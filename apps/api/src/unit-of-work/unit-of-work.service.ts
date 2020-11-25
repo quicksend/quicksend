@@ -1,4 +1,5 @@
 // https://aaronboman.com/programming/2020/05/15/per-request-database-transactions-with-nestjs-and-typeorm/
+// Any injectable that uses this service will lose the capability of using lifecycle events as UnitOfWorkService is request scoped
 
 import { Injectable, Scope } from "@nestjs/common";
 import { InjectConnection } from "@nestjs/typeorm";
