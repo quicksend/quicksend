@@ -7,7 +7,7 @@ import { RegisterDto } from "./dto/register.dto";
 
 import {
   InvalidCredentialsException,
-  UserNotActivated
+  UserNotActivatedException
 } from "./auth.exceptions";
 
 @Injectable()
@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     if (!user.activated) {
-      throw new UserNotActivated();
+      throw new UserNotActivatedException();
     }
 
     return user;

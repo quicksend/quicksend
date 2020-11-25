@@ -1,6 +1,6 @@
 import { ConflictException, UnauthorizedException } from "@nestjs/common";
 
-export class EmailTaken extends ConflictException {
+export class EmailTakenException extends ConflictException {
   constructor() {
     super("Email is already in use!");
   }
@@ -12,7 +12,7 @@ export class PasswordIsIncorrectException extends UnauthorizedException {
   }
 }
 
-export class UsernameTaken extends ConflictException {
+export class UsernameTakenException extends ConflictException {
   constructor() {
     super("Username is already in use!");
   }

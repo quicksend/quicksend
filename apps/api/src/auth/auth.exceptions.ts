@@ -6,7 +6,7 @@ export class InvalidCredentialsException extends UnauthorizedException {
   }
 }
 
-export class UserNotActivated extends ForbiddenException {
+export class UserNotActivatedException extends ForbiddenException {
   constructor() {
     super("Please activate your account first!");
   }

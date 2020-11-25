@@ -9,7 +9,7 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { FolderEntity } from "../folder/folder.entity";
 import { UserEntity } from "./user.entity";
 
-import { EmailTaken, UsernameTaken } from "./user.exceptions";
+import { EmailTakenException, UsernameTakenException } from "./user.exceptions";
 
 @Injectable()
 export class UserService {
@@ -30,7 +30,7 @@ export class UserService {
     );
 
     if (isEmailTaken) {
-      throw new EmailTaken();
+      throw new EmailTakenException();
     }
 
     const isUsernameTaken = await this.userRepository.findOne(
@@ -39,7 +39,7 @@ export class UserService {
     );
 
     if (isUsernameTaken) {
-      throw new UsernameTaken();
+      throw new UsernameTakenException();
     }
 
     const user = this.userRepository.create(payload);
