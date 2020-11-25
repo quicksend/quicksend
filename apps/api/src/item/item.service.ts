@@ -1,6 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnApplicationBootstrap } from "@nestjs/common";
+import { InjectQueue } from "@nestjs/bull";
 
 import { FindConditions } from "typeorm";
+import { Queue } from "bull";
+
+import { config } from "@quicksend/config";
 
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
@@ -9,11 +13,32 @@ import { ItemEntity } from "./item.entity";
 import { ItemNotFound } from "./item.exceptions";
 
 @Injectable()
-export class ItemService {
-  constructor(private readonly uowService: UnitOfWorkService) {}
+export class ItemService implements OnApplicationBootstrap {
+  constructor(
+    private readonly uowService: UnitOfWorkService,
+
+    @InjectQueue("item")
+    private readonly itemProcessor: Queue
+  ) {}
 
   private get itemRepository() {
     return this.uowService.getRepository(ItemEntity);
+  }
+
+  async onApplicationBootstrap(): Promise<void> {
+    await this.itemProcessor.removeJobs("*");
+    await this.itemProcessor.add(
+      "deleteOrphanedItems",
+      {
+        threshold: config.get("advanced").garbageCollector.threshold
+      },
+      {
+        removeOnComplete: true,
+        repeat: {
+          every: config.get("advanced").garbageCollector.frequency
+        }
+      }
+    );
   }
 
   async create(payload: {
