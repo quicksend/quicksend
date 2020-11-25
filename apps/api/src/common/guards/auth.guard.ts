@@ -2,7 +2,10 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
 import { Request } from "../interfaces/request.interface";
 
-import { UserNotLoggedInException } from "../../auth/auth.exceptions";
+import {
+  UserNotActivatedException,
+  UserNotLoggedInException
+} from "../../auth/auth.exceptions";
 
 import { UserService } from "../../user/user.service";
 
@@ -28,6 +31,10 @@ export class AuthGuard implements CanActivate {
 
     if (!user) {
       throw new UserNotLoggedInException();
+    }
+
+    if (!user.activated) {
+      throw new UserNotActivatedException();
     }
 
     req.user = user;
