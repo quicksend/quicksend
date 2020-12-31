@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   Logger,
   Param,
+  ParseUUIDPipe,
   Post,
   Query,
   Req,
@@ -42,7 +43,7 @@ export class FileController {
   @Delete(":id")
   async delete(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
   ): Promise<FileEntity> {
     return this.uowService.withTransaction(() =>
       this.fileService.deleteOne({ id, user })
@@ -52,7 +53,7 @@ export class FileController {
   @Get(":id")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
   ): Promise<FileEntity> {
     const file = await this.fileService.findOne({ id, user });
     if (!file) throw new FileNotFoundException();
@@ -63,7 +64,7 @@ export class FileController {
   @Get("download/:id")
   async download(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string,
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
     @Res() response: Response
   ): Promise<void> {
     const readable = await this.fileService.createDownloadStream({ id, user });
@@ -85,7 +86,12 @@ export class FileController {
   @Post("upload")
   async upload(
     @CurrentUser() user: UserEntity,
-    @Query("parent", new DefaultValuePipe(null)) parent: string | null,
+    @Query(
+      "parent",
+      new DefaultValuePipe(null),
+      new ParseUUIDPipe({ version: "4" })
+    )
+    parent: string | null,
     @Req() request: Request
   ): Promise<UploadResultsDto> {
     const results = await this.uowService.withTransaction(() =>

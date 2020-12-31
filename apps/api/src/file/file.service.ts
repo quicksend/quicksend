@@ -153,6 +153,7 @@ export class FileService {
       );
     } catch (error) {
       await multiparter.abort(error);
+
       throw error;
     }
 

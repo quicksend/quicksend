@@ -1,10 +1,5 @@
 # Replace all values of "CHANGE_THIS" to actual values
 
-advanced:
-  garbageCollector:
-    frequency: 60000 # how frequent orphaned files should be deleted from storage engine
-    threshold: 250 # maximum number of orphaned files to delete at once
-
 database:
   hostname: "localhost"
   name: "quicksend"
@@ -42,9 +37,9 @@ storage:
   engine: "disk"
   limits:
     files: 5
-    fileSize: 104857600
+    fileSize: 10000000
   options:
-    directory: "/home/uploads"
+    directory: "/uploads"
 
 throttler:
   limit: 250

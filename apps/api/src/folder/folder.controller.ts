@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   UseGuards
@@ -40,7 +41,7 @@ export class FolderController {
   @Delete(":id")
   async delete(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
   ): Promise<FolderEntity> {
     return this.folderService.deleteOne({ id, user });
   }
@@ -48,7 +49,7 @@ export class FolderController {
   @Get(":id")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
   ): Promise<FolderEntity> {
     const folder = await this.folderService.findOne({ id, user });
     if (!folder) throw new FolderNotFoundException(id);

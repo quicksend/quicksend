@@ -13,8 +13,8 @@ import {
 import { RateLimiterModule, RateLimiterInterceptor } from "nestjs-rate-limiter";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
+import { BullAdapter, router, setQueues } from "bull-board";
 import { Queue } from "bull";
-import { router, setQueues } from "bull-board";
 
 import { config } from "@quicksend/config";
 
@@ -72,7 +72,10 @@ export class AppModule implements NestModule, OnModuleInit {
     @InjectQueue("item") private readonly itemProcessor: Queue,
     @InjectQueue("storage") private readonly storageProcessor: Queue
   ) {
-    setQueues([this.itemProcessor, this.storageProcessor]);
+    setQueues([
+      new BullAdapter(this.itemProcessor),
+      new BullAdapter(this.storageProcessor)
+    ]);
   }
 
   async onModuleInit(): Promise<void> {
