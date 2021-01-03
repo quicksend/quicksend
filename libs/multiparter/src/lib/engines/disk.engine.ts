@@ -18,7 +18,7 @@ export class DiskStorageEngine implements StorageEngine {
     }
   }
 
-  createReadable(filename: string): Readable {
+  async createReadable(filename: string): Promise<Readable> {
     return fs.createReadStream(this._getLocationOnDisk(filename));
   }
 
