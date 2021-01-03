@@ -60,7 +60,7 @@ export class Multiparter extends EventEmitter {
     return this.options.engine;
   }
 
-  abort(error: Error | null) {
+  abort(error: Error | null): Promise<void> {
     if (this._aborted) return;
 
     this._aborted = true;
@@ -76,13 +76,13 @@ export class Multiparter extends EventEmitter {
     );
   }
 
-  addTransformer(transformer: TransformerGenerator) {
+  addTransformer(transformer: TransformerGenerator): this {
     this._transformers.push(transformer);
 
     return this;
   }
 
-  parse(req: IncomingMessage) {
+  parse(req: IncomingMessage): Promise<this> {
     const busboy = this._createBusboy({
       ...this.options.busboy,
       headers: req.headers
@@ -126,13 +126,13 @@ export class Multiparter extends EventEmitter {
 
     this._busboy = busboy;
 
-    return new Promise<this>((resolve, reject) => {
-      this.on("aborted", (error: Error | null) => {
+    return new Promise((resolve, reject) => {
+      this.once("aborted", (error: Error | null) => {
         if (error) reject(error);
         else resolve(this);
       });
 
-      this.on("finished", () => {
+      this.once("finished", () => {
         resolve(this);
       });
 
