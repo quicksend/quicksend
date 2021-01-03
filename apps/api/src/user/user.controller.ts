@@ -3,8 +3,10 @@ import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { AuthGuard } from "../common/guards/auth.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 
-import { UserEntity } from "./user.entity";
+import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { UserService } from "./user.service";
+
+import { UserEntity } from "./user.entity";
 
 import { DeleteUserDto } from "./dto/delete-user.dto";
 
@@ -13,7 +15,10 @@ import { PasswordIsIncorrectException } from "./user.exceptions";
 @Controller("user")
 @UseGuards(AuthGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly uowService: UnitOfWorkService,
+    private readonly userService: UserService
+  ) {}
 
   @Get("@me")
   me(@CurrentUser() user: UserEntity): UserEntity {
@@ -29,6 +34,8 @@ export class UserController {
       throw new PasswordIsIncorrectException();
     }
 
-    return this.userService.deleteOne(user);
+    return this.uowService.withTransaction(() =>
+      this.userService.deleteOne(user)
+    );
   }
 }

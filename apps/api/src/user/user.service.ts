@@ -58,7 +58,12 @@ export class UserService {
   }
 
   async deleteOne(user: UserEntity): Promise<void> {
-    await this.userRepository.softDelete({ id: user.id });
+    const rootFolders = await this.folderRepository.find({
+      isRoot: true,
+      user
+    });
+
+    await this.folderRepository.remove(rootFolders);
 
     user.activated = false;
     user.admin = false;
@@ -66,6 +71,7 @@ export class UserService {
     user.password = null;
 
     await this.userRepository.save(user);
+    await this.userRepository.softDelete({ id: user.id });
   }
 
   findOne(
