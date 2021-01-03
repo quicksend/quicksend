@@ -190,7 +190,9 @@ export class Multiparter extends EventEmitter {
 
       let fileTooLarge = false;
 
-      meter.on("data", () => (incomingFile.size += meter.size));
+      meter.on("data", () => {
+        incomingFile.size = meter.size;
+      });
 
       readable
         .once("data", () => this.files.push(incomingFile))
