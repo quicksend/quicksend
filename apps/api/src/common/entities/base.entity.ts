@@ -3,12 +3,19 @@ import {
   BeforeUpdate,
   CreateDateColumn,
   DeleteDateColumn,
-  PrimaryGeneratedColumn
+  PrimaryColumn
 } from "typeorm";
+
+import { customAlphabet } from "nanoid/async";
 
 import { Exclude } from "class-transformer";
 
 import { ValidateIf, validateOrReject } from "class-validator";
+
+const nanoid = customAlphabet(
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz",
+  21
+);
 
 export abstract class BaseEntity {
   @CreateDateColumn()
@@ -19,11 +26,13 @@ export abstract class BaseEntity {
   @ValidateIf((_object, value) => value !== null)
   deletedAt!: Date | null;
 
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryColumn()
   id!: string;
 
   @BeforeInsert()
-  beforeInsert() {
+  async beforeInsert() {
+    this.id = await nanoid();
+
     return validateOrReject(this, {
       // properties can be undefined if it's optional, so we don't want
       // class validator to throw an error for those optional properties

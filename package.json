@@ -48,6 +48,7 @@
     "helmet": "^4.2.0",
     "ioredis": "^4.19.2",
     "js-yaml": "^3.14.0",
+    "nanoid": "^3.1.20",
     "nestjs-rate-limiter": "^2.5.6",
     "pg": "^8.5.1",
     "pg-query-stream": "^3.4.2",
