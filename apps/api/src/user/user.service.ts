@@ -59,6 +59,13 @@ export class UserService {
 
   async deleteOne(user: UserEntity): Promise<void> {
     await this.userRepository.softDelete({ id: user.id });
+
+    user.activated = false;
+    user.admin = false;
+    user.email = null;
+    user.password = null;
+
+    await this.userRepository.save(user);
   }
 
   findOne(

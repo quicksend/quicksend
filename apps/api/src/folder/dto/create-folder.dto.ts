@@ -15,7 +15,6 @@ export class CreateFolderDto implements CreateFolder {
   name!: string;
 
   @IsOptional()
-  @IsString()
   @IsUUID(4)
   parent!: string;
 }

@@ -20,9 +20,9 @@ import { config } from "@quicksend/config";
 
 import { AppController } from "./app.controller";
 
-import { RateLimiterConfig } from "./common/config/ratelimiter.config";
-import { SharedBullConfig } from "./common/config/shared-bull.config";
-import { TypeOrmConfig } from "./common/config/typeorm.config";
+import { RateLimiterConfig } from "./common/configs/ratelimiter.config";
+import { SharedBullConfig } from "./common/configs/shared-bull.config";
+import { TypeOrmConfig } from "./common/configs/typeorm.config";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 

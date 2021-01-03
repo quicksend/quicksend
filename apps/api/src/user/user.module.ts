@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserController } from "./user.controller";
 import { UserEntity } from "./user.entity";
 import { UserService } from "./user.service";
+import { UserSubscriber } from "./user.subscriber";
 
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
 
@@ -12,6 +13,6 @@ import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
   imports: [TypeOrmModule.forFeature([UserEntity]), UnitOfWorkModule],
   controllers: [UserController],
   exports: [UserService],
-  providers: [UserService]
+  providers: [UserService, UserSubscriber]
 })
 export class UserModule {}

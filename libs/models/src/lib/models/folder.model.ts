@@ -3,7 +3,7 @@ import { UserModel } from "@quicksend/models";
 export interface FolderModel {
   children: FolderModel[];
   createdAt: Date;
-  deletedAt: Date;
+  deletedAt: Date | null;
   id: string;
   isRoot: boolean;
   name: string;

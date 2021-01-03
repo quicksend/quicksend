@@ -85,7 +85,7 @@ export class FileService {
   async handleUpload(
     req: IncomingMessage,
     payload: {
-      parent: string | null;
+      parent?: string;
       user: UserEntity;
     },
     options?: Partial<MultiparterOptions>

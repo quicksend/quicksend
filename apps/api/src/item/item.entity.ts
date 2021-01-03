@@ -1,31 +1,14 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn
-} from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 
 import { Exclude } from "class-transformer";
-import { IsDate } from "class-validator";
 
-import { ItemModel } from "@quicksend/models";
+import { BaseEntity } from "../common/entities/base.entity";
 
 import { FileEntity } from "../file/file.entity";
 
 @Entity({ name: ItemEntity.TABLE_NAME })
-export class ItemEntity implements ItemModel {
+export class ItemEntity extends BaseEntity {
   static readonly TABLE_NAME = "item";
-
-  @CreateDateColumn()
-  @IsDate()
-  createdAt!: Date;
-
-  @DeleteDateColumn()
-  @Exclude()
-  @IsDate()
-  deletedAt!: Date;
 
   @Column({ unique: true })
   @Exclude()
@@ -36,9 +19,6 @@ export class ItemEntity implements ItemModel {
 
   @Column({ unique: true })
   hash!: string;
-
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
 
   @Column()
   size!: number;

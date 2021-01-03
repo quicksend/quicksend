@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseUUIDPipe,
   Post,
   Put,
   UseGuards
@@ -14,6 +13,7 @@ import { CreateFolderDto } from "./dto/create-folder.dto";
 
 import { AuthGuard } from "../common/guards/auth.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { ParseUUIDV4Pipe } from "../common/pipes/parse-uuid-v4.pipe";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
@@ -41,7 +41,7 @@ export class FolderController {
   @Delete(":id")
   async delete(
     @CurrentUser() user: UserEntity,
-    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
+    @Param("id", ParseUUIDV4Pipe) id: string
   ): Promise<FolderEntity> {
     return this.folderService.deleteOne({ id, user });
   }
@@ -49,7 +49,7 @@ export class FolderController {
   @Get(":id")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
+    @Param("id", ParseUUIDV4Pipe) id: string
   ): Promise<FolderEntity> {
     const folder = await this.folderService.findOne({ id, user });
     if (!folder) throw new FolderNotFoundException(id);

@@ -1,15 +1,12 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   InternalServerErrorException,
   Logger,
   Param,
-  ParseUUIDPipe,
   Post,
-  Query,
   Req,
   Res,
   UseGuards
@@ -20,7 +17,12 @@ import { Request, Response } from "express";
 import { plainToClass } from "class-transformer";
 
 import { AuthGuard } from "../common/guards/auth.guard";
+
 import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { JSONHeader } from "../common/decorators/json-header.decorator";
+
+import { CustomDecoratorValidator } from "../common/pipes/custom-decorator-validator.pipe";
+import { ParseUUIDV4Pipe } from "../common/pipes/parse-uuid-v4.pipe";
 
 import { FileService } from "./file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
@@ -28,6 +30,7 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
 
+import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
 import { FileNotFoundException } from "./file.exceptions";
@@ -43,7 +46,7 @@ export class FileController {
   @Delete(":id")
   async delete(
     @CurrentUser() user: UserEntity,
-    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
+    @Param("id", ParseUUIDV4Pipe) id: string
   ): Promise<FileEntity> {
     return this.uowService.withTransaction(() =>
       this.fileService.deleteOne({ id, user })
@@ -53,7 +56,7 @@ export class FileController {
   @Get(":id")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string
+    @Param("id", ParseUUIDV4Pipe) id: string
   ): Promise<FileEntity> {
     const file = await this.fileService.findOne({ id, user });
     if (!file) throw new FileNotFoundException();
@@ -64,7 +67,7 @@ export class FileController {
   @Get("download/:id")
   async download(
     @CurrentUser() user: UserEntity,
-    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Param("id", ParseUUIDV4Pipe) id: string,
     @Res() response: Response
   ): Promise<void> {
     const readable = await this.fileService.createDownloadStream({ id, user });
@@ -86,17 +89,12 @@ export class FileController {
   @Post("upload")
   async upload(
     @CurrentUser() user: UserEntity,
-    @Query(
-      "parent",
-      new DefaultValuePipe(null),
-      new ParseUUIDPipe({ version: "4" })
-    )
-    parent: string | null,
+    @JSONHeader({ optional: true }, CustomDecoratorValidator) dto: UploadFilesDto, // prettier-ignore
     @Req() request: Request
   ): Promise<UploadResultsDto> {
     const results = await this.uowService.withTransaction(() =>
       this.fileService.handleUpload(request, {
-        parent,
+        parent: dto.parent,
         user
       })
     );

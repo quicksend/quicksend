@@ -76,7 +76,7 @@ export class Multiparter extends EventEmitter {
     );
   }
 
-  addTransformer(transformer: TransformerGenerator): this {
+  addTransformer(transformer: TransformerGenerator) {
     this._transformers.push(transformer);
 
     return this;

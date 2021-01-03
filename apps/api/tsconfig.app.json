@@ -5,7 +5,7 @@
     "types": ["node"],
     "emitDecoratorMetadata": true,
     "module": "commonjs",
-    "target": "esnext",
+    "target": "es2018",
     "strict": true,
     "allowSyntheticDefaultImports": true,
     "lib": ["ESNext"]

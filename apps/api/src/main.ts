@@ -17,7 +17,7 @@ import { NestFactory, Reflector } from "@nestjs/core";
 
 import { config } from "@quicksend/config";
 
-import { RedisConfig } from "./common/config/redis.config";
+import { RedisConfig } from "./common/configs/redis.config";
 
 import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
 

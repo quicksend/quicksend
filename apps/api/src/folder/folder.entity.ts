@@ -1,38 +1,15 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn
-} from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 
-import { Exclude } from "class-transformer";
-import { IsDate } from "class-validator";
-
-import { FolderModel } from "@quicksend/models";
+import { BaseEntity } from "../common/entities/base.entity";
 
 import { UserEntity } from "../user/user.entity";
 
 @Entity({ name: FolderEntity.TABLE_NAME })
-export class FolderEntity implements FolderModel {
+export class FolderEntity extends BaseEntity {
   static readonly TABLE_NAME = "folder";
 
   @OneToMany(() => FolderEntity, (entry) => entry.parent)
   children!: FolderEntity[];
-
-  @CreateDateColumn()
-  @IsDate()
-  createdAt!: Date;
-
-  @DeleteDateColumn()
-  @Exclude()
-  @IsDate()
-  deletedAt!: Date;
-
-  @PrimaryGeneratedColumn("uuid")
-  id!: string;
 
   @Column({ default: false })
   isRoot!: boolean;

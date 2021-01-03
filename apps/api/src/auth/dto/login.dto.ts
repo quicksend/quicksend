@@ -1,8 +1,8 @@
-import { IsNotEmpty, IsString, MaxLength, MinLength } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 export class LoginDto {
   @IsNotEmpty()
-  @MinLength(8)
+  @IsString()
   password!: string;
 
   @IsNotEmpty()
@@ -10,6 +10,6 @@ export class LoginDto {
   recaptcha!: string;
 
   @IsNotEmpty()
-  @MaxLength(32)
+  @IsString()
   username!: string;
 }
