@@ -60,7 +60,7 @@ export class Multiparter extends EventEmitter {
     return this.options.engine;
   }
 
-  abort(error: Error | null): Promise<void> {
+  abort(error: Error | null): void {
     if (this._aborted) return;
 
     this._aborted = true;
