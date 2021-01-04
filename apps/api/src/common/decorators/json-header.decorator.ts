@@ -53,6 +53,5 @@ export const JSONHeader = createParamDecorator(
 
       throw error;
     }
-  },
-  []
+  }
 );
