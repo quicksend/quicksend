@@ -1,7 +1,7 @@
-import { IsOptional, IsUUID } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class UploadFilesDto {
   @IsOptional()
-  @IsUUID(4)
+  @IsString()
   parent?: string;
 }
