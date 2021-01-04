@@ -35,10 +35,10 @@ export class ItemProcessor {
     await queryRunner.connect();
 
     const items = await queryRunner.stream(
-      // (SELECT * FROM "item" AS i WHERE NOT EXISTS (SELECT "itemId" FROM "file" AS f WHERE f."itemId" = i.id)) LIMIT 1000;
+      // (SELECT discriminator, id FROM "item" AS i WHERE NOT EXISTS (SELECT "itemId" FROM "file" AS f WHERE f."itemId" = i.id)) LIMIT 1000;
       `
       (
-        SELECT * FROM "${ItemEntity.TABLE_NAME}" AS i
+        SELECT discriminator, id FROM "${ItemEntity.TABLE_NAME}" AS i
         WHERE NOT EXISTS (
           SELECT "${ItemEntity.TABLE_NAME}Id" FROM "${FileEntity.TABLE_NAME}" AS f
           WHERE f."${ItemEntity.TABLE_NAME}Id" = i.id
