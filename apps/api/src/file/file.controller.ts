@@ -22,7 +22,6 @@ import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JSONHeader } from "../common/decorators/json-header.decorator";
 
 import { CustomDecoratorValidatorPipe } from "../common/pipes/custom-decorator-validator.pipe";
-import { ParseUUIDV4Pipe } from "../common/pipes/parse-uuid-v4.pipe";
 
 import { FileService } from "./file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
@@ -46,7 +45,7 @@ export class FileController {
   @Delete(":id")
   async delete(
     @CurrentUser() user: UserEntity,
-    @Param("id", ParseUUIDV4Pipe) id: string
+    @Param("id") id: string
   ): Promise<FileEntity> {
     return this.uowService.withTransaction(() =>
       this.fileService.deleteOne({ id, user })
@@ -56,7 +55,7 @@ export class FileController {
   @Get(":id")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id", ParseUUIDV4Pipe) id: string
+    @Param("id") id: string
   ): Promise<FileEntity> {
     const file = await this.fileService.findOne({ id, user });
     if (!file) throw new FileNotFoundException();
@@ -67,7 +66,7 @@ export class FileController {
   @Get("download/:id")
   async download(
     @CurrentUser() user: UserEntity,
-    @Param("id", ParseUUIDV4Pipe) id: string,
+    @Param("id") id: string,
     @Res() response: Response
   ): Promise<void> {
     const readable = await this.fileService.createDownloadStream({ id, user });
