@@ -61,13 +61,18 @@ export class ItemProcessor {
       };
 
       items
-        // the arg isn't actually an ItemEntity, just a POJO
-        .on("data", async ({ discriminator }: ItemEntity) => {
+        // 'item' only contains the columns discriminator and id
+        .on("data", async (item: Partial<ItemEntity>) => {
           pendingDeletes.increment();
 
           await this.uowService.withTransaction(async () => {
-            await this.itemService.deleteOne({ discriminator });
-            await this.storageService.delete(discriminator);
+            if (item.discriminator) {
+              await this.itemService.deleteOne({
+                discriminator: item.discriminator
+              });
+
+              await this.storageService.delete(item.discriminator);
+            }
           });
 
           pendingDeletes.decrement();
