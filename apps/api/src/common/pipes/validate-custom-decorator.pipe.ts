@@ -6,7 +6,7 @@ import { ValidationPipe } from "@nestjs/common";
  * `validateCustomDecorators` to true on the global validation pipe
  * to prevent validating decorators that shouldn't be validated.
  */
-export const CustomDecoratorValidatorPipe = new ValidationPipe({
+export const ValidateCustomDecoratorPipe = new ValidationPipe({
   transform: true,
   validateCustomDecorators: true,
   whitelist: true

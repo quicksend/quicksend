@@ -21,7 +21,7 @@ import { AuthGuard } from "../common/guards/auth.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JSONHeader } from "../common/decorators/json-header.decorator";
 
-import { CustomDecoratorValidatorPipe } from "../common/pipes/custom-decorator-validator.pipe";
+import { ValidateCustomDecoratorPipe } from "../common/pipes/validate-custom-decorator.pipe";
 
 import { FileService } from "./file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
@@ -88,7 +88,7 @@ export class FileController {
   @Post("upload")
   async upload(
     @CurrentUser() user: UserEntity,
-    @JSONHeader({ optional: true }, CustomDecoratorValidatorPipe) dto: UploadFilesDto, // prettier-ignore
+    @JSONHeader({ optional: true }, ValidateCustomDecoratorPipe) dto: UploadFilesDto, // prettier-ignore
     @Req() request: Request
   ): Promise<UploadResultsDto> {
     const results = await this.uowService.withTransaction(() =>
