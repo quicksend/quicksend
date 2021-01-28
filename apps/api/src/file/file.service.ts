@@ -12,6 +12,7 @@ import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FileEntity } from "./file.entity";
+import { FolderEntity } from "../folder/folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { UploadResults } from "./interfaces/upload-results.interface";
@@ -22,7 +23,10 @@ import {
   FileNotFoundException
 } from "./file.exceptions";
 
-import { ParentFolderNotFoundException } from "../folder/folder.exceptions";
+import {
+  FolderNotFoundException,
+  ParentFolderNotFoundException
+} from "../folder/folder.exceptions";
 
 import { settlePromises } from "@quicksend/utils";
 
@@ -161,5 +165,55 @@ export class FileService {
       failed,
       succeeded
     };
+  }
+
+  async move(
+    from: FindConditions<FileEntity>,
+    to: FindConditions<FolderEntity>
+  ): Promise<FileEntity> {
+    const file = await this.fileRepository.findOne(from);
+    if (!file) throw new FileNotFoundException();
+
+    const destination = await this.folderService.findOne(to);
+    if (!destination) throw new FolderNotFoundException();
+
+    const exist = await this.fileRepository.count({
+      name: file.name,
+      parent: destination,
+      user: file.user
+    });
+
+    if (exist) {
+      throw new FileAlreadyExistsException(file.name, destination.name);
+    }
+
+    file.parent = destination;
+
+    return this.fileRepository.save(file);
+  }
+
+  async rename(
+    conditions: FindConditions<FileEntity>,
+    newName: string
+  ): Promise<FileEntity> {
+    const file = await this.fileRepository.findOne(conditions);
+
+    if (!file) {
+      throw new FileNotFoundException();
+    }
+
+    const exist = await this.fileRepository.count({
+      name: newName,
+      parent: file.parent,
+      user: file.user
+    });
+
+    if (exist) {
+      throw new FileAlreadyExistsException(file.name, file.parent.name);
+    }
+
+    file.name = newName;
+
+    return this.fileRepository.save(file);
   }
 }

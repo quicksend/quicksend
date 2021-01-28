@@ -29,6 +29,8 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
 
+import { MoveFileDto } from "./dto/move-file.dto";
+import { RenameFileDto } from "./dto/rename-file.dto";
 import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
@@ -83,6 +85,24 @@ export class FileController {
     });
 
     readable.pipe(response);
+  }
+
+  @Post("move/:id")
+  move(
+    @Body() dto: MoveFileDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ) {
+    return this.fileService.move({ id, user }, { id: dto.to, user });
+  }
+
+  @Post("rename/:id")
+  rename(
+    @Body() dto: RenameFileDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ) {
+    return this.fileService.rename({ id, user }, dto.newName);
   }
 
   @Post("upload")
