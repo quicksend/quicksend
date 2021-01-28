@@ -1,4 +1,4 @@
-import { Module, forwardRef } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { FileController } from "./file.controller";
@@ -12,7 +12,7 @@ import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
 
 @Module({
   imports: [
-    forwardRef(() => FolderModule),
+    FolderModule,
 
     ItemModule,
 

@@ -1,8 +1,7 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 
-import { FileService } from "../file/file.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FolderEntity } from "./folder.entity";
@@ -16,11 +15,7 @@ import {
 
 @Injectable()
 export class FolderService {
-  constructor(
-    @Inject(forwardRef(() => FileService))
-    private readonly fileService: FileService,
-    private readonly uowService: UnitOfWorkService
-  ) {}
+  constructor(private readonly uowService: UnitOfWorkService) {}
 
   private get folderRepository() {
     return this.uowService.getRepository(FolderEntity);
@@ -47,9 +42,7 @@ export class FolderService {
       user: payload.user
     });
 
-    const exist =
-      (await this.fileService.findOne(folder)) ||
-      (await this.folderRepository.findOne(folder));
+    const exist = await this.folderRepository.findOne(folder);
 
     if (exist) {
       throw new FolderAlreadyExistsException(payload.name, parent.name);

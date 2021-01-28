@@ -1,4 +1,4 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 import { IncomingMessage } from "http";
@@ -33,7 +33,6 @@ import { settlePromises } from "@quicksend/utils";
 @Injectable()
 export class FileService {
   constructor(
-    @Inject(forwardRef(() => FolderService))
     private readonly folderService: FolderService,
     private readonly itemService: ItemService,
     private readonly storageService: StorageService,
@@ -111,19 +110,18 @@ export class FileService {
       }
 
       for (const fileWritten of multiparter.succeeded) {
-        const file = this.fileRepository.create({
+        const exist = await this.fileRepository.findOne({
           name: fileWritten.filename,
           parent,
           user: payload.user
         });
 
-        const filenameConflict =
-          (await this.fileRepository.findOne(file)) ||
-          (await this.folderService.findOne(file));
-
-        if (filenameConflict) {
+        if (exist) {
           failed.push({
-            error: new FileAlreadyExistsException(file.name, parent.name),
+            error: new FileAlreadyExistsException(
+              fileWritten.filename,
+              parent.name
+            ),
             file: fileWritten
           });
 
@@ -138,7 +136,12 @@ export class FileService {
           size: fileWritten.size
         });
 
-        file.item = item;
+        const file = this.fileRepository.create({
+          name: fileWritten.filename,
+          item,
+          parent,
+          user: payload.user
+        });
 
         await this.fileRepository.save(file);
 

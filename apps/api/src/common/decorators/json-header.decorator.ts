@@ -46,7 +46,7 @@ export const JSONHeader = createParamDecorator(
     try {
       return parse(headers[field.toLowerCase()]);
     } catch (error) {
-      if (optional) {
+      if (!optional) {
         // don't throw JSON syntax errors
         return {};
       }
