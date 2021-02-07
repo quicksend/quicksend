@@ -1,26 +1,27 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
+    "baseUrl": ".",
     "declaration": false,
-    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "typeRoots": ["node_modules/@types"],
     "lib": ["es2017", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
+    "module": "esnext",
+    "moduleResolution": "node",
     "paths": {
       "@quicksend/config": ["libs/config/src/index.ts"],
       "@quicksend/interfaces": ["libs/interfaces/src/index.ts"],
       "@quicksend/multiparter": ["libs/multiparter/src/index.ts"],
       "@quicksend/utils": ["libs/utils/src/index.ts"]
-    }
+    },
+    "rootDir": ".",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2015",
+    "typeRoots": ["node_modules/@types"]
   },
   "exclude": ["node_modules", "tmp"]
 }
