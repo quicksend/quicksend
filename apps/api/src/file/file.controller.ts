@@ -106,25 +106,18 @@ export class FileController {
   }
 
   @Post("upload")
-  async upload(
+  upload(
     @CurrentUser() user: UserEntity,
     @JSONHeader({ optional: true }, ValidateCustomDecoratorPipe) dto: UploadFilesDto, // prettier-ignore
     @Req() request: Request
   ): Promise<UploadResultsDto> {
-    const results = await this.uowService.withTransaction(() =>
-      this.fileService.handleUpload(request, {
-        parent: dto.parent,
-        user
-      })
-    );
-
-    return {
-      failed: results.failed.map(({ error, file }) => ({
-        error: error.message,
-        file
-      })),
-
-      succeeded: results.succeeded.map((file) => plainToClass(FileEntity, file))
-    };
+    return this.uowService
+      .withTransaction(() =>
+        this.fileService.handleUpload(request, {
+          parent: dto.parent,
+          user
+        })
+      )
+      .then((results) => plainToClass(UploadResultsDto, results));
   }
 }

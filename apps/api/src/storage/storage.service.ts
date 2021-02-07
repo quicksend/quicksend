@@ -30,19 +30,18 @@ export class StorageService {
     return this.engine.createReadable(filename);
   }
 
-  // TODO: Deep merge options
   write(
     req: IncomingMessage,
     options?: Partial<MultiparterOptions>
   ): Promise<Multiparter> {
     return new Multiparter({
-      busboy: {
+      busboy: options?.busboy || {
         limits: config.get("storage").limits
       },
-      engine: this.engine,
-      field: "file",
-      ...options
-    }).parse(req);
+      engine: options?.engine || this.engine,
+      field: options?.field || "file",
+      transformers: options?.transformers || []
+    }).parseAsync(req);
   }
 
   private _determineStorageEngine() {

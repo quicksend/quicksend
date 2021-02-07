@@ -12,9 +12,9 @@ export class FileEntity extends BaseEntity {
 
   @ManyToOne(() => ItemEntity, (item) => item.files, {
     eager: true,
-    onDelete: "SET NULL"
+    onDelete: "CASCADE"
   })
-  item!: ItemEntity | null;
+  item!: ItemEntity;
 
   @Column()
   name!: string;

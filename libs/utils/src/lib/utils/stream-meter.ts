@@ -7,14 +7,12 @@ export class StreamMeter extends PassThrough {
     return this._size;
   }
 
-  limit(size: number, cb: () => void): this {
-    if (this.size === size) {
+  limit(size: number, cb: () => void): void {
+    if (this.size > size) {
       cb();
     }
 
     this.on(String(size), cb);
-
-    return this;
   }
 
   _transform(

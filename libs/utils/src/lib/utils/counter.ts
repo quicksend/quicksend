@@ -1,59 +1,52 @@
 import { EventEmitter } from "events";
 
 export class Counter extends EventEmitter {
-  private _value: number;
-
-  constructor(value = 0) {
+  constructor(private _value = 0) {
     super();
-    this._value = value;
   }
 
   get value(): number {
     return this._value;
   }
 
-  decrement(): this {
-    this._value -= 1;
-    this.emit(String(this.value));
+  decrement(amount = 1): this {
+    this._value -= amount;
+    this.emit(String(this._value));
 
     return this;
   }
 
-  increment(): this {
-    this._value += 1;
-    this.emit(String(this.value));
+  increment(amount = 1): this {
+    this._value += amount;
+    this.emit(String(this._value));
 
     return this;
   }
 
   is(n: number): boolean {
-    return this.value === n;
+    return this._value === n;
   }
 
-  onceItEqualsTo(n: number, cb: () => void): this {
-    if (this.value === n) {
+  onceItEqualsTo(n: number, cb: () => void): void {
+    if (this._value === n) {
       cb();
     } else {
       this.once(String(n), cb);
     }
-
-    return this;
   }
 
   set(value: number): this {
     this._value = value;
-    this.emit(String(this.value));
+    this.emit(String(this._value));
 
     return this;
   }
 
-  whenItEqualsTo(n: number, cb: () => void): this {
-    if (this.value === n) {
+  whenItEqualsTo(n: number, cb: () => void): void {
+    if (this._value === n) {
       cb();
     }
 
     this.on(String(n), cb);
-
-    return this;
   }
 }

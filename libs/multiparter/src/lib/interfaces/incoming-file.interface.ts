@@ -1,8 +1,7 @@
 export interface IncomingFile {
   discriminator: string;
   encoding: string;
-  filename: string;
-  hash: string | null;
+  field: string;
   mimetype: string;
-  size: number;
+  name: string;
 }

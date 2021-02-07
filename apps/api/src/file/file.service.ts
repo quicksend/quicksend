@@ -4,7 +4,7 @@ import { FindConditions } from "typeorm";
 import { IncomingMessage } from "http";
 import { Readable } from "stream";
 
-import { FailedFile, MultiparterOptions } from "@quicksend/multiparter";
+import { MultiparterOptions } from "@quicksend/multiparter";
 
 import { FolderService } from "../folder/folder.service";
 import { ItemService } from "../item/item.service";
@@ -15,11 +15,11 @@ import { FileEntity } from "./file.entity";
 import { FolderEntity } from "../folder/folder.entity";
 import { UserEntity } from "../user/user.entity";
 
+import { CreateFile } from "./interfaces/create-file.interface";
 import { UploadResults } from "./interfaces/upload-results.interface";
 
 import {
   FileAlreadyExistsException,
-  FileIsGhostedException,
   FileNotFoundException
 } from "./file.exceptions";
 
@@ -43,13 +43,30 @@ export class FileService {
     return this.uowService.getRepository(FileEntity);
   }
 
+  async create(payload: CreateFile): Promise<FileEntity> {
+    const exist = await this.fileRepository.count(payload.file);
+
+    if (exist) {
+      throw new FileAlreadyExistsException(
+        payload.file.name,
+        payload.file.parent.name
+      );
+    }
+
+    const item = await this.itemService.create(payload.item);
+
+    const file = this.fileRepository.create(payload.file);
+
+    file.item = item;
+
+    return this.fileRepository.save(file);
+  }
+
   async createDownloadStream(
     conditions: FindConditions<FileEntity>
   ): Promise<Readable> {
     const file = await this.fileRepository.findOne(conditions);
-
     if (!file) throw new FileNotFoundException();
-    if (!file.item) throw new FileIsGhostedException("download");
 
     return this.storageService.read(file.item.discriminator);
   }
@@ -95,8 +112,10 @@ export class FileService {
   ): Promise<UploadResults> {
     const multiparter = await this.storageService.write(req, options);
 
-    const failed: FailedFile[] = [...multiparter.failed];
-    const succeeded: FileEntity[] = [];
+    const results: UploadResults = {
+      failed: [...multiparter.failed],
+      succeeded: []
+    };
 
     try {
       const parent = await this.folderService.findOne(
@@ -109,67 +128,46 @@ export class FileService {
         throw new ParentFolderNotFoundException();
       }
 
-      for (const fileWritten of multiparter.succeeded) {
-        const exist = await this.fileRepository.findOne({
-          name: fileWritten.filename,
-          parent,
-          user: payload.user
-        });
-
-        if (exist) {
-          failed.push({
-            error: new FileAlreadyExistsException(
-              fileWritten.filename,
-              parent.name
-            ),
-            file: fileWritten
+      for (const item of multiparter.written) {
+        try {
+          const file = await this.create({
+            file: {
+              name: item.name,
+              parent,
+              user: payload.user
+            },
+            item
           });
 
-          await this.storageService.delete(fileWritten.discriminator);
+          // If the item returned don't have matching discriminator, then this file is a duplicate
+          if (file.item.discriminator !== item.discriminator) {
+            await this.storageService.delete(item.discriminator);
+          }
 
-          continue;
+          results.succeeded.push(file);
+        } catch (reason) {
+          results.failed.push({
+            file: item,
+            reason
+          });
         }
-
-        const item = await this.itemService.create({
-          discriminator: fileWritten.discriminator,
-          hash: fileWritten.hash as string, // Any file written to storage engine will always have a hash
-          size: fileWritten.size
-        });
-
-        const file = this.fileRepository.create({
-          name: fileWritten.filename,
-          item,
-          parent,
-          user: payload.user
-        });
-
-        await this.fileRepository.save(file);
-
-        // If the item returned don't have matching discriminator, then this file is a duplicate
-        if (item.discriminator !== fileWritten.discriminator) {
-          await this.storageService.delete(fileWritten.discriminator);
-        }
-
-        succeeded.push(file);
       }
 
       await settlePromises(
-        failed
+        results.failed
           .map((f) => () => this.storageService.delete(f.file.discriminator))
           .map((fn) => fn())
       );
+
+      return results;
     } catch (error) {
       await multiparter.abort(error);
 
       throw error;
     }
-
-    return {
-      failed,
-      succeeded
-    };
   }
 
+  // TODO: Dont let folder move into itself or children folders!!!
   async move(
     from: FindConditions<FileEntity>,
     to: FindConditions<FolderEntity>
