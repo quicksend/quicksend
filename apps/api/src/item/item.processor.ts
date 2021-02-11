@@ -1,18 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { InjectConnection } from "@nestjs/typeorm";
 import { Process, Processor } from "@nestjs/bull";
 
-import { Connection } from "typeorm";
 import { Job } from "bull";
 
 import { Counter } from "@quicksend/utils";
 
-import { StorageService } from "../storage/storage.service";
 import { ItemService } from "./item.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FileEntity } from "../file/file.entity";
 import { ItemEntity } from "./item.entity";
+import { ItemRepository } from "./item.repository";
 
 import { DeleteOrphanedItemsJob } from "./jobs/delete-orphaned-items.job";
 
@@ -21,64 +18,38 @@ import { DeleteOrphanedItemsJob } from "./jobs/delete-orphaned-items.job";
 export class ItemProcessor {
   constructor(
     private readonly itemService: ItemService,
-    private readonly storageService: StorageService,
-    private readonly uowService: UnitOfWorkService,
-
-    @InjectConnection()
-    private readonly connection: Connection
+    private readonly uowService: UnitOfWorkService
   ) {}
+
+  private get itemsRepository() {
+    return this.uowService.getCustomRepository(ItemRepository);
+  }
 
   @Process("deleteOrphanedItems")
   async deleteOrphanedItems(job: Job<DeleteOrphanedItemsJob>): Promise<void> {
-    const queryRunner = this.connection.createQueryRunner();
-
-    await queryRunner.connect();
-
-    const items = await queryRunner.stream(
-      // (SELECT discriminator, id FROM "item" AS i WHERE NOT EXISTS (SELECT "itemId" FROM "file" AS f WHERE f."itemId" = i.id)) LIMIT 1000;
-      `
-      (
-        SELECT discriminator, id FROM "${ItemEntity.TABLE_NAME}" AS i
-        WHERE NOT EXISTS (
-          SELECT "${ItemEntity.TABLE_NAME}Id" FROM "${FileEntity.TABLE_NAME}" AS f
-          WHERE f."${ItemEntity.TABLE_NAME}Id" = 'i.id'
-        )
-      ) LIMIT ${job.data.threshold};
-      `
+    const stream = await this.itemsRepository.getOrphanedItems(
+      job.data.threshold
     );
 
     return new Promise((resolve, reject) => {
       const pendingDeletes = new Counter();
 
-      const releaseQueryRunner = (error?: Error) => {
-        return new Promise<void>((res) => {
-          pendingDeletes.onceItEqualsTo(0, () => res());
-        })
-          .then(() => queryRunner.release())
-          .then(() => job.progress(100))
-          .then(() => (error ? reject(error) : resolve()))
-          .catch((err) => reject(err));
-      };
-
-      items
-        // 'item' only contains the columns discriminator and id
-        .on("data", async (item: Partial<ItemEntity>) => {
+      stream
+        .on("data", (item: Partial<ItemEntity>) => {
           pendingDeletes.increment();
 
-          await this.uowService.withTransaction(async () => {
-            if (item.discriminator) {
-              await this.itemService.deleteOne({
-                discriminator: item.discriminator
-              });
-
-              await this.storageService.delete(item.discriminator);
-            }
-          });
-
-          pendingDeletes.decrement();
+          this.uowService
+            .withTransaction(() => this.itemService.deleteOne(item))
+            .finally(() => pendingDeletes.decrement());
         })
-        .on("end", () => releaseQueryRunner())
-        .on("error", (err) => releaseQueryRunner(err));
+        .on("end", () => {
+          pendingDeletes.onceItEqualsTo(0, () => {
+            job.progress(100).then(() => resolve());
+          });
+        })
+        .on("error", (error: Error) => {
+          pendingDeletes.onceItEqualsTo(0, () => reject(error));
+        });
     });
   }
 }

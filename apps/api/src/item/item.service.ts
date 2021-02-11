@@ -6,6 +6,7 @@ import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { ItemEntity } from "./item.entity";
+import { ItemRepository } from "./item.repository";
 
 import { ItemNotFound } from "./item.exceptions";
 
@@ -17,7 +18,7 @@ export class ItemService {
   ) {}
 
   private get itemRepository() {
-    return this.uowService.getRepository(ItemEntity);
+    return this.uowService.getCustomRepository(ItemRepository);
   }
 
   async create(payload: {
