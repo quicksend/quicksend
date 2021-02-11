@@ -1,5 +1,12 @@
-// https://aaronboman.com/programming/2020/05/15/per-request-database-transactions-with-nestjs-and-typeorm/
-// Any injectable that uses this service will lose the capability of using lifecycle events as UnitOfWorkService is request scoped
+/**
+ * https://aaronboman.com/programming/2020/05/15/per-request-database-transactions-with-nestjs-and-typeorm/
+ *
+ * If withTransaction is called, it will retrieve the repository from the manager handling the transaction
+ * Else, it will fall back to TypeOrm's default global functions
+ *
+ * Any injectable that uses this service will lose the capability of using NestJS lifecycle events
+ * because UnitOfWorkService is request scoped
+ */
 
 import { Injectable, Scope } from "@nestjs/common";
 import { InjectConnection } from "@nestjs/typeorm";
@@ -10,36 +17,51 @@ import {
   EntitySchema,
   ObjectType,
   Repository,
-  getRepository
+  TreeRepository,
+  getCustomRepository,
+  getRepository,
+  getTreeRepository
 } from "typeorm";
 
 import { IsolationLevel } from "typeorm/driver/types/IsolationLevel";
-import { RepositoryFactory } from "typeorm/repository/RepositoryFactory";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UnitOfWorkService {
-  private _manager: EntityManager | null = null;
+  private transactionManager: EntityManager | null = null;
 
   constructor(
     @InjectConnection()
     private readonly connection: Connection
   ) {}
 
-  get manager(): EntityManager | null {
-    return this._manager;
+  getCustomRepository<CustomRepository extends Repository<any>>(
+    target: ObjectType<CustomRepository>
+  ): CustomRepository {
+    if (this.transactionManager) {
+      return this.transactionManager.getCustomRepository(target);
+    }
+
+    return getCustomRepository(target);
   }
 
   getRepository<Entity>(
-    target: ObjectType<Entity> | EntitySchema<Entity> | string
+    target: ObjectType<Entity> | EntitySchema<Entity>
   ): Repository<Entity> {
-    if (this.manager) {
-      return new RepositoryFactory().create(
-        this.manager,
-        this.connection.getMetadata(target)
-      );
+    if (this.transactionManager) {
+      return this.transactionManager.getRepository(target);
     }
 
     return getRepository(target);
+  }
+
+  getTreeRepository<Entity>(
+    target: ObjectType<Entity> | EntitySchema<Entity>
+  ): TreeRepository<Entity> {
+    if (this.transactionManager) {
+      return this.transactionManager.getTreeRepository(target);
+    }
+
+    return getTreeRepository(target);
   }
 
   async withTransaction<T>(
@@ -51,7 +73,7 @@ export class UnitOfWorkService {
     await queryRunner.connect();
     await queryRunner.startTransaction(isolationLevel);
 
-    this._manager = queryRunner.manager;
+    this.transactionManager = queryRunner.manager;
 
     try {
       const result = await work();
@@ -66,7 +88,7 @@ export class UnitOfWorkService {
     } finally {
       await queryRunner.release();
 
-      this._manager = null;
+      this.transactionManager = null;
     }
   }
 }

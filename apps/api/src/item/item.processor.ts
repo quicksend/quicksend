@@ -41,7 +41,7 @@ export class ItemProcessor {
         SELECT discriminator, id FROM "${ItemEntity.TABLE_NAME}" AS i
         WHERE NOT EXISTS (
           SELECT "${ItemEntity.TABLE_NAME}Id" FROM "${FileEntity.TABLE_NAME}" AS f
-          WHERE f."${ItemEntity.TABLE_NAME}Id" = i.id
+          WHERE f."${ItemEntity.TABLE_NAME}Id" = 'i.id'
         )
       ) LIMIT ${job.data.threshold};
       `

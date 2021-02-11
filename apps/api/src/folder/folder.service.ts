@@ -9,6 +9,7 @@ import { UserEntity } from "../user/user.entity";
 
 import {
   FolderAlreadyExistsException,
+  FolderCannotBeDeletedException,
   FolderNotFoundException,
   ParentFolderNotFoundException
 } from "./folder.exceptions";
@@ -29,7 +30,7 @@ export class FolderService {
     const parent = await this.folderRepository.findOne(
       payload.parent
         ? { id: payload.parent, user: payload.user }
-        : { isRoot: true, user: payload.user }
+        : { parent: null, user: payload.user }
     );
 
     if (!parent) {
@@ -54,14 +55,16 @@ export class FolderService {
   async deleteOne(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOne(conditions);
+    const folder = await this.folderRepository.findOne(conditions, {
+      relations: ["parent"]
+    });
+
     if (!folder) throw new FolderNotFoundException();
+    if (!folder.parent) throw new FolderCannotBeDeletedException(); // Don't delete root folders
 
-    if (folder.isRoot) {
-      // Throw error
-    }
+    await this.folderRepository.remove(folder);
 
-    return this.folderRepository.remove(folder);
+    return folder;
   }
 
   async findOne(
@@ -69,4 +72,6 @@ export class FolderService {
   ): Promise<FolderEntity | undefined> {
     return this.folderRepository.findOne(conditions);
   }
+
+  async move() {}
 }

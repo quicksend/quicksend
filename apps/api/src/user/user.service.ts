@@ -16,7 +16,7 @@ export class UserService {
   constructor(private readonly uowService: UnitOfWorkService) {}
 
   private get folderRepository() {
-    return this.uowService.getRepository(FolderEntity);
+    return this.uowService.getTreeRepository(FolderEntity);
   }
 
   private get userRepository() {
@@ -46,28 +46,23 @@ export class UserService {
 
     await this.userRepository.save(user);
 
-    const rootFolder = this.folderRepository.create({
-      isRoot: true,
-      name: "/",
-      user
-    });
+    const root = this.folderRepository.create({ name: "/", user });
 
-    await this.folderRepository.save(rootFolder);
+    await this.folderRepository.save(root);
 
     return user;
   }
 
   async deleteOne(user: UserEntity): Promise<void> {
-    const rootFolders = await this.folderRepository.find({
-      isRoot: true,
+    const roots = await this.folderRepository.find({
+      parent: null,
       user
     });
 
-    await this.folderRepository.remove(rootFolders);
+    await this.folderRepository.remove(roots);
 
     user.activated = false;
     user.admin = false;
-    user.email = null;
     user.password = null;
 
     await this.userRepository.save(user);

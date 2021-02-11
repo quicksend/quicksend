@@ -121,7 +121,7 @@ export class FileService {
       const parent = await this.folderService.findOne(
         payload.parent
           ? { id: payload.parent, user: payload.user }
-          : { isRoot: true, user: payload.user }
+          : { parent: null, user: payload.user }
       );
 
       if (!parent) {
@@ -167,7 +167,6 @@ export class FileService {
     }
   }
 
-  // TODO: Dont let folder move into itself or children folders!!!
   async move(
     from: FindConditions<FileEntity>,
     to: FindConditions<FolderEntity>

@@ -18,23 +18,29 @@ import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { FolderService } from "./folder.service";
+import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FolderNotFoundException } from "./folder.exceptions";
 
 @Controller("folders")
 @UseGuards(AuthGuard)
 export class FolderController {
-  constructor(private readonly folderService: FolderService) {}
+  constructor(
+    private readonly folderService: FolderService,
+    private readonly uowService: UnitOfWorkService
+  ) {}
 
   @Post()
-  create(
+  async create(
     @Body() dto: CreateFolderDto,
     @CurrentUser() user: UserEntity
   ): Promise<FolderEntity> {
-    return this.folderService.create({
-      ...dto,
-      user
-    });
+    return this.uowService.withTransaction(() =>
+      this.folderService.create({
+        ...dto,
+        user
+      })
+    );
   }
 
   @Delete(":id")
@@ -42,7 +48,9 @@ export class FolderController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    return this.folderService.deleteOne({ id, user });
+    return this.uowService.withTransaction(() =>
+      this.folderService.deleteOne({ id, user })
+    );
   }
 
   @Get(":id")
