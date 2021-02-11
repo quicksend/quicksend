@@ -6,15 +6,15 @@
   
 <p align="center">A self-hostable file sharing service</p>
 
-## Related Projects
-- [Quicksend CLI](https://github.com/quicksend/cli): A command line application to quickly upload files to Quicksend
-
 ## Features
 - [x] Customizable storage engines (S3 and Google Cloud coming soon)
 - [x] File deduplication
 - [x] Folders support
 - [ ] Admin dashboard (soon)
 - [ ] Developer dashboard for API key generation (soon)
+
+## Related Projects
+- [Quicksend CLI](https://github.com/quicksend/cli): A command line application to quickly upload files to Quicksend
 
 ## Installation
 
