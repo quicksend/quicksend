@@ -20,6 +20,14 @@ export class FolderCannotBeDeletedException extends ForbiddenException {
   }
 }
 
+export class FolderCannotBeMovedException extends ForbiddenException {
+  constructor(from: string, to: string) {
+    super(
+      `Folder '${from}' cannot be moved to '${to}'. Please make sure your destination is not a children or itself!`
+    );
+  }
+}
+
 export class FolderNotFoundException extends NotFoundException {
   constructor(name?: string) {
     name

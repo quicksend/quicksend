@@ -4,12 +4,14 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards
 } from "@nestjs/common";
 
 import { CreateFolderDto } from "./dto/create-folder.dto";
+import { MoveFolderDto } from "./dto/move-folder.dto";
 
 import { AuthGuard } from "../common/guards/auth.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
@@ -62,5 +64,15 @@ export class FolderController {
     if (!folder) throw new FolderNotFoundException(id);
 
     return folder;
+  }
+
+  @Patch("move")
+  async move(
+    @Body() dto: MoveFolderDto,
+    @CurrentUser() user: UserEntity
+  ): Promise<FolderEntity> {
+    return this.uowService.withTransaction(() =>
+      this.folderService.move({ id: dto.from, user }, { id: dto.to, user })
+    );
   }
 }

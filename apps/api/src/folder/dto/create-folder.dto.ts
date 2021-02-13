@@ -1,8 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
-import { CreateFolder } from "@quicksend/interfaces";
-
-export class CreateFolderDto implements CreateFolder {
+export class CreateFolderDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(255)
@@ -10,5 +8,5 @@ export class CreateFolderDto implements CreateFolder {
 
   @IsOptional()
   @IsString()
-  parent!: string;
+  parent?: string;
 }
