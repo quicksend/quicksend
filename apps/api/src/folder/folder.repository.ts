@@ -12,42 +12,38 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
     return this.metadata.closureJunctionTable;
   }
 
+  get closureAncestorColumnName() {
+    return this.closureTable.foreignKeys[0].columnNames[0];
+  }
+
+  get closureDescendantColumnName() {
+    return this.closureTable.foreignKeys[1].columnNames[0];
+  }
+
   hasDescendant(
     parent: FolderEntity,
     descendant: FolderEntity
   ): Promise<boolean> {
-    const closureTableFks = this.closureTable.foreignKeys;
-    const closureTableName = this.closureTable.name;
-
-    const closureAncestorColumnName = closureTableFks[0].columnNames[0];
-    const closureDescendantColumnName = closureTableFks[1].columnNames[0];
-
     /**
      * SELECT "id_ancestor", "id_descendant"
      * FROM "folder_closure"
      * WHERE "id_ancestor" = '$1'
      * AND "id_descendant" = '$2'
-     * LIMIT 1
+     * LIMIT 1;
      */
     return this.query(
       `
-      SELECT "${closureAncestorColumnName}", "${closureDescendantColumnName}"
-      FROM "${closureTableName}"
-      WHERE "${closureAncestorColumnName}" = '${parent.id}'
-      AND "${closureDescendantColumnName}" = '${descendant.id}'
-      LIMIT 1
+      SELECT "${this.closureAncestorColumnName}", "${this.closureDescendantColumnName}"
+      FROM "${this.closureTable.name}"
+      WHERE "${this.closureAncestorColumnName}" = '${parent.id}'
+      AND "${this.closureDescendantColumnName}" = '${descendant.id}'
+      LIMIT 1;
       `
     ).then(([relationship]) => relationship);
   }
 
   // https://gist.github.com/kentoj/872cbefc68f68a2a97b6189da9cd6e23#file-closure-table-operations-sql-L45
   async move(source: FolderEntity, destination: FolderEntity) {
-    const closureTableFks = this.closureTable.foreignKeys;
-    const closureTableName = this.closureTable.name;
-
-    const closureAncestorColumnName = closureTableFks[0].columnNames[0];
-    const closureDescendantColumnName = closureTableFks[1].columnNames[0];
-
     /**
      * DELETE FROM "folder_closure"
      * WHERE "id_descendant" IN (
@@ -64,17 +60,17 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
      */
     await this.query(
       `
-      DELETE FROM "${closureTableName}"
-      WHERE "${closureDescendantColumnName}" IN (
-        SELECT "${closureDescendantColumnName}"
-        FROM "${closureTableName}"
-        WHERE "${closureAncestorColumnName}" = '${source.id}'
+      DELETE FROM "${this.closureTable.name}"
+      WHERE "${this.closureDescendantColumnName}" IN (
+        SELECT "${this.closureDescendantColumnName}"
+        FROM "${this.closureTable.name}"
+        WHERE "${this.closureAncestorColumnName}" = '${source.id}'
       )
-      AND "${closureAncestorColumnName}" IN (
-        SELECT "${closureAncestorColumnName}"
-        FROM "${closureTableName}"
-        WHERE "${closureDescendantColumnName}" = '${source.id}'
-        AND "${closureAncestorColumnName}" != "${closureDescendantColumnName}"
+      AND "${this.closureAncestorColumnName}" IN (
+        SELECT "${this.closureAncestorColumnName}"
+        FROM "${this.closureTable.name}"
+        WHERE "${this.closureDescendantColumnName}" = '${source.id}'
+        AND "${this.closureAncestorColumnName}" != "${this.closureDescendantColumnName}"
       );
       `
     );
@@ -89,12 +85,12 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
      */
     await this.query(
       `
-      INSERT INTO "${closureTableName}" ("${closureAncestorColumnName}", "${closureDescendantColumnName}")
-      SELECT supertree."${closureAncestorColumnName}", subtree."${closureDescendantColumnName}"
-      FROM "${closureTableName}" AS supertree
-      CROSS JOIN "${closureTableName}" AS subtree
-      WHERE supertree."${closureDescendantColumnName}" = '${destination.id}'
-      AND subtree."${closureAncestorColumnName}" = '${source.id}';
+      INSERT INTO "${this.closureTable.name}" ("${this.closureAncestorColumnName}", "${this.closureDescendantColumnName}")
+      SELECT supertree."${this.closureAncestorColumnName}", subtree."${this.closureDescendantColumnName}"
+      FROM "${this.closureTable.name}" AS supertree
+      CROSS JOIN "${this.closureTable.name}" AS subtree
+      WHERE supertree."${this.closureDescendantColumnName}" = '${destination.id}'
+      AND subtree."${this.closureAncestorColumnName}" = '${source.id}';
       `
     );
 
@@ -111,10 +107,7 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
     const parentIdColumnName = treeRelationFks.columnNames[0];
     const parentIdFkName = treeRelationFks.name;
 
-    const closureAncestorColumnName = closureTableFks[0].columnNames[0];
     const closureAncestorFkName = closureTableFks[0].name;
-
-    const closureDescendantColumnName = closureTableFks[1].columnNames[0];
     const closureDescendantFkName = closureTableFks[1].name;
 
     return this.query(
@@ -129,14 +122,14 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
       ALTER TABLE ${this.closureTable.name}
       DROP CONSTRAINT "${closureAncestorFkName}",
       ADD CONSTRAINT "${closureAncestorFkName}"
-      FOREIGN KEY ("${closureAncestorColumnName}")
+      FOREIGN KEY ("${this.closureAncestorColumnName}")
       REFERENCES ${this.metadata.tableName}(id)
       ON DELETE CASCADE;
 
       ALTER TABLE ${this.closureTable.name}
       DROP CONSTRAINT "${closureDescendantFkName}",
       ADD CONSTRAINT "${closureDescendantFkName}"
-      FOREIGN KEY ("${closureDescendantColumnName}")
+      FOREIGN KEY ("${this.closureDescendantColumnName}")
       REFERENCES ${this.metadata.tableName}(id)
       ON DELETE CASCADE;
       `
