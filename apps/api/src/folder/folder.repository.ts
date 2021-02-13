@@ -22,20 +22,22 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
     const closureAncestorColumnName = closureTableFks[0].columnNames[0];
     const closureDescendantColumnName = closureTableFks[1].columnNames[0];
 
-    // SELECT id_ancestor, id_descendant FROM "folder_closure" "folder_closure" WHERE id_ancestor = $1 AND id_descendant = $2
-    return this.manager
-      .createQueryBuilder()
-      .select([closureAncestorColumnName, closureDescendantColumnName])
-      .from(closureTableName, closureTableName)
-      .where(`${closureAncestorColumnName} = :ancestorId`, {
-        ancestorId: parent.id
-      })
-      .andWhere(`${closureDescendantColumnName} = :descendantId`, {
-        descendantId: descendant.id
-      })
-      .limit(1)
-      .getCount()
-      .then((count) => Boolean(count));
+    /**
+     * SELECT "id_ancestor", "id_descendant"
+     * FROM "folder_closure"
+     * WHERE "id_ancestor" = '$1'
+     * AND "id_descendant" = '$2'
+     * LIMIT 1
+     */
+    return this.query(
+      `
+      SELECT "${closureAncestorColumnName}", "${closureDescendantColumnName}"
+      FROM "${closureTableName}"
+      WHERE "${closureAncestorColumnName}" = '${parent.id}'
+      AND "${closureDescendantColumnName}" = '${descendant.id}'
+      LIMIT 1
+      `
+    ).then(([relationship]) => relationship);
   }
 
   // https://gist.github.com/kentoj/872cbefc68f68a2a97b6189da9cd6e23#file-closure-table-operations-sql-L45
@@ -47,17 +49,17 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
     const closureDescendantColumnName = closureTableFks[1].columnNames[0];
 
     /**
-     * DELETE FROM TreePaths
-     * WHERE descendant IN (
-     *   SELECT descendant
-     *   FROM TreePaths
-     *   WHERE ancestor = 6
+     * DELETE FROM "folder_closure"
+     * WHERE "id_descendant" IN (
+     *   SELECT "id_descendant"
+     *   FROM "folder_closure"
+     *   WHERE "id_ancestor" = '$1'
      * )
-     * AND ancestor IN (
-     *  SELECT ancestor
-     *  FROM TreePaths
-     *  WHERE descendant = 6
-     *  AND ancestor != descendant
+     * AND "id_ancestor" IN (
+     *  SELECT "id_ancestor"
+     *  FROM "folder_closure"
+     *  WHERE "id_descendant" = '$1'
+     *  AND "id_ancestor" != "id_descendant"
      * );
      */
     await this.query(
@@ -78,12 +80,12 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
     );
 
     /**
-     * INSERT INTO TreePaths (ancestor, descendant)
-     * SELECT supertree.ancestor, subtree.descendant
-     * FROM TreePaths AS supertree
-     * CROSS JOIN TreePaths AS subtree
-     * WHERE supertree.descendant = 3
-     * AND subtree.ancestor = 6;
+     * INSERT INTO "folder_closure" ("id_ancestor", "id_descendant")
+     * SELECT supertree."id_ancestor", subtree."id_descendant"
+     * FROM "folder_closure" AS supertree
+     * CROSS JOIN "folder_closure" AS subtree
+     * WHERE supertree."id_descendant" = '$1'
+     * AND subtree."id_ancestor" = '$2';
      */
     await this.query(
       `
