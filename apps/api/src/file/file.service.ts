@@ -44,9 +44,12 @@ export class FileService {
   }
 
   async create(payload: CreateFile): Promise<FileEntity> {
-    const exist = await this.fileRepository.count(payload.file);
+    const exists = await this.fileRepository.count({
+      take: 1,
+      where: payload.file
+    });
 
-    if (exist) {
+    if (exists) {
       throw new FileAlreadyExistsException(
         payload.file.name,
         payload.file.parent.name
@@ -55,9 +58,10 @@ export class FileService {
 
     const item = await this.itemService.create(payload.item);
 
-    const file = this.fileRepository.create(payload.file);
-
-    file.item = item;
+    const file = this.fileRepository.create({
+      ...payload.file,
+      item
+    });
 
     return this.fileRepository.save(file);
   }
@@ -105,7 +109,7 @@ export class FileService {
   async handleUpload(
     req: IncomingMessage,
     payload: {
-      parent?: string;
+      parent: string;
       user: UserEntity;
     },
     options?: Partial<MultiparterOptions>
@@ -118,11 +122,10 @@ export class FileService {
     };
 
     try {
-      const parent = await this.folderService.findOne(
-        payload.parent
-          ? { id: payload.parent, user: payload.user }
-          : { parent: null, user: payload.user }
-      );
+      const parent = await this.folderService.findOne({
+        id: payload.parent,
+        user: payload.user
+      });
 
       if (!parent) {
         throw new ParentFolderNotFoundException();
@@ -178,9 +181,12 @@ export class FileService {
     if (!destination) throw new FolderNotFoundException();
 
     const exist = await this.fileRepository.count({
-      name: file.name,
-      parent: destination,
-      user: file.user
+      take: 1,
+      where: {
+        name: file.name,
+        parent: destination,
+        user: file.user
+      }
     });
 
     if (exist) {
@@ -203,9 +209,12 @@ export class FileService {
     }
 
     const exist = await this.fileRepository.count({
-      name: newName,
-      parent: file.parent,
-      user: file.user
+      take: 1,
+      where: {
+        name: newName,
+        parent: file.parent,
+        user: file.user
+      }
     });
 
     if (exist) {
