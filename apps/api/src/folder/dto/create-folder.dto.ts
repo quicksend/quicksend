@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class CreateFolderDto {
   @IsNotEmpty()
@@ -6,7 +6,7 @@ export class CreateFolderDto {
   @MaxLength(255)
   name!: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  parent?: string;
+  parent!: string;
 }

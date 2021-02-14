@@ -26,11 +26,10 @@ export class FolderService {
   }
 
   async create(payload: CreateFolder): Promise<FolderEntity> {
-    const parent = await this.folderRepository.findOne(
-      payload.parent
-        ? { id: payload.parent, user: payload.user }
-        : { parent: null, user: payload.user }
-    );
+    const parent = await this.folderRepository.findOne({
+      id: payload.parent,
+      user: payload.user
+    });
 
     if (!parent) {
       throw new ParentFolderNotFoundException();
