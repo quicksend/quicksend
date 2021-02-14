@@ -75,4 +75,12 @@ export class FolderController {
       this.folderService.move({ id: dto.from, user }, { id: dto.to, user })
     );
   }
+
+  @Get()
+  async root(@CurrentUser() user: UserEntity): Promise<FolderEntity> {
+    const folder = await this.folderService.findOne({ parent: null, user });
+    if (!folder) throw new FolderNotFoundException();
+
+    return folder;
+  }
 }
