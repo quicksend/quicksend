@@ -63,7 +63,7 @@ export class FolderService {
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity | undefined> {
     return this.folderRepository.findOne(conditions, {
-      relations: ["parent"]
+      relations: ["parent"] // have to explicitly specify the relation to load which is the tree parent
     });
   }
 

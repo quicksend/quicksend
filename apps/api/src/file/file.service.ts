@@ -100,10 +100,19 @@ export class FileService {
     return file;
   }
 
-  findOne(
+  async findOne(
     conditions: FindConditions<FileEntity>
   ): Promise<FileEntity | undefined> {
     return this.fileRepository.findOne(conditions);
+  }
+
+  async findOneOrFail(
+    conditions: FindConditions<FileEntity>
+  ): Promise<FileEntity> {
+    const file = await this.fileRepository.findOne(conditions);
+    if (!file) throw new FileNotFoundException();
+
+    return file;
   }
 
   async handleUpload(

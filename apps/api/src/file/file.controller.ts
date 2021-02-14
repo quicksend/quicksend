@@ -34,8 +34,6 @@ import { RenameFileDto } from "./dto/rename-file.dto";
 import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
-import { FileNotFoundException } from "./file.exceptions";
-
 @Controller("files")
 @UseGuards(AuthGuard)
 export class FileController {
@@ -59,10 +57,7 @@ export class FileController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
-    const file = await this.fileService.findOne({ id, user });
-    if (!file) throw new FileNotFoundException();
-
-    return file;
+    return this.fileService.findOneOrFail({ id, user });
   }
 
   @Get("download/:id")
