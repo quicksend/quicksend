@@ -26,7 +26,7 @@ export class FolderService {
   }
 
   async create(payload: CreateFolder): Promise<FolderEntity> {
-    const parent = await this.folderRepository.findOne({
+    const parent = await this.findOne({
       id: payload.parent,
       user: payload.user
     });
@@ -41,9 +41,7 @@ export class FolderService {
       user: payload.user
     });
 
-    const exist = await this.folderRepository.findOne(folder);
-
-    if (exist) {
+    if (await this.findOne(folder)) {
       throw new FolderAlreadyExistsException(payload.name, parent.name);
     }
 
@@ -53,9 +51,7 @@ export class FolderService {
   async deleteOne(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOne(conditions, {
-      relations: ["parent"]
-    });
+    const folder = await this.findOne(conditions);
 
     if (!folder) throw new FolderNotFoundException();
     if (!folder.parent) throw new FolderCannotBeDeletedException(); // Don't delete root folders
@@ -66,11 +62,15 @@ export class FolderService {
   async findOne(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity | undefined> {
-    return this.folderRepository.findOne(conditions);
+    return this.folderRepository.findOne(conditions, {
+      relations: ["parent"]
+    });
   }
 
-  async findOneOrFail(conditions: FindConditions<FolderEntity>): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOne(conditions);
+  async findOneOrFail(
+    conditions: FindConditions<FolderEntity>
+  ): Promise<FolderEntity> {
+    const folder = await this.findOne(conditions);
     if (!folder) throw new FolderNotFoundException();
 
     return folder;
@@ -80,10 +80,10 @@ export class FolderService {
     from: FindConditions<FolderEntity>,
     to: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const source = await this.folderRepository.findOne(from);
+    const source = await this.findOne(from);
     if (!source) throw new FolderNotFoundException();
 
-    const destination = await this.folderRepository.findOne(to);
+    const destination = await this.findOne(to);
     if (!destination) throw new FolderNotFoundException();
 
     // Prevent folder from being moved into itself or its childrens
