@@ -22,8 +22,6 @@ import { UserEntity } from "../user/user.entity";
 import { FolderService } from "./folder.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderNotFoundException } from "./folder.exceptions";
-
 @Controller("folders")
 @UseGuards(AuthGuard)
 export class FolderController {
@@ -60,10 +58,7 @@ export class FolderController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    const folder = await this.folderService.findOne({ id, user });
-    if (!folder) throw new FolderNotFoundException(id);
-
-    return folder;
+    return this.folderService.findOneOrFail({ id, user });
   }
 
   @Patch("move")
@@ -78,9 +73,6 @@ export class FolderController {
 
   @Get()
   async root(@CurrentUser() user: UserEntity): Promise<FolderEntity> {
-    const folder = await this.folderService.findOne({ parent: null, user });
-    if (!folder) throw new FolderNotFoundException();
-
-    return folder;
+    return this.folderService.findOneOrFail({ parent: null, user });
   }
 }

@@ -69,6 +69,13 @@ export class FolderService {
     return this.folderRepository.findOne(conditions);
   }
 
+  async findOneOrFail(conditions: FindConditions<FolderEntity>): Promise<FolderEntity> {
+    const folder = await this.folderRepository.findOne(conditions);
+    if (!folder) throw new FolderNotFoundException();
+
+    return folder;
+  }
+
   async move(
     from: FindConditions<FolderEntity>,
     to: FindConditions<FolderEntity>
