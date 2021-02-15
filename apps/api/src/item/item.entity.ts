@@ -7,10 +7,8 @@ import { BaseEntity } from "../common/entities/base.entity";
 
 import { FileEntity } from "../file/file.entity";
 
-@Entity({ name: ItemEntity.TABLE_NAME })
+@Entity({ name: "item" })
 export class ItemEntity extends BaseEntity {
-  static readonly TABLE_NAME = "item";
-
   @Column({ unique: true })
   @Exclude()
   discriminator!: string;

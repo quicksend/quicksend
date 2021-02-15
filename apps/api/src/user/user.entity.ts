@@ -10,10 +10,8 @@ import { BaseEntity } from "../common/entities/base.entity";
 import { FileEntity } from "../file/file.entity";
 import { FolderEntity } from "../folder/folder.entity";
 
-@Entity({ name: UserEntity.TABLE_NAME })
+@Entity({ name: "user" })
 export class UserEntity extends BaseEntity {
-  static readonly TABLE_NAME = "user";
-
   @Column({ default: false })
   @Exclude()
   activated!: boolean;

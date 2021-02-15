@@ -11,11 +11,9 @@ import { BaseEntity } from "../common/entities/base.entity";
 
 import { UserEntity } from "../user/user.entity";
 
-@Entity({ name: FolderEntity.TABLE_NAME })
+@Entity({ name: "folder" })
 @Tree("closure-table")
 export class FolderEntity extends BaseEntity {
-  static readonly TABLE_NAME = "folder";
-
   @TreeChildren()
   children!: FolderEntity[];
 

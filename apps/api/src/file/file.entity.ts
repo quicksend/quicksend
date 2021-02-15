@@ -6,10 +6,8 @@ import { FolderEntity } from "../folder/folder.entity";
 import { ItemEntity } from "../item/item.entity";
 import { UserEntity } from "../user/user.entity";
 
-@Entity({ name: FileEntity.TABLE_NAME })
+@Entity({ name: "file" })
 export class FileEntity extends BaseEntity {
-  static readonly TABLE_NAME = "file";
-
   @ManyToOne(() => ItemEntity, (item) => item.files, {
     eager: true,
     onDelete: "CASCADE"
