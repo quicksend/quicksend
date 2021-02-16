@@ -8,7 +8,6 @@ dependencies:
   argon2: 0.27.0
   bull: 3.20.0
   bull-board: 1.2.0
-  bullmq: 1.13.0
   busboy: 0.3.1
   class-transformer: 0.3.1
   class-validator: 0.12.2
@@ -4722,19 +4721,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-xXUfA2gLZLfIkWhxcZkAk6mHt+eG3o4arqz7HwCPVYuVjIp/pYTuhFd2iPXIQLxop7pJY4VIQ59fELdD/Y6f8w==
-  /bullmq/1.13.0:
-    dependencies:
-      '@types/ioredis': 4.17.10
-      cron-parser: 2.18.0
-      get-port: 5.1.1
-      ioredis: 4.19.4
-      lodash: 4.17.20
-      semver: 6.3.0
-      tslib: 1.14.1
-      uuid: 8.3.2
-    dev: false
-    resolution:
-      integrity: sha512-a4UsvZdGHHEmasn9FmVtogroDTo16AbJVuS/+AdWOHkR1Npki2FyrNsa0XHvyZb4PvevWG7HmLEI6iDnaNWDFQ==
   /busboy/0.2.14:
     dependencies:
       dicer: 0.2.5
@@ -8283,23 +8269,6 @@ packages:
       node: '>=6'
     resolution:
       integrity: sha512-SZSIwMrbd96b7rJvJwyTWSP6XQ0m1kAIIqBnwglJKrIJ6na7TeY4F2EV2vDY0xm/fLrUY8cEg81dR7kVFt2sKA==
-  /ioredis/4.19.4:
-    dependencies:
-      cluster-key-slot: 1.1.0
-      debug: 4.3.1
-      denque: 1.4.1
-      lodash.defaults: 4.2.0
-      lodash.flatten: 4.4.0
-      p-map: 2.1.0
-      redis-commands: 1.6.0
-      redis-errors: 1.2.0
-      redis-parser: 3.0.0
-      standard-as-callback: 2.0.1
-    dev: false
-    engines:
-      node: '>=6'
-    resolution:
-      integrity: sha512-3haQWw9dpEjcfVcRktXlayVNrrqvvc2io7Q/uiV2UsYw8/HC2YwwJr78Wql7zu5bzwci0x9bZYA69U7KkevAvw==
   /ip-regex/2.1.0:
     dev: true
     engines:
@@ -12916,6 +12885,7 @@ packages:
     resolution:
       integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==
   /semver/6.3.0:
+    dev: true
     hasBin: true
     resolution:
       integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
@@ -15131,7 +15101,6 @@ specifiers:
   babel-plugin-styled-components: 1.12.0
   bull: ^3.20.0
   bull-board: ^1.2.0
-  bullmq: ^1.13.0
   busboy: ^0.3.1
   class-transformer: ^0.3.1
   class-validator: ^0.12.2
