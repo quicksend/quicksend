@@ -55,7 +55,6 @@ const IS_DEV = process.env.NODE_ENV === "development";
   });
 
   app
-    .useGlobalFilters(new InternalServerErrorExceptionFilter(Logger))
     .useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
     .useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 

@@ -1,10 +1,11 @@
-import { APP_INTERCEPTOR } from "@nestjs/core";
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
 import { ConfigType } from "@nestjs/config";
 import { Inject } from "@nestjs/common";
 
 import {
+  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -27,6 +28,8 @@ import { FolderModule } from "./folder/folder.module";
 import { ItemModule } from "./item/item.module";
 import { StorageModule } from "./storage/storage.module";
 import { UserModule } from "./user/user.module";
+
+import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
@@ -66,6 +69,10 @@ import { cleanupNamespace } from "./config/config.namespaces";
   ],
   controllers: [AppController],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: InternalServerErrorExceptionFilter
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: RateLimiterInterceptor
