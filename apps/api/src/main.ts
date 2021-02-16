@@ -4,18 +4,12 @@ import * as session from "express-session";
 import * as Redis from "ioredis";
 import * as RedisStore from "connect-redis";
 
-import {
-  ClassSerializerInterceptor,
-  Logger,
-  ValidationPipe
-} from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
 
 import { ConfigType } from "@nestjs/config";
 
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { NestFactory, Reflector } from "@nestjs/core";
-
-import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
+import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app.module";
 
@@ -54,9 +48,7 @@ const IS_DEV = process.env.NODE_ENV === "development";
     origin: `${IS_DEV ? "http" : "https"}://${domainsConfig.frontend}`
   });
 
-  app
-    // .useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
-    .useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   app.use(helmet()).use(
     session({

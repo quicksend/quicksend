@@ -1,8 +1,10 @@
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
-import { ConfigType } from "@nestjs/config";
+
 import { ClassSerializerInterceptor, Inject } from "@nestjs/common";
+
+import { ConfigType } from "@nestjs/config";
 
 import {
   MiddlewareConsumer,
