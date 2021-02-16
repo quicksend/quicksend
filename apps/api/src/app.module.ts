@@ -2,19 +2,12 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
 
-import {
-  ClassSerializerInterceptor,
-  Inject,
-  ValidationPipe
-} from "@nestjs/common";
-
-import { ConfigType } from "@nestjs/config";
+import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
 
 import {
   MiddlewareConsumer,
   Module,
   NestModule,
-  OnModuleInit,
   RequestMethod
 } from "@nestjs/common";
 
@@ -41,8 +34,6 @@ import { SessionCheckMiddleware } from "./common/middlewares/session-check.middl
 import { RatelimiterConfig } from "./config/modules/ratelimiter.config";
 import { SharedBullConfig } from "./config/modules/shared-bull.config";
 import { TypeOrmConfig } from "./config/modules/typeorm.config";
-
-import { cleanupNamespace } from "./config/config.namespaces";
 
 @Module({
   imports: [
@@ -92,37 +83,15 @@ import { cleanupNamespace } from "./config/config.namespaces";
     }
   ]
 })
-export class AppModule implements NestModule, OnModuleInit {
+export class AppModule implements NestModule {
   constructor(
-    @Inject(cleanupNamespace.KEY)
-    private readonly cleanupConfig: ConfigType<typeof cleanupNamespace>,
-
-    @InjectQueue("item")
-    private readonly itemProcessor: Queue,
-
-    @InjectQueue("storage")
-    private readonly storageProcessor: Queue
+    @InjectQueue("item") itemProcessor: Queue,
+    @InjectQueue("storage") storageProcessor: Queue
   ) {
     setQueues([
-      new BullAdapter(this.itemProcessor),
-      new BullAdapter(this.storageProcessor)
+      new BullAdapter(itemProcessor),
+      new BullAdapter(storageProcessor)
     ]);
-  }
-
-  async onModuleInit(): Promise<void> {
-    await this.itemProcessor.removeJobs("*");
-    await this.itemProcessor.add(
-      "deleteOrphanedItems",
-      {
-        threshold: this.cleanupConfig.limit
-      },
-      {
-        removeOnComplete: true,
-        repeat: {
-          every: this.cleanupConfig.frequency
-        }
-      }
-    );
   }
 
   configure(consumer: MiddlewareConsumer): void {
