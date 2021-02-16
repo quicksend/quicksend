@@ -7,9 +7,7 @@ import {
 
 import { Request } from "express";
 
-import { config } from "@quicksend/config";
-
-export const DEFAULT_FIELD = `${config.get("branding")}-API-Args`;
+export const DEFAULT_FIELD = "Quicksend-API-Args";
 
 export const DEFAULT_EXCEPTION_FACTORY = () => {
   return new BadRequestException(`Header '${DEFAULT_FIELD}' must be a JSON!`);

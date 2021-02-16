@@ -151,27 +151,6 @@
         }
       }
     },
-    "config": {
-      "root": "libs/config",
-      "sourceRoot": "libs/config/src",
-      "projectType": "library",
-      "schematics": {},
-      "architect": {
-        "lint": {
-          "builder": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/config/**/*.ts"]
-          }
-        },
-        "test": {
-          "builder": "@nrwl/jest:jest",
-          "options": {
-            "jestConfig": "libs/config/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
     "interfaces": {
       "root": "libs/interfaces",
       "sourceRoot": "libs/interfaces/src",

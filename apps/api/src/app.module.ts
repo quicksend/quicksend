@@ -1,6 +1,8 @@
 import { APP_INTERCEPTOR } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
+import { ConfigType } from "@nestjs/config";
+import { Inject } from "@nestjs/common";
 
 import {
   MiddlewareConsumer,
@@ -16,22 +18,23 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { BullAdapter, router, setQueues } from "bull-board";
 import { Queue } from "bull";
 
-import { config } from "@quicksend/config";
-
 import { AppController } from "./app.controller";
 
-import { RateLimiterConfig } from "./common/configs/ratelimiter.config";
-import { SharedBullConfig } from "./common/configs/shared-bull.config";
-import { TypeOrmConfig } from "./common/configs/typeorm.config";
-
-import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
-
 import { AuthModule } from "./auth/auth.module";
+import { ConfigModule } from "./config/config.module";
 import { FileModule } from "./file/file.module";
 import { FolderModule } from "./folder/folder.module";
 import { ItemModule } from "./item/item.module";
 import { StorageModule } from "./storage/storage.module";
 import { UserModule } from "./user/user.module";
+
+import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
+
+import { RatelimiterConfig } from "./config/modules/ratelimiter.config";
+import { SharedBullConfig } from "./config/modules/shared-bull.config";
+import { TypeOrmConfig } from "./config/modules/typeorm.config";
+
+import { cleanupNamespace } from "./config/config.namespaces";
 
 @Module({
   imports: [
@@ -41,6 +44,8 @@ import { UserModule } from "./user/user.module";
       useClass: SharedBullConfig
     }),
 
+    ConfigModule,
+
     FileModule,
 
     FolderModule,
@@ -48,7 +53,7 @@ import { UserModule } from "./user/user.module";
     ItemModule,
 
     RateLimiterModule.registerAsync({
-      useClass: RateLimiterConfig
+      useClass: RatelimiterConfig
     }),
 
     StorageModule,
@@ -69,8 +74,14 @@ import { UserModule } from "./user/user.module";
 })
 export class AppModule implements NestModule, OnModuleInit {
   constructor(
-    @InjectQueue("item") private readonly itemProcessor: Queue,
-    @InjectQueue("storage") private readonly storageProcessor: Queue
+    @Inject(cleanupNamespace.KEY)
+    private readonly cleanupConfig: ConfigType<typeof cleanupNamespace>,
+
+    @InjectQueue("item")
+    private readonly itemProcessor: Queue,
+
+    @InjectQueue("storage")
+    private readonly storageProcessor: Queue
   ) {
     setQueues([
       new BullAdapter(this.itemProcessor),
@@ -83,12 +94,12 @@ export class AppModule implements NestModule, OnModuleInit {
     await this.itemProcessor.add(
       "deleteOrphanedItems",
       {
-        threshold: config.get("advanced").garbageCollector.threshold
+        threshold: this.cleanupConfig.limit
       },
       {
         removeOnComplete: true,
         repeat: {
-          every: config.get("advanced").garbageCollector.frequency
+          every: this.cleanupConfig.frequency
         }
       }
     );

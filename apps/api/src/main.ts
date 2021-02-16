@@ -4,36 +4,54 @@ import * as session from "express-session";
 import * as Redis from "ioredis";
 import * as RedisStore from "connect-redis";
 
-import { URL } from "url";
-
 import {
   ClassSerializerInterceptor,
   Logger,
   ValidationPipe
 } from "@nestjs/common";
 
+import { ConfigType } from "@nestjs/config";
+
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory, Reflector } from "@nestjs/core";
-
-import { config } from "@quicksend/config";
-
-import { RedisConfig } from "./common/configs/redis.config";
 
 import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
 
 import { AppModule } from "./app.module";
 
+import {
+  domainsNamespace,
+  httpNamespace,
+  redisNamespace,
+  secretsNamespace
+} from "./config/config.namespaces";
+
+const IS_DEV = process.env.NODE_ENV === "development";
+
 (async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const isDev = config.get("env") === "development";
-  const port = config.get("port");
+  const domainsConfig = app.get<ConfigType<typeof domainsNamespace>>(
+    domainsNamespace.KEY
+  );
+
+  const httpConfig = app.get<ConfigType<typeof httpNamespace>>(
+    httpNamespace.KEY
+  );
+
+  const redisConfig = app.get<ConfigType<typeof redisNamespace>>(
+    redisNamespace.KEY
+  );
+
+  const secretsConfig = app.get<ConfigType<typeof secretsNamespace>>(
+    secretsNamespace.KEY
+  );
 
   app.setGlobalPrefix("api");
 
   app.enableCors({
     credentials: true,
-    origin: `${isDev ? "http" : "https"}://${config.get("domains").frontend}`
+    origin: `${IS_DEV ? "http" : "https"}://${domainsConfig.frontend}`
   });
 
   app
@@ -44,20 +62,25 @@ import { AppModule } from "./app.module";
   app.use(helmet()).use(
     session({
       cookie: {
-        domain: new URL(config.get("domains").backend).hostname,
+        domain: domainsConfig.backend,
         maxAge: 14 * 8.64e7,
         sameSite: "strict",
-        secure: !isDev
+        secure: !IS_DEV
       },
       name: "sid.the.science.kid",
       resave: false,
       saveUninitialized: false,
-      secret: config.get("secrets").sessions,
+      secret: secretsConfig.sessions,
       store: new (RedisStore(session))({
-        client: new Redis(new RedisConfig())
+        client: new Redis({
+          host: redisConfig.hostname,
+          port: redisConfig.port
+        })
       })
     })
   );
 
-  app.listen(port, () => Logger.log(`Listening on port ${port}`));
+  app.listen(httpConfig.port, () =>
+    Logger.log(`Listening on port ${httpConfig.port}`)
+  );
 })();

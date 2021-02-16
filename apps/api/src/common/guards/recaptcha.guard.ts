@@ -7,9 +7,9 @@ import {
   InternalServerErrorException
 } from "@nestjs/common";
 
-import { Reflector } from "@nestjs/core";
+import { ConfigService } from "@nestjs/config";
 
-import { config } from "@quicksend/config";
+import { Reflector } from "@nestjs/core";
 
 import { Request } from "express";
 
@@ -27,7 +27,8 @@ export const RECAPTCHA_SCORE_KEY = "RECAPTCHA_SCORE";
 @Injectable()
 export class RecaptchaGuard implements CanActivate {
   constructor(
-    private readonly http: HttpService,
+    private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
     private readonly reflector: Reflector
   ) {}
 
@@ -41,13 +42,13 @@ export class RecaptchaGuard implements CanActivate {
       throw new BadRequestException(RECAPTCHA_MISSING);
     }
 
-    const result = await this.http
+    const result = await this.httpService
       .post(
         RECAPTCHA_URL,
         stringify({
           remoteip: getClientIp(req),
           response: req.body.recaptcha,
-          secret: config.get("secrets").recaptcha
+          secret: this.configService.get("secrets").recaptcha
         })
       )
       .toPromise()

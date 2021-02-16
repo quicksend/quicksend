@@ -1,6 +1,7 @@
 dependencies:
   '@nestjs/bull': 0.3.0_a3f02aae9da2409c9a4182ccee746ac4
   '@nestjs/common': 7.5.5_0c773f197e7bb0df0bedc332ad8bc35d
+  '@nestjs/config': 0.6.3_8063f318c22e6a8f2358820ed27c4d37
   '@nestjs/core': 7.5.5_8063f318c22e6a8f2358820ed27c4d37
   '@nestjs/platform-express': 7.5.5_ea16fc9084e0c3bcdea337bfa7a94f1c
   '@nestjs/typeorm': 7.1.5_9b45c2f5bc553a7201fc0bb91078e8f4
@@ -12,13 +13,12 @@ dependencies:
   class-transformer: 0.3.1
   class-validator: 0.12.2
   connect-redis: 5.0.0
-  convict: 6.0.0
-  convict-format-with-validator: 6.0.0
   document-register-element: 1.13.1
   express: 4.17.1
   express-session: 1.17.1
   helmet: 4.2.0
   ioredis: 4.19.2
+  joi: 17.4.0
   js-yaml: 3.14.0
   nanoid: 3.1.20
   nestjs-rate-limiter: 2.5.6
@@ -54,8 +54,6 @@ devDependencies:
   '@types/bull': 3.14.4
   '@types/busboy': 0.2.3
   '@types/connect-redis': 0.0.15
-  '@types/convict': 5.2.1
-  '@types/convict-format-with-validator': 6.0.1
   '@types/express': 4.17.9
   '@types/express-session': 1.17.3
   '@types/jest': 26.0.15
@@ -2137,6 +2135,16 @@ packages:
       node: ^10.12.0 || >=12.0.0
     resolution:
       integrity: sha512-XRUeBZ5zBWLYgSANMpThFddrZZkEbGHgUdt5UJjZfnlN9BGCiUBrf+nvbRupSjMvqzwnQN0qwCmOxITt1cfywA==
+  /@hapi/hoek/9.1.1:
+    dev: false
+    resolution:
+      integrity: sha512-CAEbWH7OIur6jEOzaai83jq3FmKmv4PmX1JYfs9IrYcGEVI/lyL1EXJGCj7eFVJ0bg5QR8LMxBlEtA+xKiLpFw==
+  /@hapi/topo/5.0.0:
+    dependencies:
+      '@hapi/hoek': 9.1.1
+    dev: false
+    resolution:
+      integrity: sha512-tFJlT47db0kMqVm3H4nQYgn6Pwg10GTZHb1pwmSiv1K4ks6drQOtfEF5ZnPjkvC+y4/bUPHK+bc87QvLcL+WMw==
   /@istanbuljs/load-nyc-config/1.1.0:
     dependencies:
       camelcase: 5.3.1
@@ -2367,6 +2375,24 @@ packages:
       rxjs: ^6.0.0
     resolution:
       integrity: sha512-dubDHjashfARGV8zhcANTsL5o0ZPm2xTB/BI12wgwTjCnM8WkaFqXpSCngqJyB3/XTFwllkP2g1ok6TwAZcSJw==
+  /@nestjs/config/0.6.3_8063f318c22e6a8f2358820ed27c4d37:
+    dependencies:
+      '@nestjs/common': 7.5.5_0c773f197e7bb0df0bedc332ad8bc35d
+      dotenv: 8.2.0
+      dotenv-expand: 5.1.0
+      lodash.get: 4.4.2
+      lodash.has: 4.5.2
+      lodash.set: 4.3.2
+      reflect-metadata: 0.1.13
+      rxjs: 6.6.3
+      uuid: 8.3.2
+    dev: false
+    peerDependencies:
+      '@nestjs/common': ^6.10.0 || ^7.0.0
+      reflect-metadata: ^0.1.12
+      rxjs: ^6.0.0
+    resolution:
+      integrity: sha512-JxvvUpmH0/WOrTB+zh8dEkxSUQXhB7V3d/qeQXyCnMiEFjaq89+fNFztpWjz4DlOfdS4/eYTzIEy9PH2uGnfzA==
   /@nestjs/core/7.5.5_8063f318c22e6a8f2358820ed27c4d37:
     dependencies:
       '@nestjs/common': 7.5.5_0c773f197e7bb0df0bedc332ad8bc35d
@@ -2947,6 +2973,20 @@ packages:
         optional: true
     resolution:
       integrity: sha512-c/qwwcHyafOQuVQJj0IlBjf5yYgBI7YPJ77k4fOJYesb41jio65eaJODRUmfYKhTOFBrIZ66kgvGPlNbjuoRdQ==
+  /@sideway/address/4.1.1:
+    dependencies:
+      '@hapi/hoek': 9.1.1
+    dev: false
+    resolution:
+      integrity: sha512-+I5aaQr3m0OAmMr7RQ3fR9zx55sejEYR2BFJaxL+zT3VM2611X0SHvPWIbAUBZVTn/YzYKbV8gJ2oT/QELknfQ==
+  /@sideway/formula/3.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==
+  /@sideway/pinpoint/2.0.0:
+    dev: false
+    resolution:
+      integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
   /@sinonjs/commons/1.8.1:
     dependencies:
       type-detect: 4.0.8
@@ -3179,18 +3219,6 @@ packages:
       '@types/node': 14.14.9
     resolution:
       integrity: sha512-2+FrkXY4zllzTNfJth7jOqEHC+enpLeGslEhpnTAkg21GkRrWV4SsAtqchtT4YS9/nODBU2/ZfsBY2X4J/dX7A==
-  /@types/convict-format-with-validator/6.0.1:
-    dependencies:
-      '@types/convict': 5.2.1
-    dev: true
-    resolution:
-      integrity: sha512-Z4AVD2albucxXZatYRQDfXY4quh8cWF65TAsEcg6U1Y3Ch0nTcFJ3COOYJxYwIKCDmB4tQqB55Yc5TggxvY3fA==
-  /@types/convict/5.2.1:
-    dependencies:
-      '@types/node': 14.14.9
-    dev: true
-    resolution:
-      integrity: sha512-SbtKO7CzkSaBZ/yMo9+qDPG2q59BN2ONry2Qra+boPXoXfjW4gVX/ohcmRsKpZZGGNszkLCl2Wi8coIDp/qPQg==
   /@types/estree/0.0.39:
     dev: true
     resolution:
@@ -5423,23 +5451,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-4FJkXzKXEDB1snCFZlLP4gpC3JILicCpGbzG9f9G7tGqGCzETQ2hWPrcinA9oU4wtf2biUaEH5065UnMeR33oA==
-  /convict-format-with-validator/6.0.0:
-    dependencies:
-      validator: 11.1.0
-    dev: false
-    engines:
-      node: '>=6'
-    resolution:
-      integrity: sha512-3E8cLYkHKQDTCF4MYOzReVeHrObfulUR5hw/Ur/hE/CPwXRcJHZO7Jt0JyE86IpvAZsgrOjMpVy93USjrubVqg==
-  /convict/6.0.0:
-    dependencies:
-      lodash.clonedeep: 4.5.0
-      yargs-parser: 18.1.3
-    dev: false
-    engines:
-      node: '>=6'
-    resolution:
-      integrity: sha512-osfPkv5yjVoZqrTWBXuh/ABGpFoaJplbt0WXr0CodR4CSWt8UnzY4PSUyRz/+5BX5YUtWcToG29Kr0B6xhdIMg==
   /cookie-signature/1.0.6:
     resolution:
       integrity: sha1-4wOogrNCzD7oylE6eZmXNNqzriw=
@@ -6320,6 +6331,10 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==
+  /dotenv-expand/5.1.0:
+    dev: false
+    resolution:
+      integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==
   /dotenv/6.2.0:
     dev: true
     engines:
@@ -9242,6 +9257,16 @@ packages:
       ts-node: '*'
     resolution:
       integrity: sha512-lGS5PXGAzR4RF7V5+XObhqz2KZIDUA1yD0DG6pBVmy10eh0ZIXQImRuzocsI/N2XZ1GrLFwTS27In2i2jlpq1Q==
+  /joi/17.4.0:
+    dependencies:
+      '@hapi/hoek': 9.1.1
+      '@hapi/topo': 5.0.0
+      '@sideway/address': 4.1.1
+      '@sideway/formula': 3.0.0
+      '@sideway/pinpoint': 2.0.0
+    dev: false
+    resolution:
+      integrity: sha512-F4WiW2xaV6wc1jxete70Rw4V/VuMd6IN+a5ilZsxG4uYtUXWu2kq9W5P2dz30e7Gmw8RCbY/u/uk+dMPma9tAg==
   /js-tokens/3.0.2:
     dev: true
     resolution:
@@ -9672,6 +9697,7 @@ packages:
     resolution:
       integrity: sha1-soqmKIorn8ZRA1x3EfZathkDMaY=
   /lodash.clonedeep/4.5.0:
+    dev: true
     resolution:
       integrity: sha1-4j8/nE+Pvd6HJSnBBxhXoIblzO8=
   /lodash.defaults/4.2.0:
@@ -9682,6 +9708,14 @@ packages:
     dev: false
     resolution:
       integrity: sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
+  /lodash.get/4.4.2:
+    dev: false
+    resolution:
+      integrity: sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
+  /lodash.has/4.5.2:
+    dev: false
+    resolution:
+      integrity: sha1-0Z9NwQlQWMzL4rDN9O4P5Ko3yGI=
   /lodash.memoize/4.1.2:
     dev: true
     resolution:
@@ -9690,6 +9724,10 @@ packages:
     dev: true
     resolution:
       integrity: sha1-DdOXEhPHxW34gJd9UEyI+0cal6w=
+  /lodash.set/4.3.2:
+    dev: false
+    resolution:
+      integrity: sha1-2HV7HagH3eJIFrDWqEvqGnYjCyM=
   /lodash.sortby/4.7.0:
     dev: true
     resolution:
@@ -14479,12 +14517,6 @@ packages:
     dev: true
     resolution:
       integrity: sha1-X6kS2B630MdK/BQN5zF/DKffQ34=
-  /validator/11.1.0:
-    dev: false
-    engines:
-      node: '>= 0.10'
-    resolution:
-      integrity: sha512-qiQ5ktdO7CD6C/5/mYV4jku/7qnqzjrxb3C/Q5wR3vGGinHTgJZN/TdFT3ZX4vXhX2R1PXx42fB1cn5W+uJ4lg==
   /validator/13.0.0:
     dev: false
     engines:
@@ -15062,6 +15094,7 @@ specifiers:
   '@babel/preset-typescript': 7.12.7
   '@nestjs/bull': ^0.3.0
   '@nestjs/common': ^7.5.5
+  '@nestjs/config': ^0.6.3
   '@nestjs/core': ^7.5.5
   '@nestjs/platform-express': ^7.5.5
   '@nestjs/schematics': ^7.2.2
@@ -15080,8 +15113,6 @@ specifiers:
   '@types/bull': ^3.14.4
   '@types/busboy': ^0.2.3
   '@types/connect-redis': ^0.0.15
-  '@types/convict': ^5.2.1
-  '@types/convict-format-with-validator': ^6.0.1
   '@types/express': ^4.17.9
   '@types/express-session': ^1.17.3
   '@types/jest': 26.0.15
@@ -15105,8 +15136,6 @@ specifiers:
   class-transformer: ^0.3.1
   class-validator: ^0.12.2
   connect-redis: ^5.0.0
-  convict: ^6.0.0
-  convict-format-with-validator: ^6.0.0
   core-js: ^3.7.0
   cypress: ^6.0.0
   document-register-element: 1.13.1
@@ -15123,6 +15152,7 @@ specifiers:
   helmet: ^4.2.0
   ioredis: ^4.19.2
   jest: 26.6.3
+  joi: ^17.4.0
   js-yaml: ^3.14.0
   nanoid: ^3.1.20
   nestjs-rate-limiter: ^2.5.6

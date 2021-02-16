@@ -1,5 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bull";
+
+import { ConfigType } from "@nestjs/config";
 
 import { IncomingMessage } from "http";
 import { Queue } from "bull";
@@ -11,13 +13,19 @@ import {
   MultiparterOptions
 } from "@quicksend/multiparter";
 
-import { config } from "@quicksend/config";
+import { engineNamespace, limitsNamespace } from "../config/config.namespaces";
 
 @Injectable()
 export class StorageService {
   readonly engine = this._determineStorageEngine();
 
   constructor(
+    @Inject(engineNamespace.KEY)
+    private readonly engineConfig: ConfigType<typeof engineNamespace>,
+
+    @Inject(limitsNamespace.KEY)
+    private readonly limitsConfig: ConfigType<typeof limitsNamespace>,
+
     @InjectQueue("storage")
     private readonly storageProcessor: Queue
   ) {}
@@ -36,7 +44,10 @@ export class StorageService {
   ): Promise<Multiparter> {
     return new Multiparter({
       busboy: options?.busboy || {
-        limits: config.get("storage").limits
+        limits: {
+          files: this.limitsConfig.maxFiles,
+          fileSize: this.limitsConfig.maxFileSize
+        }
       },
       engine: options?.engine || this.engine,
       field: options?.field || "file",
@@ -45,17 +56,12 @@ export class StorageService {
   }
 
   private _determineStorageEngine() {
-    const { engine, options } = config.get("storage");
-
-    switch (engine) {
+    switch (this.engineConfig.type) {
       case "disk":
-        return new DiskStorageEngine(options);
-
-      case "google-cloud":
-        return new DiskStorageEngine(options); // TODO: Need to create google cloud storage engine
+        return new DiskStorageEngine(this.engineConfig.options.disk);
 
       default:
-        return new DiskStorageEngine(options);
+        return new DiskStorageEngine(this.engineConfig.options.disk);
     }
   }
 }
