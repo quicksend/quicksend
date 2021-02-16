@@ -104,6 +104,8 @@ export class AppModule implements NestModule {
       .apply(SessionCheckMiddleware)
       .forRoutes({ method: RequestMethod.ALL, path: "*" });
 
-    consumer.apply(router).forRoutes({ method: RequestMethod.ALL, path: "/" });
+    consumer
+      .apply(router)
+      .forRoutes({ method: RequestMethod.ALL, path: "/queues" });
   }
 }

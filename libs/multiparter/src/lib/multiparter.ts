@@ -3,24 +3,17 @@ import * as Busboy from "busboy";
 import { EventEmitter } from "events";
 import { IncomingMessage } from "http";
 
+import { Counter, HashCalculator, StreamMeter } from "@quicksend/utils";
+import { generateId, pump, settlePromises } from "@quicksend/utils";
+
+import { MultiparterException } from "./multiparter.exceptions";
+
 import { BusboyReadable } from "./interfaces/busboy-readable.interface";
 import { FailedFile } from "./interfaces/failed-file.interface";
 import { FilterFunction } from "./interfaces/filter-function.interface";
 import { IncomingFile } from "./interfaces/incoming-file.interface";
 import { MultiparterOptions } from "./interfaces/multiparter-options.interface";
 import { WrittenFile } from "./interfaces/written-file.interface";
-
-import {
-  FileTooLargeException,
-  TooManyFieldsException,
-  TooManyFilesException,
-  TooManyPartsException,
-  UnsupportedContentTypeException
-} from "./multiparter.exceptions";
-
-import { Counter, HashCalculator, StreamMeter } from "@quicksend/utils";
-
-import { generateId, pump, settlePromises } from "@quicksend/utils";
 
 export class Multiparter extends EventEmitter {
   private readonly _failed: FailedFile[] = [];
@@ -141,15 +134,21 @@ export class Multiparter extends EventEmitter {
     try {
       return new Busboy(options)
         .on("error", (error: Error) => this.abort(error))
-        .on("fieldsLimit", () => this.abort(new TooManyFieldsException()))
-        .on("filesLimit", () => this.abort(new TooManyFilesException()))
-        .on("partsLimit", () => this.abort(new TooManyPartsException()))
+        .on("fieldsLimit", () =>
+          this.abort(new MultiparterException("TOO_MANY_FIELDS"))
+        )
+        .on("filesLimit", () =>
+          this.abort(new MultiparterException("TOO_MANY_FILES"))
+        )
+        .on("partsLimit", () =>
+          this.abort(new MultiparterException("TOO_MANY_PARTS"))
+        )
         .on("finish", () => {
           this._busboyFinished = true;
           this._finish();
         });
     } catch (error) {
-      throw new UnsupportedContentTypeException();
+      throw new MultiparterException("UNSUPPORTED_CONTENT_TYPE");
     }
   }
 
@@ -192,7 +191,7 @@ export class Multiparter extends EventEmitter {
       if (readable.truncated) {
         this._failed.push({
           file,
-          reason: new FileTooLargeException(file.name)
+          reason: new MultiparterException("FILE_TOO_LARGE")
         });
       } else {
         this._written.push({
