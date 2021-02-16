@@ -2,13 +2,13 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
 
-import { ClassSerializerInterceptor, ValidationPipe } from "@nestjs/common";
-
 import {
+  ClassSerializerInterceptor,
   MiddlewareConsumer,
   Module,
   NestModule,
-  RequestMethod
+  RequestMethod,
+  ValidationPipe
 } from "@nestjs/common";
 
 import { RateLimiterModule, RateLimiterInterceptor } from "nestjs-rate-limiter";
@@ -79,7 +79,12 @@ import { TypeOrmConfig } from "./config/modules/typeorm.config";
     },
     {
       provide: APP_PIPE,
-      useClass: ValidationPipe
+      useFactory: () => {
+        return new ValidationPipe({
+          transform: true,
+          whitelist: true
+        });
+      }
     }
   ]
 })

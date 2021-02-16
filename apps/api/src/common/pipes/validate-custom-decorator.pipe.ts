@@ -1,7 +1,4 @@
-import {
-  DEFAULT_VALIDATION_PIPE_OPTIONS,
-  ValidationPipe
-} from "./validation.pipe";
+import { ValidationPipe } from "@nestjs/common";
 
 /*
  * This should be used as a pipe when you want to validate the
@@ -10,6 +7,7 @@ import {
  * to prevent validating decorators that shouldn't be validated.
  */
 export const ValidateCustomDecoratorPipe = new ValidationPipe({
-  ...DEFAULT_VALIDATION_PIPE_OPTIONS,
-  validateCustomDecorators: true
+  transform: true,
+  validateCustomDecorators: true,
+  whitelist: true
 });
