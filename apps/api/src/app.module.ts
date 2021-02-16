@@ -2,7 +2,11 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
 
-import { ClassSerializerInterceptor, Inject } from "@nestjs/common";
+import {
+  ClassSerializerInterceptor,
+  Inject,
+  ValidationPipe
+} from "@nestjs/common";
 
 import { ConfigType } from "@nestjs/config";
 
@@ -81,6 +85,10 @@ import { cleanupNamespace } from "./config/config.namespaces";
     {
       provide: APP_INTERCEPTOR,
       useClass: RateLimiterInterceptor
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe
     }
   ]
 })

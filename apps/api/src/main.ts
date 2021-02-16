@@ -4,7 +4,7 @@ import * as session from "express-session";
 import * as Redis from "ioredis";
 import * as RedisStore from "connect-redis";
 
-import { Logger, ValidationPipe } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 
 import { ConfigType } from "@nestjs/config";
 
@@ -20,7 +20,7 @@ import {
   secretsNamespace
 } from "./config/config.namespaces";
 
-const IS_DEV = process.env.NODE_ENV === "development";
+const IS_PROD = process.env.NODE_ENV === "production";
 
 (async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -45,10 +45,8 @@ const IS_DEV = process.env.NODE_ENV === "development";
 
   app.enableCors({
     credentials: true,
-    origin: `${IS_DEV ? "http" : "https"}://${domainsConfig.frontend}`
+    origin: `${IS_PROD ? "https" : "http"}://${domainsConfig.frontend}`
   });
-
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   app.use(helmet()).use(
     session({
@@ -56,7 +54,7 @@ const IS_DEV = process.env.NODE_ENV === "development";
         domain: domainsConfig.backend,
         maxAge: 14 * 8.64e7,
         sameSite: "strict",
-        secure: !IS_DEV
+        secure: IS_PROD
       },
       name: "sid.the.science.kid",
       resave: false,
@@ -71,7 +69,7 @@ const IS_DEV = process.env.NODE_ENV === "development";
     })
   );
 
-  app.listen(httpConfig.port, () =>
-    Logger.log(`Listening on port ${httpConfig.port}`)
-  );
+  app.listen(httpConfig.port, () => {
+    Logger.log(`Listening on port ${httpConfig.port}`, "NestApplication");
+  });
 })();
