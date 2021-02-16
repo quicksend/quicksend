@@ -10,17 +10,18 @@ import {
   UseGuards
 } from "@nestjs/common";
 
-import { CreateFolderDto } from "./dto/create-folder.dto";
-import { MoveFolderDto } from "./dto/move-folder.dto";
+import { CurrentUser } from "../common/decorators/current-user.decorator";
 
 import { AuthGuard } from "../common/guards/auth.guard";
-import { CurrentUser } from "../common/decorators/current-user.decorator";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { FolderService } from "./folder.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+
+import { CreateFolderDto } from "./dto/create-folder.dto";
+import { MoveFolderDto } from "./dto/move-folder.dto";
 
 @Controller("folders")
 @UseGuards(AuthGuard)

@@ -16,10 +16,10 @@ import { Request, Response } from "express";
 
 import { plainToClass } from "class-transformer";
 
-import { AuthGuard } from "../common/guards/auth.guard";
-
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JSONHeader } from "../common/decorators/json-header.decorator";
+
+import { AuthGuard } from "../common/guards/auth.guard";
 
 import { ValidateCustomDecoratorPipe } from "../common/pipes/validate-custom-decorator.pipe";
 

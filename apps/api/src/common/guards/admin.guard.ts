@@ -1,10 +1,10 @@
 import { ExecutionContext, Injectable } from "@nestjs/common";
 
+import { Request } from "../../common/interfaces/request.interface";
+
 import { AuthGuard } from "./auth.guard";
 
 import { UserNotAdminException } from "../../auth/auth.exceptions";
-
-import { Request } from "../../common/interfaces/request.interface";
 
 @Injectable()
 export class AdminGuard extends AuthGuard {

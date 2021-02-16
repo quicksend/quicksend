@@ -4,10 +4,8 @@ import * as session from "express-session";
 import * as Redis from "ioredis";
 import * as RedisStore from "connect-redis";
 
-import { Logger } from "@nestjs/common";
-
 import { ConfigType } from "@nestjs/config";
-
+import { Logger } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory } from "@nestjs/core";
 

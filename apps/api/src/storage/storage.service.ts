@@ -1,7 +1,6 @@
+import { ConfigType } from "@nestjs/config";
 import { Inject, Injectable } from "@nestjs/common";
 import { InjectQueue } from "@nestjs/bull";
-
-import { ConfigType } from "@nestjs/config";
 
 import { IncomingMessage } from "http";
 import { Queue } from "bull";
