@@ -2,14 +2,12 @@ import {
   ArgumentsHost,
   Catch,
   ExceptionFilter,
-  Injectable,
   InternalServerErrorException,
   Logger
 } from "@nestjs/common";
 
 import { Response } from "express";
 
-@Injectable()
 @Catch(InternalServerErrorException)
 export class InternalServerErrorExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(InternalServerErrorException.name);
