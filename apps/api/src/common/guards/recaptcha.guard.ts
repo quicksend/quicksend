@@ -3,11 +3,12 @@ import {
   CanActivate,
   ExecutionContext,
   HttpService,
+  Inject,
   Injectable,
   InternalServerErrorException
 } from "@nestjs/common";
 
-import { ConfigService } from "@nestjs/config";
+import { ConfigType } from "@nestjs/config";
 
 import { Reflector } from "@nestjs/core";
 
@@ -15,6 +16,8 @@ import { Request } from "express";
 
 import { getClientIp } from "request-ip";
 import { stringify } from "qs";
+
+import { secretsNamespace } from "../../config/config.namespaces";
 
 const RECAPTCHA_FAILED = "reCAPTCHA failed, please try again!";
 const RECAPTCHA_MISSING = "Please complete the reCAPTCHA!";
@@ -27,9 +30,11 @@ export const RECAPTCHA_SCORE_KEY = "RECAPTCHA_SCORE";
 @Injectable()
 export class RecaptchaGuard implements CanActivate {
   constructor(
-    private readonly configService: ConfigService,
     private readonly httpService: HttpService,
-    private readonly reflector: Reflector
+    private readonly reflector: Reflector,
+
+    @Inject(secretsNamespace.KEY)
+    private readonly secretsConfig: ConfigType<typeof secretsNamespace>
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -48,7 +53,7 @@ export class RecaptchaGuard implements CanActivate {
         stringify({
           remoteip: getClientIp(req),
           response: req.body.recaptcha,
-          secret: this.configService.get("secrets").recaptcha
+          secret: this.secretsConfig.recaptcha
         })
       )
       .toPromise()
