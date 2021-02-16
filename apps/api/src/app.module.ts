@@ -2,10 +2,9 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
 import { BullModule, InjectQueue } from "@nestjs/bull";
 import { ConfigType } from "@nestjs/config";
-import { Inject } from "@nestjs/common";
+import { ClassSerializerInterceptor, Inject } from "@nestjs/common";
 
 import {
-  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -72,6 +71,10 @@ import { cleanupNamespace } from "./config/config.namespaces";
     {
       provide: APP_FILTER,
       useClass: InternalServerErrorExceptionFilter
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
     },
     {
       provide: APP_INTERCEPTOR,

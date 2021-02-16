@@ -55,7 +55,7 @@ const IS_DEV = process.env.NODE_ENV === "development";
   });
 
   app
-    .useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
+    // .useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)))
     .useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   app.use(helmet()).use(
