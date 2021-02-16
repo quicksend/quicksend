@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Post, Req, UseGuards } from "@nestjs/common";
 
 import { Request } from "../common/interfaces/request.interface";
 
@@ -6,6 +6,8 @@ import { AuthService } from "./auth.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { UserEntity } from "../user/user.entity";
+
+import { RecaptchaGuard } from "../common/guards/recaptcha.guard";
 
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
@@ -18,6 +20,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
+  @UseGuards(RecaptchaGuard)
   async login(@Body() dto: LoginDto, @Req() req: Request): Promise<UserEntity> {
     const user = await this.authService.login(dto);
 
@@ -37,6 +40,7 @@ export class AuthController {
   }
 
   @Post("register")
+  @UseGuards(RecaptchaGuard)
   async register(
     @Body() dto: RegisterDto,
     @Req() req: Request

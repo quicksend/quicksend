@@ -15,7 +15,7 @@ import { Reflector } from "@nestjs/core";
 import { Request } from "express";
 
 import { getClientIp } from "request-ip";
-import { stringify } from "qs";
+import { stringify } from "querystring";
 
 import { secretsNamespace } from "../../config/config.namespaces";
 
