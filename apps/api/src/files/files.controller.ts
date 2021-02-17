@@ -42,7 +42,15 @@ export class FilesController {
     private readonly uowService: UnitOfWorkService
   ) {}
 
-  @Delete(":id")
+  @Get(":id")
+  async find(
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FileEntity> {
+    return this.filesService.findOneOrFail({ id, user });
+  }
+
+  @Delete(":id/delete")
   async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -52,15 +60,7 @@ export class FilesController {
     );
   }
 
-  @Get(":id")
-  async find(
-    @CurrentUser() user: UserEntity,
-    @Param("id") id: string
-  ): Promise<FileEntity> {
-    return this.filesService.findOneOrFail({ id, user });
-  }
-
-  @Get("download/:id")
+  @Get(":id/download")
   async download(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string,
@@ -82,7 +82,7 @@ export class FilesController {
     readable.pipe(response);
   }
 
-  @Post("move/:id")
+  @Post(":id/move")
   move(
     @Body() dto: MoveFileDto,
     @CurrentUser() user: UserEntity,
@@ -91,7 +91,7 @@ export class FilesController {
     return this.filesService.move({ id, user }, { id: dto.to, user });
   }
 
-  @Post("rename/:id")
+  @Post(":id/rename")
   rename(
     @Body() dto: RenameFileDto,
     @CurrentUser() user: UserEntity,
