@@ -65,10 +65,11 @@ export class FolderController {
   @Patch(":id/move")
   async move(
     @Body() dto: MoveFolderDto,
-    @CurrentUser() user: UserEntity
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
   ): Promise<FolderEntity> {
     return this.uowService.withTransaction(() =>
-      this.foldersService.move({ id: dto.from, user }, { id: dto.to, user })
+      this.foldersService.move({ id, user }, { id: dto.to, user })
     );
   }
 
