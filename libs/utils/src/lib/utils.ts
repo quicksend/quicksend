@@ -5,6 +5,5 @@ export * from "./utils/counter";
 export * from "./utils/escapeRegExp";
 export * from "./utils/generateId";
 export * from "./utils/hash-calculator";
-export * from "./utils/pump";
 export * from "./utils/settle-promises";
 export * from "./utils/stream-meter";

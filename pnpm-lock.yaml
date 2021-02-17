@@ -22,7 +22,6 @@ dependencies:
   nestjs-rate-limiter: 2.5.6
   pg: 8.5.1
   pg-query-stream: 3.4.2
-  pump: 3.0.0
   react: 17.0.1
   react-dom: 17.0.1_react@17.0.1
   react-is: 17.0.1
@@ -56,7 +55,6 @@ devDependencies:
   '@types/express-session': 1.17.3
   '@types/jest': 26.0.15
   '@types/node': 14.14.9
-  '@types/pump': 1.1.0
   '@types/react': 17.0.0
   '@types/react-dom': 17.0.0
   '@types/react-is': 17.0.0
@@ -3349,12 +3347,6 @@ packages:
   /@types/prop-types/15.7.3:
     resolution:
       integrity: sha512-KfRL3PuHmqQLOG+2tGpRO26Ctg+Cq1E01D2DMriKEATHgWLfeNDmq9e29Q9WIky0dQ3NPkd1mzYH8Lm936Z9qw==
-  /@types/pump/1.1.0:
-    dependencies:
-      '@types/node': 14.14.9
-    dev: true
-    resolution:
-      integrity: sha512-YGGbsqf5o7sF8gGANP8ZYxgaRGlFgEAImx5tCvA4YKRCfqbsDQZO48UmWynZzSjbhn0ZWSlsWOcb5NwvOx8KcQ==
   /@types/q/1.5.4:
     dev: true
     resolution:
@@ -6428,6 +6420,7 @@ packages:
   /end-of-stream/1.4.4:
     dependencies:
       once: 1.4.0
+    dev: true
     resolution:
       integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   /enhanced-resolve/4.3.0:
@@ -11960,6 +11953,7 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+    dev: true
     resolution:
       integrity: sha512-LwZy+p3SFs1Pytd/jYct4wpv49HiYCqd9Rlc5ZVdk0V+8Yzv6jR5Blk3TRmPL1ft69TxP0IMZGJ+WPFU2BFhww==
   /pumpify/1.5.1:
@@ -15081,7 +15075,6 @@ specifiers:
   '@types/express-session': ^1.17.3
   '@types/jest': 26.0.15
   '@types/node': ^14.14.9
-  '@types/pump': ^1.1.0
   '@types/react': 17.0.0
   '@types/react-dom': 17.0.0
   '@types/react-is': 17.0.0
@@ -15120,7 +15113,6 @@ specifiers:
   pg: ^8.5.1
   pg-query-stream: ^3.4.2
   prettier: 2.2.0
-  pump: ^3.0.0
   react: 17.0.1
   react-dom: 17.0.1
   react-is: 17.0.1

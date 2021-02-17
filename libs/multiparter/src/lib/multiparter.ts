@@ -1,10 +1,12 @@
 import * as Busboy from "busboy";
+import * as stream from "stream";
 
 import { EventEmitter } from "events";
 import { IncomingMessage } from "http";
+import { promisify } from "util";
 
 import { Counter, HashCalculator, StreamMeter } from "@quicksend/utils";
-import { generateId, pump, settlePromises } from "@quicksend/utils";
+import { generateId, settlePromises } from "@quicksend/utils";
 
 import { MultiparterException } from "./multiparter.exceptions";
 
@@ -14,6 +16,8 @@ import { FilterFunction } from "./interfaces/filter-function.interface";
 import { IncomingFile } from "./interfaces/incoming-file.interface";
 import { MultiparterOptions } from "./interfaces/multiparter-options.interface";
 import { WrittenFile } from "./interfaces/written-file.interface";
+
+const pipeline = promisify(stream.pipeline);
 
 export class Multiparter extends EventEmitter {
   private readonly _failed: FailedFile[] = [];
@@ -133,19 +137,21 @@ export class Multiparter extends EventEmitter {
   private _createBusboy(options: busboy.BusboyConfig) {
     try {
       return new Busboy(options)
-        .on("error", (error: Error) => this.abort(error))
-        .on("fieldsLimit", () =>
-          this.abort(new MultiparterException("TOO_MANY_FIELDS"))
-        )
-        .on("filesLimit", () =>
-          this.abort(new MultiparterException("TOO_MANY_FILES"))
-        )
-        .on("partsLimit", () =>
-          this.abort(new MultiparterException("TOO_MANY_PARTS"))
-        )
+        .on("error", (error: Error) => {
+          this.abort(error);
+        })
+        .on("fieldsLimit", () => {
+          this.abort(new MultiparterException("TOO_MANY_FIELDS"));
+        })
+        .on("filesLimit", () => {
+          this.abort(new MultiparterException("TOO_MANY_FILES"));
+        })
         .on("finish", () => {
           this._busboyFinished = true;
           this._finish();
+        })
+        .on("partsLimit", () => {
+          this.abort(new MultiparterException("TOO_MANY_PARTS"));
         });
     } catch (error) {
       throw new MultiparterException("UNSUPPORTED_CONTENT_TYPE");
@@ -177,14 +183,13 @@ export class Multiparter extends EventEmitter {
     try {
       this._pendingWrites.increment();
 
-      // TODO: maybe use pipeline instead
-      await pump([
+      await pipeline(
         readable,
         meter,
         ...this.options.transformers.map((transform) => transform(file)),
         hash,
         writable
-      ]);
+      );
 
       this._pendingWrites.decrement();
 
