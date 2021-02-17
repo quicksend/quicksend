@@ -2,8 +2,8 @@ import { Column, Entity, ManyToOne } from "typeorm";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FolderEntity } from "../folder/folder.entity";
-import { ItemEntity } from "../item/item.entity";
+import { FolderEntity } from "../folders/folder.entity";
+import { ItemEntity } from "../items/item.entity";
 import { UserEntity } from "../user/user.entity";
 
 @Entity({ name: "file" })

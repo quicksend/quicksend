@@ -21,9 +21,9 @@ import { AppController } from "./app.controller";
 
 import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "./config/config.module";
-import { FileModule } from "./file/file.module";
-import { FolderModule } from "./folder/folder.module";
-import { ItemModule } from "./item/item.module";
+import { FilesModule } from "./files/files.module";
+import { FoldersModule } from "./folders/folders.module";
+import { ItemsModule } from "./items/items.module";
 import { StorageModule } from "./storage/storage.module";
 import { UserModule } from "./user/user.module";
 
@@ -46,11 +46,11 @@ import { TypeOrmConfig } from "./config/modules/typeorm.config";
 
     ConfigModule,
 
-    FileModule,
+    FilesModule,
 
-    FolderModule,
+    FoldersModule,
 
-    ItemModule,
+    ItemsModule,
 
     RateLimiterModule.registerAsync({
       useClass: RatelimiterConfig

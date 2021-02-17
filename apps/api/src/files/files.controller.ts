@@ -23,7 +23,7 @@ import { AuthGuard } from "../common/guards/auth.guard";
 
 import { ValidateCustomDecoratorPipe } from "../common/pipes/validate-custom-decorator.pipe";
 
-import { FileService } from "./file.service";
+import { FilesService } from "./files.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FileEntity } from "./file.entity";
@@ -36,9 +36,9 @@ import { UploadResultsDto } from "./dto/upload-results.dto";
 
 @Controller("files")
 @UseGuards(AuthGuard)
-export class FileController {
+export class FilesController {
   constructor(
-    private readonly fileService: FileService,
+    private readonly filesService: FilesService,
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -48,7 +48,7 @@ export class FileController {
     @Param("id") id: string
   ): Promise<FileEntity> {
     return this.uowService.withTransaction(() =>
-      this.fileService.deleteOne({ id, user })
+      this.filesService.deleteOne({ id, user })
     );
   }
 
@@ -57,7 +57,7 @@ export class FileController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
-    return this.fileService.findOneOrFail({ id, user });
+    return this.filesService.findOneOrFail({ id, user });
   }
 
   @Get("download/:id")
@@ -66,7 +66,7 @@ export class FileController {
     @Param("id") id: string,
     @Res() response: Response
   ): Promise<void> {
-    const readable = await this.fileService.createDownloadStream({ id, user });
+    const readable = await this.filesService.createDownloadStream({ id, user });
 
     readable.on("error", (error) => {
       Logger.error(error);
@@ -88,7 +88,7 @@ export class FileController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ) {
-    return this.fileService.move({ id, user }, { id: dto.to, user });
+    return this.filesService.move({ id, user }, { id: dto.to, user });
   }
 
   @Post("rename/:id")
@@ -97,7 +97,7 @@ export class FileController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ) {
-    return this.fileService.rename({ id, user }, dto.newName);
+    return this.filesService.rename({ id, user }, dto.newName);
   }
 
   @Post("upload")
@@ -108,7 +108,7 @@ export class FileController {
   ): Promise<UploadResultsDto> {
     return this.uowService
       .withTransaction(() =>
-        this.fileService.handleUpload(request, {
+        this.filesService.handleUpload(request, {
           parent: dto.parent,
           user
         })

@@ -5,7 +5,7 @@ import { Job } from "bull";
 
 import { Counter } from "@quicksend/utils";
 
-import { ItemService } from "./item.service";
+import { ItemsService } from "./items.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { ItemEntity } from "./item.entity";
@@ -15,9 +15,9 @@ import { DeleteOrphanedItemsJob } from "./jobs/delete-orphaned-items.job";
 
 @Injectable()
 @Processor("item")
-export class ItemProcessor {
+export class ItemsProcessor {
   constructor(
-    private readonly itemService: ItemService,
+    private readonly itemsService: ItemsService,
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -39,7 +39,7 @@ export class ItemProcessor {
           pendingDeletes.increment();
 
           this.uowService
-            .withTransaction(() => this.itemService.deleteOne(item))
+            .withTransaction(() => this.itemsService.deleteOne(item))
             .finally(() => pendingDeletes.decrement());
         })
         .on("end", () => {

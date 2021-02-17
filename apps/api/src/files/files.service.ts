@@ -6,13 +6,13 @@ import { Readable } from "stream";
 
 import { MultiparterOptions } from "@quicksend/multiparter";
 
-import { FolderService } from "../folder/folder.service";
-import { ItemService } from "../item/item.service";
+import { FoldersService } from "../folders/folders.service";
+import { ItemsService } from "../items/items.service";
 import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FileEntity } from "./file.entity";
-import { FolderEntity } from "../folder/folder.entity";
+import { FolderEntity } from "../folders/folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { CreateFile } from "./interfaces/create-file.interface";
@@ -26,15 +26,15 @@ import {
 import {
   FolderNotFoundException,
   ParentFolderNotFoundException
-} from "../folder/folder.exceptions";
+} from "../folders/folder.exceptions";
 
 import { settlePromises } from "@quicksend/utils";
 
 @Injectable()
-export class FileService {
+export class FilesService {
   constructor(
-    private readonly folderService: FolderService,
-    private readonly itemService: ItemService,
+    private readonly folderService: FoldersService,
+    private readonly itemsService: ItemsService,
     private readonly storageService: StorageService,
     private readonly uowService: UnitOfWorkService
   ) {}
@@ -56,7 +56,7 @@ export class FileService {
       );
     }
 
-    const item = await this.itemService.create(payload.item);
+    const item = await this.itemsService.create(payload.item);
 
     const file = this.fileRepository.create({
       ...payload.file,
@@ -91,7 +91,7 @@ export class FileService {
 
       // If there are no other files that reference the related item, then it should be deleted
       if (count === 0) {
-        await this.itemService.deleteOne({
+        await this.itemsService.deleteOne({
           discriminator: file.item.discriminator
         });
       }

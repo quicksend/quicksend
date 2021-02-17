@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from "typeorm";
 import { ReadStream } from "typeorm/platform/PlatformTools";
 
-import { FileEntity } from "../file/file.entity";
+import { FileEntity } from "../files/file.entity";
 import { ItemEntity } from "./item.entity";
 
 @EntityRepository(ItemEntity)

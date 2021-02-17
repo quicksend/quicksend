@@ -5,7 +5,7 @@ import { Max, Min } from "class-validator";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FileEntity } from "../file/file.entity";
+import { FileEntity } from "../files/file.entity";
 
 @Entity({ name: "item" })
 export class ItemEntity extends BaseEntity {

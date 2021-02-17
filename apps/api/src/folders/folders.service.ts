@@ -18,7 +18,7 @@ import {
 } from "./folder.exceptions";
 
 @Injectable()
-export class FolderService {
+export class FoldersService {
   constructor(private readonly uowService: UnitOfWorkService) {}
 
   private get folderRepository() {

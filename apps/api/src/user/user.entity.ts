@@ -7,8 +7,8 @@ import { IsAlphanumeric, IsEmail, ValidateIf } from "class-validator";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FileEntity } from "../file/file.entity";
-import { FolderEntity } from "../folder/folder.entity";
+import { FileEntity } from "../files/file.entity";
+import { FolderEntity } from "../folders/folder.entity";
 
 @Entity({ name: "user" })
 export class UserEntity extends BaseEntity {

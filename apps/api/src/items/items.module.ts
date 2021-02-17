@@ -5,12 +5,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { Queue } from "bull";
 
-import { ItemEntity } from "./item.entity";
-import { ItemProcessor } from "./item.processor";
-import { ItemService } from "./item.service";
+import { ItemsProcessor } from "./items.processor";
+import { ItemsService } from "./items.service";
 
 import { StorageModule } from "../storage/storage.module";
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
+
+import { ItemEntity } from "./item.entity";
 
 import { cleanupNamespace } from "../config/config.namespaces";
 
@@ -24,21 +25,21 @@ import { cleanupNamespace } from "../config/config.namespaces";
 
     UnitOfWorkModule
   ],
-  exports: [BullModule, ItemService],
-  providers: [ItemProcessor, ItemService]
+  exports: [BullModule, ItemsService],
+  providers: [ItemsProcessor, ItemsService]
 })
-export class ItemModule implements OnModuleInit {
+export class ItemsModule implements OnModuleInit {
   constructor(
     @Inject(cleanupNamespace.KEY)
     private readonly cleanupConfig: ConfigType<typeof cleanupNamespace>,
 
     @InjectQueue("item")
-    private readonly itemProcessor: Queue
+    private readonly itemsProcessor: Queue
   ) {}
 
   async onModuleInit(): Promise<void> {
-    await this.itemProcessor.removeJobs("*");
-    await this.itemProcessor.add(
+    await this.itemsProcessor.removeJobs("*");
+    await this.itemsProcessor.add(
       "deleteOrphanedItems",
       {
         threshold: this.cleanupConfig.limit

@@ -17,7 +17,7 @@ import { AuthGuard } from "../common/guards/auth.guard";
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
 
-import { FolderService } from "./folder.service";
+import { FoldersService } from "./folders.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { CreateFolderDto } from "./dto/create-folder.dto";
@@ -27,7 +27,7 @@ import { MoveFolderDto } from "./dto/move-folder.dto";
 @UseGuards(AuthGuard)
 export class FolderController {
   constructor(
-    private readonly folderService: FolderService,
+    private readonly foldersService: FoldersService,
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -37,7 +37,7 @@ export class FolderController {
     @CurrentUser() user: UserEntity
   ): Promise<FolderEntity> {
     return this.uowService.withTransaction(() =>
-      this.folderService.create({
+      this.foldersService.create({
         ...dto,
         user
       })
@@ -50,7 +50,7 @@ export class FolderController {
     @Param("id") id: string
   ): Promise<FolderEntity> {
     return this.uowService.withTransaction(() =>
-      this.folderService.deleteOne({ id, user })
+      this.foldersService.deleteOne({ id, user })
     );
   }
 
@@ -59,7 +59,7 @@ export class FolderController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    return this.folderService.findOneOrFail({ id, user });
+    return this.foldersService.findOneOrFail({ id, user });
   }
 
   @Patch("move")
@@ -68,12 +68,12 @@ export class FolderController {
     @CurrentUser() user: UserEntity
   ): Promise<FolderEntity> {
     return this.uowService.withTransaction(() =>
-      this.folderService.move({ id: dto.from, user }, { id: dto.to, user })
+      this.foldersService.move({ id: dto.from, user }, { id: dto.to, user })
     );
   }
 
   @Get()
   async root(@CurrentUser() user: UserEntity): Promise<FolderEntity> {
-    return this.folderService.findOneOrFail({ parent: null, user });
+    return this.foldersService.findOneOrFail({ parent: null, user });
   }
 }

@@ -6,7 +6,7 @@ import { CreateUser } from "@quicksend/interfaces";
 
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderEntity } from "../folder/folder.entity";
+import { FolderEntity } from "../folders/folder.entity";
 import { UserEntity } from "./user.entity";
 
 import { EmailTakenException, UsernameTakenException } from "./user.exceptions";

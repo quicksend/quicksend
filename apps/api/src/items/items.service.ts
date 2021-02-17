@@ -11,7 +11,7 @@ import { ItemRepository } from "./item.repository";
 import { ItemNotFound } from "./item.exceptions";
 
 @Injectable()
-export class ItemService {
+export class ItemsService {
   constructor(
     private readonly storageService: StorageService,
     private readonly uowService: UnitOfWorkService

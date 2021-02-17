@@ -1,6 +1,6 @@
 import { WrittenFile } from "@quicksend/multiparter";
 
-import { FileEntity } from "../../file/file.entity";
+import { FileEntity } from "../file.entity";
 
 export interface CreateFile {
   file: {
