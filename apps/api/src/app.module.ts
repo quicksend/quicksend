@@ -111,6 +111,6 @@ export class AppModule implements NestModule {
 
     consumer
       .apply(router)
-      .forRoutes({ method: RequestMethod.ALL, path: "/queues" });
+      .forRoutes({ method: RequestMethod.ALL, path: "bull" });
   }
 }
