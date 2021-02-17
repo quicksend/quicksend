@@ -28,6 +28,7 @@ import { StorageModule } from "./storage/storage.module";
 import { UserModule } from "./user/user.module";
 
 import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
+import { MultiparterExceptionFilter } from "./common/exceptions/multiparter.exception";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
@@ -68,6 +69,10 @@ import { TypeOrmConfig } from "./config/modules/typeorm.config";
     {
       provide: APP_FILTER,
       useClass: InternalServerErrorExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: MultiparterExceptionFilter
     },
     {
       provide: APP_INTERCEPTOR,
