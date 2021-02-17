@@ -44,7 +44,15 @@ export class FolderController {
     );
   }
 
-  @Delete(":id")
+  @Get(":id")
+  async find(
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FolderEntity> {
+    return this.foldersService.findOneOrFail({ id, user });
+  }
+
+  @Delete(":id/delete")
   async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -54,15 +62,7 @@ export class FolderController {
     );
   }
 
-  @Get(":id")
-  async find(
-    @CurrentUser() user: UserEntity,
-    @Param("id") id: string
-  ): Promise<FolderEntity> {
-    return this.foldersService.findOneOrFail({ id, user });
-  }
-
-  @Patch("move")
+  @Patch(":id/move")
   async move(
     @Body() dto: MoveFolderDto,
     @CurrentUser() user: UserEntity
@@ -72,7 +72,7 @@ export class FolderController {
     );
   }
 
-  @Get()
+  @Get("root")
   async root(@CurrentUser() user: UserEntity): Promise<FolderEntity> {
     return this.foldersService.findOneOrFail({ parent: null, user });
   }
