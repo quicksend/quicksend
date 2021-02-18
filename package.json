@@ -58,7 +58,7 @@
     "rxjs": "~6.6.3",
     "styled-components": "5.2.1",
     "tslib": "^2.0.3",
-    "typeorm": "^0.2.29"
+    "typeorm": "^0.2.31"
   },
   "devDependencies": {
     "@babel/core": "7.12.9",
