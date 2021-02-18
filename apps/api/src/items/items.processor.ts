@@ -43,9 +43,7 @@ export class ItemsProcessor {
             .finally(() => pendingDeletes.decrement());
         })
         .on("end", () => {
-          pendingDeletes.onceItEqualsTo(0, () => {
-            job.progress(100).then(() => resolve());
-          });
+          pendingDeletes.onceItEqualsTo(0, () => resolve());
         })
         .on("error", (error: Error) => {
           pendingDeletes.onceItEqualsTo(0, () => reject(error));
