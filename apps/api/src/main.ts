@@ -49,7 +49,6 @@ const IS_PROD = process.env.NODE_ENV === "production";
   app.use(helmet()).use(
     session({
       cookie: {
-        domain: domainsConfig.backend,
         maxAge: 14 * 8.64e7,
         sameSite: "strict",
         secure: IS_PROD
