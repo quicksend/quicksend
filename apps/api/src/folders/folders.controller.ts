@@ -44,12 +44,14 @@ export class FolderController {
     );
   }
 
-  @Get(":id")
+  @Get(":id?")
   async find(
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
+    @Param("id") id?: string
   ): Promise<FolderEntity> {
-    return this.foldersService.findOneOrFail({ id, user });
+    return id
+      ? this.foldersService.findOneOrFail({ id, user })
+      : this.foldersService.findOneOrFail({ parent: null, user });
   }
 
   @Delete(":id/delete")
@@ -71,10 +73,5 @@ export class FolderController {
     return this.uowService.withTransaction(() =>
       this.foldersService.move({ id, user }, { id: dto.to, user })
     );
-  }
-
-  @Get("root")
-  async root(@CurrentUser() user: UserEntity): Promise<FolderEntity> {
-    return this.foldersService.findOneOrFail({ parent: null, user });
   }
 }
