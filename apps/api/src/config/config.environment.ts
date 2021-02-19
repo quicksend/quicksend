@@ -14,7 +14,7 @@ export interface ConfigEnvironment {
 
   PORT: number;
 
-  POSTGRES_HOSTNAME: String;
+  POSTGRES_HOSTNAME: string;
   POSTGRES_NAME: string;
   POSTGRES_PASSWORD: string;
   POSTGRES_PORT: number;

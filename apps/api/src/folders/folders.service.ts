@@ -53,8 +53,14 @@ export class FoldersService {
   ): Promise<FolderEntity> {
     const folder = await this.findOne(conditions);
 
-    if (!folder) throw new FolderNotFoundException();
-    if (!folder.parent) throw new FolderCannotBeDeletedException(); // Don't delete root folders
+    if (!folder) {
+      throw new FolderNotFoundException();
+    }
+
+    // Don't delete root folders
+    if (!folder.parent) {
+      throw new FolderCannotBeDeletedException();
+    }
 
     return this.folderRepository.remove(folder);
   }
@@ -71,7 +77,10 @@ export class FoldersService {
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
     const folder = await this.findOne(conditions);
-    if (!folder) throw new FolderNotFoundException();
+
+    if (!folder) {
+      throw new FolderNotFoundException();
+    }
 
     return folder;
   }
@@ -81,10 +90,16 @@ export class FoldersService {
     to: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
     const source = await this.findOne(from);
-    if (!source) throw new FolderNotFoundException();
+
+    if (!source) {
+      throw new FolderNotFoundException();
+    }
 
     const destination = await this.findOne(to);
-    if (!destination) throw new FolderNotFoundException();
+
+    if (!destination) {
+      throw new FolderNotFoundException();
+    }
 
     // Prevent folder from being moved into itself or its childrens
     const destinationIsChildrenOrSelf = await this.folderRepository.hasDescendant(

@@ -50,7 +50,9 @@ export class UserEntity extends BaseEntity {
   username!: string;
 
   async comparePassword(plainTextPassword: string): Promise<boolean> {
-    if (!this.password) return false;
+    if (!this.password) {
+      return false;
+    }
 
     return argon2.verify(this.password, plainTextPassword);
   }

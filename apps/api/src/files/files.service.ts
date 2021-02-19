@@ -48,10 +48,16 @@ export class FilesService {
     to: FindConditions<FolderEntity>
   ): Promise<FileEntity> {
     const source = await this.fileRepository.findOne(from);
-    if (!source) throw new FileNotFoundException();
+
+    if (!source) {
+      throw new FileNotFoundException();
+    }
 
     const destination = await this.folderService.findOne(to);
-    if (!destination) throw new FolderNotFoundException();
+
+    if (!destination) {
+      throw new FolderNotFoundException();
+    }
 
     const exists = await this.fileRepository.findOne({
       name: source.name,
@@ -68,16 +74,14 @@ export class FilesService {
       parent: destination
     });
 
-    await this.fileRepository.insert([copy]); // don't use .save() here because it will always try to upsert
+    // don't use .save() here because it will always try to upsert
+    await this.fileRepository.insert([copy]);
 
     return copy;
   }
 
   async create(payload: CreateFile): Promise<FileEntity> {
-    const exists = await this.fileRepository.count({
-      take: 1,
-      where: payload.file
-    });
+    const exists = await this.fileRepository.findOne(payload.file);
 
     if (exists) {
       throw new FileAlreadyExistsException(
@@ -100,31 +104,32 @@ export class FilesService {
     conditions: FindConditions<FileEntity>
   ): Promise<Readable> {
     const file = await this.fileRepository.findOne(conditions);
-    if (!file) throw new FileNotFoundException();
+
+    if (!file) {
+      throw new FileNotFoundException();
+    }
 
     return this.storageService.read(file.item.discriminator);
   }
 
   async deleteOne(conditions: FindConditions<FileEntity>): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(conditions);
-    if (!file) throw new FileNotFoundException();
+
+    if (!file) {
+      throw new FileNotFoundException();
+    }
 
     await this.fileRepository.remove(file);
 
-    if (file.item) {
-      const count = await this.fileRepository.count({
-        take: 1,
-        where: {
-          item: file.item.id
-        }
-      });
+    const count = await this.fileRepository.count({
+      item: file.item
+    });
 
-      // If there are no other files that reference the related item, then it should be deleted
-      if (count === 0) {
-        await this.itemsService.deleteOne({
-          discriminator: file.item.discriminator
-        });
-      }
+    // If there are no other files that reference the related item, then it should be deleted
+    if (count === 0) {
+      await this.itemsService.deleteOne({
+        discriminator: file.item.discriminator
+      });
     }
 
     return file;
@@ -140,7 +145,10 @@ export class FilesService {
     conditions: FindConditions<FileEntity>
   ): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(conditions);
-    if (!file) throw new FileNotFoundException();
+
+    if (!file) {
+      throw new FileNotFoundException();
+    }
 
     return file;
   }
@@ -214,18 +222,21 @@ export class FilesService {
     to: FindConditions<FolderEntity>
   ): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(from);
-    if (!file) throw new FileNotFoundException();
+
+    if (!file) {
+      throw new FileNotFoundException();
+    }
 
     const destination = await this.folderService.findOne(to);
-    if (!destination) throw new FolderNotFoundException();
 
-    const exist = await this.fileRepository.count({
-      take: 1,
-      where: {
-        name: file.name,
-        parent: destination,
-        user: file.user
-      }
+    if (!destination) {
+      throw new FolderNotFoundException();
+    }
+
+    const exist = await this.fileRepository.findOne({
+      name: file.name,
+      parent: destination,
+      user: file.user
     });
 
     if (exist) {
@@ -247,13 +258,10 @@ export class FilesService {
       throw new FileNotFoundException();
     }
 
-    const exist = await this.fileRepository.count({
-      take: 1,
-      where: {
-        name: newName,
-        parent: file.parent,
-        user: file.user
-      }
+    const exist = await this.fileRepository.findOne({
+      name: newName,
+      parent: file.parent,
+      user: file.user
     });
 
     if (exist) {

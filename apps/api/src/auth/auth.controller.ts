@@ -32,8 +32,11 @@ export class AuthController {
   logout(@Req() req: Request): Promise<void> {
     return new Promise((resolve, reject) => {
       req.session.destroy((error) => {
-        if (error) reject(error);
-        else resolve();
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
       });
     });
   }

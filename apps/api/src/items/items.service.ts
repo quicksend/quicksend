@@ -27,7 +27,7 @@ export class ItemsService {
     size: number;
   }): Promise<ItemEntity> {
     const item = await this.itemRepository.findOne({ hash: payload.hash });
-    if (item) return item;
+    if (item) {return item;}
 
     const newItem = this.itemRepository.create(payload);
 
@@ -38,7 +38,7 @@ export class ItemsService {
 
   async deleteOne(conditions: FindConditions<ItemEntity>): Promise<ItemEntity> {
     const item = await this.itemRepository.findOne(conditions);
-    if (!item) throw new ItemNotFound();
+    if (!item) {throw new ItemNotFound();}
 
     await this.itemRepository.remove(item);
     await this.storageService.delete(item.discriminator);
