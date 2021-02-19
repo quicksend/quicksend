@@ -2,7 +2,12 @@
 // Read more at https://github.com/typeorm/typeorm/issues/193
 // Once https://github.com/typeorm/typeorm/pull/7156 gets merged, we can remove this custom repository completely
 
-import { EntityRepository, TreeRepository } from "typeorm";
+import {
+  EntityRepository,
+  FindConditions,
+  FindOneOptions,
+  TreeRepository
+} from "typeorm";
 
 import { FolderEntity } from "./folder.entity";
 
@@ -18,6 +23,16 @@ export class FolderRepository extends TreeRepository<FolderEntity> {
 
   get closureDescendantColumnName() {
     return this.closureTable.foreignKeys[1].columnNames[0];
+  }
+
+  findOneWithRelations(
+    conditions?: FindConditions<FolderEntity>,
+    options?: FindOneOptions<FolderEntity>
+  ): Promise<FolderEntity | undefined> {
+    return super.findOne(conditions, {
+      ...(options || {}),
+      relations: ["parent"] // have to explicitly specify the relation to load which is the tree parent
+    });
   }
 
   hasDescendant(

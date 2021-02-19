@@ -26,7 +26,7 @@ export class FoldersService {
   }
 
   async create(payload: CreateFolder): Promise<FolderEntity> {
-    const parent = await this.findOne({
+    const parent = await this.folderRepository.findOneWithRelations({
       id: payload.parent,
       user: payload.user
     });
@@ -35,15 +35,21 @@ export class FoldersService {
       throw new ParentFolderNotFoundException();
     }
 
-    const folder = this.folderRepository.create({
+    const exists = await this.folderRepository.findOneWithRelations({
       name: payload.name,
       parent,
       user: payload.user
     });
 
-    if (await this.findOne(folder)) {
+    if (exists) {
       throw new FolderAlreadyExistsException(payload.name, parent.name);
     }
+
+    const folder = this.folderRepository.create({
+      name: payload.name,
+      parent,
+      user: payload.user
+    });
 
     return this.folderRepository.save(folder);
   }
@@ -51,7 +57,7 @@ export class FoldersService {
   async deleteOne(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const folder = await this.findOne(conditions);
+    const folder = await this.folderRepository.findOneWithRelations(conditions);
 
     if (!folder) {
       throw new FolderNotFoundException();
@@ -68,15 +74,13 @@ export class FoldersService {
   async findOne(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity | undefined> {
-    return this.folderRepository.findOne(conditions, {
-      relations: ["parent"] // have to explicitly specify the relation to load which is the tree parent
-    });
+    return this.folderRepository.findOneWithRelations(conditions);
   }
 
   async findOneOrFail(
     conditions: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const folder = await this.findOne(conditions);
+    const folder = await this.folderRepository.findOneWithRelations(conditions);
 
     if (!folder) {
       throw new FolderNotFoundException();
@@ -89,13 +93,13 @@ export class FoldersService {
     from: FindConditions<FolderEntity>,
     to: FindConditions<FolderEntity>
   ): Promise<FolderEntity> {
-    const source = await this.findOne(from);
+    const source = await this.folderRepository.findOneWithRelations(from);
 
     if (!source) {
       throw new FolderNotFoundException();
     }
 
-    const destination = await this.findOne(to);
+    const destination = await this.folderRepository.findOneWithRelations(to);
 
     if (!destination) {
       throw new FolderNotFoundException();
