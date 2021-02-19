@@ -43,6 +43,36 @@ export class FilesService {
     return this.uowService.getRepository(FileEntity);
   }
 
+  async copy(
+    from: FindConditions<FileEntity>,
+    to: FindConditions<FolderEntity>
+  ): Promise<FileEntity> {
+    const source = await this.fileRepository.findOne(from);
+    if (!source) throw new FileNotFoundException();
+
+    const destination = await this.folderService.findOne(to);
+    if (!destination) throw new FolderNotFoundException();
+
+    const exists = await this.fileRepository.findOne({
+      name: source.name,
+      parent: destination,
+      user: source.user
+    });
+
+    if (exists) {
+      throw new FileAlreadyExistsException(source.name, source.parent.name);
+    }
+
+    const copy = this.fileRepository.create({
+      ...source,
+      parent: destination
+    });
+
+    await this.fileRepository.insert([copy]); // don't use .save() here because it will always try to upsert
+
+    return copy;
+  }
+
   async create(payload: CreateFile): Promise<FileEntity> {
     const exists = await this.fileRepository.count({
       take: 1,

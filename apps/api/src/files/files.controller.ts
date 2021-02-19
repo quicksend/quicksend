@@ -29,6 +29,7 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
 
+import { CopyFileDto } from "./dto/copy-file.dto";
 import { MoveFileDto } from "./dto/move-file.dto";
 import { RenameFileDto } from "./dto/rename-file.dto";
 import { UploadFilesDto } from "./dto/upload-files.dto";
@@ -48,6 +49,17 @@ export class FilesController {
     @Param("id") id: string
   ): Promise<FileEntity> {
     return this.filesService.findOneOrFail({ id, user });
+  }
+
+  @Post(":id/copy")
+  async copy(
+    @Body() dto: CopyFileDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FileEntity> {
+    return this.uowService.withTransaction(() =>
+      this.filesService.copy({ id, user }, { id: dto.to, user })
+    );
   }
 
   @Delete(":id/delete")
