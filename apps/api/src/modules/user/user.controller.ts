@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 
-import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-import { AuthGuard } from "../common/guards/auth.guard";
+import { AuthGuard } from "../../common/guards/auth.guard";
 
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { UserService } from "./user.service";

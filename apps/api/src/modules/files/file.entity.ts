@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 
-import { BaseEntity } from "../common/entities/base.entity";
+import { BaseEntity } from "../../common/entities/base.entity";
 
 import { FolderEntity } from "../folders/folder.entity";
 import { ItemEntity } from "../items/item.entity";

@@ -10,9 +10,9 @@ import {
   UseGuards
 } from "@nestjs/common";
 
-import { CurrentUser } from "../common/decorators/current-user.decorator";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
-import { AuthGuard } from "../common/guards/auth.guard";
+import { AuthGuard } from "../../common/guards/auth.guard";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";

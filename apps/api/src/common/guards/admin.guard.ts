@@ -4,7 +4,7 @@ import { Request } from "../../common/interfaces/request.interface";
 
 import { AuthGuard } from "./auth.guard";
 
-import { UserNotAdminException } from "../../auth/auth.exceptions";
+import { UserNotAdminException } from "../../modules/auth/auth.exceptions";
 
 @Injectable()
 export class AdminGuard extends AuthGuard {

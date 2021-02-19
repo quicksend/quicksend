@@ -16,7 +16,7 @@ import {
   httpNamespace,
   redisNamespace,
   secretsNamespace
-} from "./config/config.namespaces";
+} from "./modules/config/config.namespaces";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 

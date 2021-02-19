@@ -19,22 +19,22 @@ import { Queue } from "bull";
 
 import { AppController } from "./app.controller";
 
-import { AuthModule } from "./auth/auth.module";
-import { ConfigModule } from "./config/config.module";
-import { FilesModule } from "./files/files.module";
-import { FoldersModule } from "./folders/folders.module";
-import { ItemsModule } from "./items/items.module";
-import { StorageModule } from "./storage/storage.module";
-import { UserModule } from "./user/user.module";
-
 import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
 import { MultiparterExceptionFilter } from "./common/exceptions/multiparter.exception";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
-import { RatelimiterConfig } from "./config/modules/ratelimiter.config";
-import { SharedBullConfig } from "./config/modules/shared-bull.config";
-import { TypeOrmConfig } from "./config/modules/typeorm.config";
+import { AuthModule } from "./modules/auth/auth.module";
+import { ConfigModule } from "./modules/config/config.module";
+import { FilesModule } from "./modules/files/files.module";
+import { FoldersModule } from "./modules/folders/folders.module";
+import { ItemsModule } from "./modules/items/items.module";
+import { StorageModule } from "./modules/storage/storage.module";
+import { UserModule } from "./modules/user/user.module";
+
+import { RatelimiterConfig } from "./modules/config/modules/ratelimiter.config";
+import { SharedBullConfig } from "./modules/config/modules/shared-bull.config";
+import { TypeOrmConfig } from "./modules/config/modules/typeorm.config";
 
 @Module({
   imports: [

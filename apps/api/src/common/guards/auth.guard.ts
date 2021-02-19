@@ -2,12 +2,12 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
 import { Request } from "../interfaces/request.interface";
 
-import { UserService } from "../../user/user.service";
+import { UserService } from "../../modules/user/user.service";
 
 import {
   UserNotActivatedException,
   UserNotLoggedInException
-} from "../../auth/auth.exceptions";
+} from "../../modules/auth/auth.exceptions";
 
 export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
 export const AUTH_GUARD_SCOPES = "AUTH_GUARD_SCOPES";

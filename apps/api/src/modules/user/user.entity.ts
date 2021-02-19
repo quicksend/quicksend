@@ -5,7 +5,7 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Exclude } from "class-transformer";
 import { IsAlphanumeric, IsEmail, ValidateIf } from "class-validator";
 
-import { BaseEntity } from "../common/entities/base.entity";
+import { BaseEntity } from "../../common/entities/base.entity";
 
 import { FileEntity } from "../files/file.entity";
 import { FolderEntity } from "../folders/folder.entity";
