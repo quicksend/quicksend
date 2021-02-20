@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   Res,
+  UseFilters,
   UseGuards
 } from "@nestjs/common";
 
@@ -26,6 +27,8 @@ import { ValidateCustomDecoratorPipe } from "../../common/pipes/validate-custom-
 import { FilesService } from "./files.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
+import { FilesExceptionFilter } from "./files.filter";
+
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
 
@@ -36,6 +39,7 @@ import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
 @Controller("files")
+@UseFilters(FilesExceptionFilter)
 @UseGuards(AuthGuard)
 export class FilesController {
   constructor(

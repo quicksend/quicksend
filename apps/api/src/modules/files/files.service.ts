@@ -5,6 +5,7 @@ import { IncomingMessage } from "http";
 import { Readable } from "stream";
 
 import { MultiparterOptions } from "@quicksend/multiparter";
+import { settlePromises } from "@quicksend/utils";
 
 import { FoldersService } from "../folders/folders.service";
 import { ItemsService } from "../items/items.service";
@@ -19,16 +20,10 @@ import { CreateFile } from "./interfaces/create-file.interface";
 import { UploadResults } from "./interfaces/upload-results.interface";
 
 import {
-  FileAlreadyExistsException,
+  FileConflictException,
+  FileDestinationNotFoundException,
   FileNotFoundException
 } from "./file.exceptions";
-
-import {
-  FolderNotFoundException,
-  ParentFolderNotFoundException
-} from "../folders/folder.exceptions";
-
-import { settlePromises } from "@quicksend/utils";
 
 @Injectable()
 export class FilesService {
@@ -56,17 +51,17 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new FolderNotFoundException();
+      throw new FileDestinationNotFoundException();
     }
 
-    const exists = await this.fileRepository.findOne({
+    const duplicate = await this.fileRepository.findOne({
       name: source.name,
       parent: destination,
       user: source.user
     });
 
-    if (exists) {
-      throw new FileAlreadyExistsException(source.name, source.parent.name);
+    if (duplicate) {
+      throw new FileConflictException(duplicate);
     }
 
     const copy = this.fileRepository.create({
@@ -81,13 +76,10 @@ export class FilesService {
   }
 
   async create(payload: CreateFile): Promise<FileEntity> {
-    const exists = await this.fileRepository.findOne(payload.file);
+    const duplicate = await this.fileRepository.findOne(payload.file);
 
-    if (exists) {
-      throw new FileAlreadyExistsException(
-        payload.file.name,
-        payload.file.parent.name
-      );
+    if (duplicate) {
+      throw new FileConflictException(duplicate);
     }
 
     const item = await this.itemsService.create(payload.item);
@@ -175,7 +167,7 @@ export class FilesService {
       });
 
       if (!parent) {
-        throw new ParentFolderNotFoundException();
+        throw new FileDestinationNotFoundException();
       }
 
       for (const item of multiparter.written) {
@@ -230,17 +222,17 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new FolderNotFoundException();
+      throw new FileDestinationNotFoundException();
     }
 
-    const exist = await this.fileRepository.findOne({
+    const duplicate = await this.fileRepository.findOne({
       name: file.name,
       parent: destination,
       user: file.user
     });
 
-    if (exist) {
-      throw new FileAlreadyExistsException(file.name, destination.name);
+    if (duplicate) {
+      throw new FileConflictException(duplicate);
     }
 
     file.parent = destination;
@@ -258,14 +250,14 @@ export class FilesService {
       throw new FileNotFoundException();
     }
 
-    const exist = await this.fileRepository.findOne({
+    const duplicate = await this.fileRepository.findOne({
       name: newName,
       parent: file.parent,
       user: file.user
     });
 
-    if (exist) {
-      throw new FileAlreadyExistsException(file.name, file.parent.name);
+    if (duplicate) {
+      throw new FileConflictException(duplicate);
     }
 
     file.name = newName;

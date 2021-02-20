@@ -1,16 +1,41 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { FileEntity } from "./file.entity";
 
-export class FileAlreadyExistsException extends ConflictException {
-  constructor(name: string, path?: string) {
-    path
-      ? super(`File '${name}' already exists at '${path}'`)
-      : super(`File '${name}' already exists at this location!`);
+export class FileException extends Error {}
+
+export class FileConflictException extends FileException {
+  constructor(file: FileEntity) {
+    super(`File '${file.name}' already exists at '${file.parent.name}'!`);
   }
 }
-export class FileNotFoundException extends NotFoundException {
-  constructor(name?: string) {
-    name
-      ? super(`File '${name}' does not exist!`)
-      : super("File does not exist!");
+
+export class FileDestinationNotFoundException extends FileException {
+  constructor(destination?: string) {
+    destination
+      ? super(`Destination '${destination}' does not exist!`)
+      : super(`Destination does not exist!`);
+  }
+}
+
+export class FileNotFoundException extends FileException {
+  constructor(details?: {
+    entity?: FileEntity;
+    location?: string;
+    name?: string;
+  }) {
+    const { entity, location, name } = details || {};
+
+    if (entity) {
+      location
+        ? super(`File '${entity.name}' does not exist at '${location}'!`)
+        : super(`File '${entity.name}' does not exist!`);
+    } else if (name) {
+      location
+        ? super(`File '${name}' does not exist at '${location}'!`)
+        : super(`File '${name}' does not exist!`);
+    } else {
+      location
+        ? super(`File does not exist at '${location}'!`)
+        : super(`File does not exist!`);
+    }
   }
 }
