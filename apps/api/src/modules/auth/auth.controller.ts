@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Post, Req, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  Req,
+  UseFilters,
+  UseGuards
+} from "@nestjs/common";
 
 import { RecaptchaGuard } from "../../common/guards/recaptcha.guard";
 import { Request } from "../../common/interfaces/request.interface";
@@ -6,12 +14,15 @@ import { Request } from "../../common/interfaces/request.interface";
 import { AuthService } from "./auth.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
+import { AuthExceptionFilter } from "./auth.filter";
+
 import { UserEntity } from "../user/user.entity";
 
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 
 @Controller("auth")
+@UseFilters(AuthExceptionFilter)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,

@@ -2,11 +2,13 @@ import { Injectable } from "@nestjs/common";
 
 import { UserService } from "../user/user.service";
 
+import { UserEntity } from "../user/user.entity";
+
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 
 import {
-  InvalidCredentialsException,
+  InvalidLoginCredentialsException,
   UserNotActivatedException
 } from "./auth.exceptions";
 
@@ -14,13 +16,13 @@ import {
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<UserEntity> {
     const user = await this.userService.findOneByQuery({
       where: [{ email: dto.username }, { username: dto.username }]
     });
 
-    if (!user || !user.comparePassword(dto.password)) {
-      throw new InvalidCredentialsException();
+    if (!user || !(await user.comparePassword(dto.password))) {
+      throw new InvalidLoginCredentialsException();
     }
 
     if (!user.activated) {
@@ -30,7 +32,7 @@ export class AuthService {
     return user;
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<UserEntity> {
     return this.userService.create(dto);
   }
 }

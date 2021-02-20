@@ -1,25 +1,13 @@
-import { ForbiddenException, UnauthorizedException } from "@nestjs/common";
+export class AuthenticationException extends Error {}
 
-export class InvalidCredentialsException extends UnauthorizedException {
+export class InvalidLoginCredentialsException extends AuthenticationException {
   constructor() {
     super("Invalid login credentials!");
   }
 }
 
-export class UserNotActivatedException extends ForbiddenException {
+export class UserNotActivatedException extends AuthenticationException {
   constructor() {
-    super("Please activate your account first!");
-  }
-}
-
-export class UserNotAdminException extends UnauthorizedException {
-  constructor() {
-    super("You are not an admin!");
-  }
-}
-
-export class UserNotLoggedInException extends UnauthorizedException {
-  constructor() {
-    super("You are not logged in!");
+    super("Your account is not activated!");
   }
 }
