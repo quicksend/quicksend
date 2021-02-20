@@ -19,8 +19,8 @@ import { Queue } from "bull";
 
 import { AppController } from "./app.controller";
 
-import { InternalServerErrorExceptionFilter } from "./common/exceptions/internal-server-error.exception";
-import { MultiparterExceptionFilter } from "./common/exceptions/multiparter.exception";
+import { InternalServerErrorExceptionFilter } from "./common/filters/internal-server-error.filter";
+import { MultiparterExceptionFilter } from "./common/filters/multiparter.filter";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
