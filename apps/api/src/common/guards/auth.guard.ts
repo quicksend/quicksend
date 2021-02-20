@@ -1,16 +1,20 @@
-import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException
+} from "@nestjs/common";
 
 import { Request } from "../interfaces/request.interface";
 
 import { UserService } from "../../modules/user/user.service";
 
-import {
-  UserNotActivatedException,
-  UserNotLoggedInException
-} from "../../modules/auth/auth.exceptions";
-
 export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
 export const AUTH_GUARD_SCOPES = "AUTH_GUARD_SCOPES";
+
+const NOT_LOGGED_IN_ERROR = new UnauthorizedException("You are not logged in!");
+const NOT_ACTIVATED_ERROR = new ForbiddenException("Your account is not activated!"); // prettier-ignore
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,17 +28,17 @@ export class AuthGuard implements CanActivate {
 
   private async _handleSession(req: Request) {
     if (!req.session || !req.session.uid) {
-      throw new UserNotLoggedInException();
+      throw NOT_LOGGED_IN_ERROR;
     }
 
     const user = await this.userService.findOne({ id: req.session.uid });
 
     if (!user) {
-      throw new UserNotLoggedInException();
+      throw NOT_LOGGED_IN_ERROR;
     }
 
     if (!user.activated) {
-      throw new UserNotActivatedException();
+      throw NOT_ACTIVATED_ERROR;
     }
 
     req.user = user;

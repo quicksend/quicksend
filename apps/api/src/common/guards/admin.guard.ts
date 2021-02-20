@@ -1,10 +1,12 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException
+} from "@nestjs/common";
 
 import { Request } from "../../common/interfaces/request.interface";
 
 import { AuthGuard } from "./auth.guard";
-
-import { UserNotAdminException } from "../../modules/auth/auth.exceptions";
 
 @Injectable()
 export class AdminGuard extends AuthGuard {
@@ -14,7 +16,7 @@ export class AdminGuard extends AuthGuard {
     const req = context.switchToHttp().getRequest<Request>();
 
     if (!req.user || !req.user.admin) {
-      throw new UserNotAdminException();
+      throw new UnauthorizedException("You are not an admin!");
     }
 
     return true;
