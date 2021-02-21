@@ -1,19 +1,19 @@
-import { ConflictException, UnauthorizedException } from "@nestjs/common";
+export class UserException extends Error {}
 
-export class EmailTakenException extends ConflictException {
+export class EmailConflictException extends UserException {
   constructor() {
-    super("Email is already in use!");
+    super("This email is already in use!");
   }
 }
 
-export class PasswordIsIncorrectException extends UnauthorizedException {
+export class IncorrectPasswordException extends UserException {
   constructor() {
     super("Your password is incorrect!");
   }
 }
 
-export class UsernameTakenException extends ConflictException {
+export class UsernameConflictException extends UserException {
   constructor() {
-    super("Username is already in use!");
+    super("This username is already in use!");
   }
 }

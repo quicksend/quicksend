@@ -1,19 +1,27 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UseFilters,
+  UseGuards
+} from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 
 import { AuthGuard } from "../../common/guards/auth.guard";
 
+import { UserEntity } from "./user.entity";
+
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { UserService } from "./user.service";
 
-import { UserEntity } from "./user.entity";
+import { UserExceptionFilter } from "./user.filter";
 
 import { DeleteUserDto } from "./dto/delete-user.dto";
 
-import { PasswordIsIncorrectException } from "./user.exceptions";
-
 @Controller("user")
+@UseFilters(UserExceptionFilter)
 @UseGuards(AuthGuard)
 export class UserController {
   constructor(
@@ -31,12 +39,8 @@ export class UserController {
     @Body() dto: DeleteUserDto,
     @CurrentUser() user: UserEntity
   ): Promise<void> {
-    if (!(await user.comparePassword(dto.password))) {
-      throw new PasswordIsIncorrectException();
-    }
-
     return this.uowService.withTransaction(() =>
-      this.userService.deleteOne(user)
+      this.userService.deleteOne(user, dto.password)
     );
   }
 }

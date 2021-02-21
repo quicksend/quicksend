@@ -9,7 +9,11 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { FolderEntity } from "../folders/folder.entity";
 import { UserEntity } from "./user.entity";
 
-import { EmailTakenException, UsernameTakenException } from "./user.exceptions";
+import {
+  EmailConflictException,
+  IncorrectPasswordException,
+  UsernameConflictException
+} from "./user.exceptions";
 
 @Injectable()
 export class UserService {
@@ -30,7 +34,7 @@ export class UserService {
     );
 
     if (isEmailTaken) {
-      throw new EmailTakenException();
+      throw new EmailConflictException();
     }
 
     const isUsernameTaken = await this.userRepository.findOne(
@@ -39,7 +43,7 @@ export class UserService {
     );
 
     if (isUsernameTaken) {
-      throw new UsernameTakenException();
+      throw new UsernameConflictException();
     }
 
     const user = this.userRepository.create(payload);
@@ -53,7 +57,11 @@ export class UserService {
     return user;
   }
 
-  async deleteOne(user: UserEntity): Promise<void> {
+  async deleteOne(user: UserEntity, password: string): Promise<void> {
+    if (!(await user.comparePassword(password))) {
+      throw new IncorrectPasswordException();
+    }
+
     const roots = await this.folderRepository.find({
       parent: null,
       user
