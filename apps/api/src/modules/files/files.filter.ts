@@ -6,24 +6,24 @@ import {
 } from "@nestjs/common";
 
 import {
+  CantFindFileDestinationException,
+  CantFindFileException,
   FileConflictException,
-  FileDestinationNotFoundException,
-  FileException,
-  FileNotFoundException
+  FileException
 } from "./file.exceptions";
 
 @Catch(FileException)
 export class FilesExceptionFilter implements ExceptionFilter {
   catch(exception: FileException): void {
     switch (exception.constructor) {
+      case CantFindFileDestinationException:
+        throw new NotFoundException(exception.message);
+
+      case CantFindFileException:
+        throw new NotFoundException(exception.message);
+
       case FileConflictException:
         throw new ConflictException(exception.message);
-
-      case FileDestinationNotFoundException:
-        throw new NotFoundException(exception.message);
-
-      case FileNotFoundException:
-        throw new NotFoundException(exception.message);
 
       default:
         throw exception;

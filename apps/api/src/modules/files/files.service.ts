@@ -20,9 +20,9 @@ import { CreateFile } from "./interfaces/create-file.interface";
 import { UploadResults } from "./interfaces/upload-results.interface";
 
 import {
-  FileConflictException,
-  FileDestinationNotFoundException,
-  FileNotFoundException
+  CantFindFileDestinationException,
+  CantFindFileException,
+  FileConflictException
 } from "./file.exceptions";
 
 @Injectable()
@@ -45,13 +45,13 @@ export class FilesService {
     const source = await this.fileRepository.findOne(from);
 
     if (!source) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new FileDestinationNotFoundException();
+      throw new CantFindFileDestinationException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -61,7 +61,7 @@ export class FilesService {
     });
 
     if (duplicate) {
-      throw new FileConflictException(duplicate);
+      throw new FileConflictException();
     }
 
     const copy = this.fileRepository.create({
@@ -79,7 +79,7 @@ export class FilesService {
     const duplicate = await this.fileRepository.findOne(payload.file);
 
     if (duplicate) {
-      throw new FileConflictException(duplicate);
+      throw new FileConflictException();
     }
 
     const item = await this.itemsService.create(payload.item);
@@ -98,7 +98,7 @@ export class FilesService {
     const file = await this.fileRepository.findOne(conditions);
 
     if (!file) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     return this.storageService.read(file.item.discriminator);
@@ -108,7 +108,7 @@ export class FilesService {
     const file = await this.fileRepository.findOne(conditions);
 
     if (!file) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     await this.fileRepository.remove(file);
@@ -139,7 +139,7 @@ export class FilesService {
     const file = await this.fileRepository.findOne(conditions);
 
     if (!file) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     return file;
@@ -167,7 +167,7 @@ export class FilesService {
       });
 
       if (!parent) {
-        throw new FileDestinationNotFoundException();
+        throw new CantFindFileDestinationException();
       }
 
       for (const item of multiparter.written) {
@@ -216,13 +216,13 @@ export class FilesService {
     const file = await this.fileRepository.findOne(from);
 
     if (!file) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new FileDestinationNotFoundException();
+      throw new CantFindFileDestinationException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -232,7 +232,7 @@ export class FilesService {
     });
 
     if (duplicate) {
-      throw new FileConflictException(duplicate);
+      throw new FileConflictException();
     }
 
     file.parent = destination;
@@ -247,7 +247,7 @@ export class FilesService {
     const file = await this.fileRepository.findOne(conditions);
 
     if (!file) {
-      throw new FileNotFoundException();
+      throw new CantFindFileException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -257,7 +257,7 @@ export class FilesService {
     });
 
     if (duplicate) {
-      throw new FileConflictException(duplicate);
+      throw new FileConflictException();
     }
 
     file.name = newName;
