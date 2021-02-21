@@ -1,45 +1,43 @@
-import {
-  ConflictException,
-  ForbiddenException,
-  NotFoundException
-} from "@nestjs/common";
+export class FolderException extends Error {}
 
-export class FolderAlreadyExistsException extends ConflictException {
-  constructor(name?: string, path = "this location") {
-    name
-      ? super(`Folder '${name}' already exists at ${path}`)
-      : super(`Folder already exists at ${path}!`);
+export class CantDeleteFolderException extends FolderException {
+  constructor() {
+    super("This folder cannot be deleted.");
   }
 }
 
-export class FolderCannotBeDeletedException extends ForbiddenException {
-  constructor(name?: string) {
-    name
-      ? super(`Folder '${name}' cannot be deleted!`)
-      : super("You cannot delete this folder!");
+export class CantFindDestinationFolderException extends FolderException {
+  constructor() {
+    super("The destination folder cannot be found.");
   }
 }
 
-export class FolderCannotBeMovedException extends ForbiddenException {
-  constructor(from: string, to: string) {
-    super(
-      `Folder '${from}' cannot be moved to '${to}'. Please make sure your destination is not a children or itself!`
-    );
+export class CantFindFolderException extends FolderException {
+  constructor() {
+    super("This folder cannot be found.");
   }
 }
 
-export class FolderNotFoundException extends NotFoundException {
-  constructor(name?: string) {
-    name
-      ? super(`Folder '${name}' does not exist!`)
-      : super("Folder does not exist!");
+export class CantMoveFolderException extends FolderException {
+  constructor() {
+    super("This folder cannot be moved.");
   }
 }
 
-export class ParentFolderNotFoundException extends NotFoundException {
-  constructor(name?: string) {
-    name
-      ? super(`Parent folder '${name}' does not exist!`)
-      : super("Parent folder does not exist!");
+export class CantMoveFolderIntoChildrenException extends FolderException {
+  constructor() {
+    super("The destination folder cannot be a subfolder of itself.");
+  }
+}
+
+export class CantMoveFolderIntoItselfException extends FolderException {
+  constructor() {
+    super("The destination folder cannot be itself.");
+  }
+}
+
+export class FolderConflictException extends FolderException {
+  constructor() {
+    super("A folder already exist at this location.");
   }
 }

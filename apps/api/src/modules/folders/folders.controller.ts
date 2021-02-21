@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Put,
+  UseFilters,
   UseGuards
 } from "@nestjs/common";
 
@@ -20,10 +21,13 @@ import { UserEntity } from "../user/user.entity";
 import { FoldersService } from "./folders.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
+import { FoldersExceptionFilter } from "./folders.filter";
+
 import { CreateFolderDto } from "./dto/create-folder.dto";
 import { MoveFolderDto } from "./dto/move-folder.dto";
 
 @Controller("folders")
+@UseFilters(FoldersExceptionFilter)
 @UseGuards(AuthGuard)
 export class FolderController {
   constructor(
