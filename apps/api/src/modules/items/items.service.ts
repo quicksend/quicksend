@@ -8,7 +8,7 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
 
-import { ItemNotFound } from "./item.exceptions";
+import { CannotFindItemException } from "./item.exceptions";
 
 @Injectable()
 export class ItemsService {
@@ -43,7 +43,7 @@ export class ItemsService {
     const item = await this.itemRepository.findOne(conditions);
 
     if (!item) {
-      throw new ItemNotFound();
+      throw new CannotFindItemException();
     }
 
     await this.itemRepository.remove(item);

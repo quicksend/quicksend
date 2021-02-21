@@ -1,17 +1,7 @@
-import { ConflictException, NotFoundException } from "@nestjs/common";
+export class ItemException extends Error {}
 
-export class ItemAlreadyExists extends ConflictException {
-  constructor(hash?: string) {
-    hash
-      ? super(`Item '${hash}' already exists!`)
-      : super("Item already exists!");
-  }
-}
-
-export class ItemNotFound extends NotFoundException {
-  constructor(hash?: string) {
-    hash
-      ? super(`Item '${hash}' does not exist!`)
-      : super("Item does not exist!");
+export class CannotFindItemException extends ItemException {
+  constructor() {
+    super("This item cannot be found.");
   }
 }
