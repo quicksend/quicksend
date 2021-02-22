@@ -8,6 +8,8 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
 
+import { CreateItemDto } from "./dto/create-item.dto";
+
 import {
   CannotFindItemException,
   ItemConflictException
@@ -24,18 +26,14 @@ export class ItemsService {
     return this.uowService.getCustomRepository(ItemRepository);
   }
 
-  async create(payload: {
-    discriminator: string;
-    hash: string;
-    size: number;
-  }): Promise<ItemEntity> {
-    const duplicate = await this.itemRepository.findOne({ hash: payload.hash });
+  async create(dto: CreateItemDto): Promise<ItemEntity> {
+    const duplicate = await this.itemRepository.findOne({ hash: dto.hash });
 
     if (duplicate) {
       throw new ItemConflictException();
     }
 
-    const newItem = this.itemRepository.create(payload);
+    const newItem = this.itemRepository.create(dto);
 
     await this.itemRepository.save(newItem);
 
