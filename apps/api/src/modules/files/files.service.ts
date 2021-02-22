@@ -83,7 +83,10 @@ export class FilesService {
       throw new FileConflictException();
     }
 
-    const item = await this.itemsService.create(payload.item);
+    // Don't create a new item if it already exists
+    const item =
+      (await this.itemsService.findOne(payload.item)) ||
+      (await this.itemsService.create(payload.item));
 
     const file = this.fileRepository.create({
       ...payload.file,

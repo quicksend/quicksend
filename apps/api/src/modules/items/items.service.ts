@@ -8,7 +8,10 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
 
-import { CannotFindItemException } from "./item.exceptions";
+import {
+  CannotFindItemException,
+  ItemConflictException
+} from "./item.exceptions";
 
 @Injectable()
 export class ItemsService {
@@ -26,10 +29,10 @@ export class ItemsService {
     hash: string;
     size: number;
   }): Promise<ItemEntity> {
-    const item = await this.itemRepository.findOne({ hash: payload.hash });
+    const duplicate = await this.itemRepository.findOne({ hash: payload.hash });
 
-    if (item) {
-      return item;
+    if (duplicate) {
+      throw new ItemConflictException();
     }
 
     const newItem = this.itemRepository.create(payload);
