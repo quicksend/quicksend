@@ -24,6 +24,7 @@ import { MultiparterExceptionFilter } from "./common/filters/multiparter.filter"
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
+import { ApplicationsModule } from "./modules/applications/applications.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { ConfigModule } from "./modules/config/config.module";
 import { FilesModule } from "./modules/files/files.module";
@@ -38,6 +39,8 @@ import { TypeOrmConfig } from "./modules/config/modules/typeorm.config";
 
 @Module({
   imports: [
+    ApplicationsModule,
+
     AuthModule,
 
     BullModule.forRootAsync({
