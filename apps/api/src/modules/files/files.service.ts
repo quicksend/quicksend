@@ -20,10 +20,11 @@ import { CreateFile } from "./interfaces/create-file.interface";
 import { UploadResults } from "./interfaces/upload-results.interface";
 
 import {
-  CantFindFileDestinationException,
   CantFindFileException,
   FileConflictException
 } from "./file.exceptions";
+
+import { CantFindDestinationFolderException } from "../folders/folder.exceptions";
 
 @Injectable()
 export class FilesService {
@@ -51,7 +52,7 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new CantFindFileDestinationException();
+      throw new CantFindDestinationFolderException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -167,7 +168,7 @@ export class FilesService {
       });
 
       if (!parent) {
-        throw new CantFindFileDestinationException();
+        throw new CantFindDestinationFolderException();
       }
 
       for (const item of multiparter.written) {
@@ -222,7 +223,7 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new CantFindFileDestinationException();
+      throw new CantFindDestinationFolderException();
     }
 
     const duplicate = await this.fileRepository.findOne({

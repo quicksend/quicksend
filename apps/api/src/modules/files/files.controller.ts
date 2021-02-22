@@ -28,6 +28,7 @@ import { FilesService } from "./files.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FilesExceptionFilter } from "./files.filter";
+import { FoldersExceptionFilter } from "../folders/folders.filter";
 
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
@@ -39,7 +40,7 @@ import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
 @Controller("files")
-@UseFilters(FilesExceptionFilter)
+@UseFilters(FilesExceptionFilter, FoldersExceptionFilter)
 @UseGuards(AuthGuard)
 export class FilesController {
   constructor(
