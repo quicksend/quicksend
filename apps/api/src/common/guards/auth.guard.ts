@@ -10,11 +10,10 @@ import { Request } from "../interfaces/request.interface";
 
 import { UserService } from "../../modules/user/user.service";
 
-export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
-export const AUTH_GUARD_SCOPES = "AUTH_GUARD_SCOPES";
-
 const NOT_LOGGED_IN_ERROR = new UnauthorizedException("You are not logged in!");
 const NOT_ACTIVATED_ERROR = new ForbiddenException("Your account is not activated!"); // prettier-ignore
+
+export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
