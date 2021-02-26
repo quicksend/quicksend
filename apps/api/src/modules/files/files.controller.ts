@@ -19,10 +19,13 @@ import { plainToClass } from "class-transformer";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JSONHeader } from "../../common/decorators/json-header.decorator";
+import { UseApplicationScopes } from "../../common/decorators/use-application-scopes.decorator";
 
 import { AuthGuard } from "../../common/guards/auth.guard";
 
 import { ValidateCustomDecoratorPipe } from "../../common/pipes/validate-custom-decorator.pipe";
+
+import { ApplicationScopesEnum } from "../applications/enums/application-scopes.enum";
 
 import { FilesService } from "./files.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
@@ -49,6 +52,7 @@ export class FilesController {
   ) {}
 
   @Get(":id")
+  @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_METADATA)
   async find(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -57,6 +61,7 @@ export class FilesController {
   }
 
   @Post(":id/copy")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   async copy(
     @Body() dto: CopyFileDto,
     @CurrentUser() user: UserEntity,
@@ -68,6 +73,7 @@ export class FilesController {
   }
 
   @Delete(":id/delete")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -78,6 +84,7 @@ export class FilesController {
   }
 
   @Get(":id/download")
+  @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_CONTENTS)
   async download(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string,
@@ -100,6 +107,7 @@ export class FilesController {
   }
 
   @Post(":id/move")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   move(
     @Body() dto: MoveFileDto,
     @CurrentUser() user: UserEntity,
@@ -109,6 +117,7 @@ export class FilesController {
   }
 
   @Post(":id/rename")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   rename(
     @Body() dto: RenameFileDto,
     @CurrentUser() user: UserEntity,
@@ -118,6 +127,7 @@ export class FilesController {
   }
 
   @Post("upload")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_CONTENTS)
   upload(
     @CurrentUser() user: UserEntity,
     @JSONHeader({ optional: true }, ValidateCustomDecoratorPipe) dto: UploadFilesDto, // prettier-ignore

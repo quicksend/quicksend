@@ -12,8 +12,11 @@ import {
 } from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { UseApplicationScopes } from "../../common/decorators/use-application-scopes.decorator";
 
 import { AuthGuard } from "../../common/guards/auth.guard";
+
+import { ApplicationScopesEnum } from "../applications/enums/application-scopes.enum";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
@@ -36,6 +39,7 @@ export class FolderController {
   ) {}
 
   @Post()
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
   async create(
     @Body() dto: CreateFolderDto,
     @CurrentUser() user: UserEntity
@@ -49,6 +53,7 @@ export class FolderController {
   }
 
   @Get(":id?")
+  @UseApplicationScopes(ApplicationScopesEnum.READ_FOLDER_METADATA)
   async find(
     @CurrentUser() user: UserEntity,
     @Param("id") id?: string
@@ -59,6 +64,7 @@ export class FolderController {
   }
 
   @Delete(":id/delete")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
   async delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -69,6 +75,7 @@ export class FolderController {
   }
 
   @Patch(":id/move")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
   async move(
     @Body() dto: MoveFolderDto,
     @CurrentUser() user: UserEntity,

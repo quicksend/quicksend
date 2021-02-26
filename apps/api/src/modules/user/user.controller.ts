@@ -8,8 +8,11 @@ import {
 } from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { UseApplicationScopes } from "../../common/decorators/use-application-scopes.decorator";
 
 import { AuthGuard } from "../../common/guards/auth.guard";
+
+import { ApplicationScopesEnum } from "../applications/enums/application-scopes.enum";
 
 import { UserEntity } from "./user.entity";
 
@@ -30,6 +33,7 @@ export class UserController {
   ) {}
 
   @Get("@me")
+  @UseApplicationScopes(ApplicationScopesEnum.READ_USER_PROFILE)
   me(@CurrentUser() user: UserEntity): UserEntity {
     return user;
   }
