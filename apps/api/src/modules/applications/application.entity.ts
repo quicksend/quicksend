@@ -1,5 +1,7 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 
+import { Exclude } from "class-transformer";
+
 import { BaseEntity } from "../../common/entities/base.entity";
 
 import { UserEntity } from "../user/user.entity";
@@ -22,8 +24,17 @@ export class ApplicationEntity extends BaseEntity {
   })
   scopes!: ApplicationScopesEnum[];
 
+  @Column({
+    nullable: true,
+    type: "varchar",
+    unique: true
+  })
+  @Exclude()
+  secret!: string | null;
+
   @ManyToOne(() => UserEntity, (user) => user.files, {
-    eager: true
+    eager: true,
+    nullable: false
   })
   user!: UserEntity;
 }

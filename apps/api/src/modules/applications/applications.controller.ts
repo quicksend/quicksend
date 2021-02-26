@@ -21,6 +21,8 @@ import { UserEntity } from "../user/user.entity";
 
 import { CreateApplicationDto } from "./dto/create-application.dto";
 
+import { GenerateTokenResponse } from "./responses/generate-token.response";
+
 @Controller("applications")
 @UseFilters(ApplicationsExceptionFilter)
 @UseGuards(AuthGuard)
@@ -52,5 +54,20 @@ export class ApplicationsController {
     @Param("id") id: string
   ): Promise<ApplicationEntity> {
     return this.applicationsService.deleteOne({ id, user });
+  }
+
+  @Get(":id/generate-token")
+  async generateToken(
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<GenerateTokenResponse> {
+    const token = await this.applicationsService.generateToken({
+      id,
+      user
+    });
+
+    return {
+      token
+    };
   }
 }

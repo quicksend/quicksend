@@ -1,4 +1,7 @@
+import { ConfigType } from "@nestjs/config";
 import { Injectable } from "@nestjs/common";
+
+import { btoa, generateId } from "@quicksend/utils";
 
 import { FindConditions } from "typeorm";
 
@@ -69,5 +72,21 @@ export class ApplicationsService {
     }
 
     return application;
+  }
+
+  async generateToken(
+    conditions: FindConditions<ApplicationEntity>
+  ): Promise<string> {
+    const application = await this.applicationRepository.findOne(conditions);
+
+    if (!application) {
+      throw new CantFindApplicationException();
+    }
+
+    application.secret = await generateId(10);
+
+    await this.applicationRepository.save(application);
+
+    return btoa(`${application.id}:${application.secret}`);
   }
 }
