@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Global, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
@@ -8,6 +8,7 @@ import { ApplicationsService } from "./applications.service";
 
 import { ApplicationEntity } from "./application.entity";
 
+@Global()
 @Module({
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), UnitOfWorkModule],
   controllers: [ApplicationsController],
