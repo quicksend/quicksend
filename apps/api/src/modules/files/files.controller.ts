@@ -7,18 +7,21 @@ import {
   Logger,
   Param,
   Post,
-  Req,
   Res,
   UseFilters,
-  UseGuards
+  UseGuards,
+  UseInterceptors
 } from "@nestjs/common";
 
-import { Request, Response } from "express";
+import { Multiparter } from "@quicksend/multiparter";
+
+import { Response } from "express";
 
 import { plainToClass } from "class-transformer";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { JSONHeader } from "../../common/decorators/json-header.decorator";
+import { MultiparterInstance } from "../../common/decorators/multiparter-instance.decorator";
 import { UseApplicationScopes } from "../../common/decorators/use-application-scopes.decorator";
 
 import { AuthGuard } from "../../common/guards/auth.guard";
@@ -32,6 +35,9 @@ import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FilesExceptionFilter } from "./files.filter";
 import { FoldersExceptionFilter } from "../folders/folders.filter";
+import { MultiparterExceptionFilter } from "../multiparter/multiparter.filter";
+
+import { MultiparterInterceptor } from "../multiparter/multiparter.interceptor";
 
 import { FileEntity } from "./file.entity";
 import { UserEntity } from "../user/user.entity";
@@ -43,7 +49,11 @@ import { UploadFilesDto } from "./dto/upload-files.dto";
 import { UploadResultsDto } from "./dto/upload-results.dto";
 
 @Controller("files")
-@UseFilters(FilesExceptionFilter, FoldersExceptionFilter)
+@UseFilters(
+  FilesExceptionFilter,
+  FoldersExceptionFilter,
+  MultiparterExceptionFilter
+)
 @UseGuards(AuthGuard)
 export class FilesController {
   constructor(
@@ -128,14 +138,15 @@ export class FilesController {
 
   @Post("upload")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_CONTENTS)
+  @UseInterceptors(MultiparterInterceptor())
   upload(
     @CurrentUser() user: UserEntity,
     @JSONHeader({ optional: true }, ValidateCustomDecoratorPipe) dto: UploadFilesDto, // prettier-ignore
-    @Req() request: Request
+    @MultiparterInstance() multiparter: Multiparter
   ): Promise<UploadResultsDto> {
     return this.uowService
       .withTransaction(() =>
-        this.filesService.handleUpload(request, {
+        this.filesService.handleUpload(multiparter, {
           parent: dto.parent,
           user
         })

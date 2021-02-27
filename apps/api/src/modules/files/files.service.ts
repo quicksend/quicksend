@@ -1,15 +1,14 @@
 import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
-import { IncomingMessage } from "http";
 import { Readable } from "stream";
 
-import { MultiparterOptions } from "@quicksend/multiparter";
+import { Multiparter } from "@quicksend/multiparter";
 import { settlePromises } from "@quicksend/utils";
 
 import { FoldersService } from "../folders/folders.service";
 import { ItemsService } from "../items/items.service";
-import { StorageService } from "../storage/storage.service";
+import { MultiparterService } from "../multiparter/multiparter.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FileEntity } from "./file.entity";
@@ -21,7 +20,8 @@ import { UploadResults } from "./interfaces/upload-results.interface";
 
 import {
   CantFindFileException,
-  FileConflictException
+  FileConflictException,
+  FileException
 } from "./file.exceptions";
 
 import { CantFindDestinationFolderException } from "../folders/folder.exceptions";
@@ -31,7 +31,7 @@ export class FilesService {
   constructor(
     private readonly folderService: FoldersService,
     private readonly itemsService: ItemsService,
-    private readonly storageService: StorageService,
+    private readonly multiparterService: MultiparterService,
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -85,7 +85,7 @@ export class FilesService {
 
     // Don't create a new item if it already exists
     const item =
-      (await this.itemsService.findOne(payload.item)) ||
+      (await this.itemsService.findOne({ hash: payload.item.hash })) ||
       (await this.itemsService.create(payload.item));
 
     const file = this.fileRepository.create({
@@ -105,7 +105,7 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
-    return this.storageService.read(file.item.discriminator);
+    return this.multiparterService.read(file.item.discriminator);
   }
 
   async deleteOne(conditions: FindConditions<FileEntity>): Promise<FileEntity> {
@@ -150,67 +150,76 @@ export class FilesService {
   }
 
   async handleUpload(
-    req: IncomingMessage,
+    multiparter: Multiparter,
     payload: {
       parent: string;
       user: UserEntity;
-    },
-    options?: Partial<MultiparterOptions>
+    }
   ): Promise<UploadResults> {
-    const multiparter = await this.storageService.write(req, options);
+    const parent = await this.folderService.findOne({
+      id: payload.parent,
+      user: payload.user
+    });
+
+    if (!parent) {
+      throw new CantFindDestinationFolderException();
+    }
 
     const results: UploadResults = {
       failed: [...multiparter.failed],
       succeeded: []
     };
 
-    try {
-      const parent = await this.folderService.findOne({
-        id: payload.parent,
-        user: payload.user
-      });
-
-      if (!parent) {
-        throw new CantFindDestinationFolderException();
-      }
-
-      for (const item of multiparter.written) {
-        try {
-          const file = await this.create({
-            file: {
-              name: item.name,
-              parent,
-              user: payload.user
-            },
-            item
-          });
-
-          // If the item returned don't have matching discriminator, then this file is a duplicate
-          if (file.item.discriminator !== item.discriminator) {
-            await this.storageService.delete(item.discriminator);
+    for (const item of multiparter.written) {
+      try {
+        const file = await this.create({
+          file: {
+            name: item.name,
+            parent,
+            user: payload.user
+          },
+          item: {
+            discriminator: item.discriminator,
+            hash: item.hash,
+            size: item.size
           }
+        });
 
-          results.succeeded.push(file);
-        } catch (reason) {
+        // If the item returned don't have matching discriminator, then this file is a duplicate
+        if (file.item.discriminator !== item.discriminator) {
+          await this.multiparterService.delete(item.discriminator);
+        }
+
+        results.succeeded.push(file);
+      } catch (error) {
+        if (error instanceof FileException) {
           results.failed.push({
             file: item,
-            reason
+            reason: error
           });
+        } else {
+          await multiparter.abort(error);
+
+          throw error;
         }
       }
+    }
 
+    try {
       await settlePromises(
         results.failed
-          .map((f) => () => this.storageService.delete(f.file.discriminator))
+          .map((f) => () =>
+            this.multiparterService.delete(f.file.discriminator)
+          )
           .map((fn) => fn())
       );
-
-      return results;
     } catch (error) {
       await multiparter.abort(error);
 
       throw error;
     }
+
+    return results;
   }
 
   async move(

@@ -20,7 +20,6 @@ import { Queue } from "bull";
 import { AppController } from "./app.controller";
 
 import { InternalServerErrorExceptionFilter } from "./common/filters/internal-server-error.filter";
-import { MultiparterExceptionFilter } from "./common/filters/multiparter.filter";
 
 import { SessionCheckMiddleware } from "./common/middlewares/session-check.middleware";
 
@@ -72,10 +71,6 @@ import { TypeOrmConfig } from "./modules/config/modules/typeorm.config";
     {
       provide: APP_FILTER,
       useClass: InternalServerErrorExceptionFilter
-    },
-    {
-      provide: APP_FILTER,
-      useClass: MultiparterExceptionFilter
     },
     {
       provide: APP_INTERCEPTOR,
