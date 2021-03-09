@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "nest-transmit": {
+      "type": "library",
+      "root": "libs/nest-transmit",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-transmit/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-transmit/tsconfig.json"
+      }
+    }
+  },
+  "compilerOptions": {
+    "webpack": true
+  }
+}

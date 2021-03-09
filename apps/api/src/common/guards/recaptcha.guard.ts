@@ -17,7 +17,7 @@ import { Request } from "express";
 import { getClientIp } from "request-ip";
 import { stringify } from "querystring";
 
-import { secretsNamespace } from "../../modules/config/config.namespaces";
+import { secretsNamespace } from "../../config/config.namespaces";
 
 const RECAPTCHA_FAILED = "reCAPTCHA failed, please try again!";
 const RECAPTCHA_MISSING = "Please complete the reCAPTCHA!";
