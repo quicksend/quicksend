@@ -1,13 +1,10 @@
 import { Request as ExpressRequest } from "express";
-import { Session as ExpressSession } from "express-session";
 
-import { Multiparter } from "@quicksend/multiparter";
-import { Session } from "@quicksend/interfaces";
+import { Session } from "./session.interface";
 
-import { UserEntity } from "../../modules/user/user.entity";
+import { UserEntity } from "../../user/user.entity";
 
 export interface Request extends ExpressRequest {
-  multiparter?: Multiparter;
-  session: ExpressSession & Session;
+  session: Session;
   user?: UserEntity;
 }

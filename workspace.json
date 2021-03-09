@@ -1,115 +1,19 @@
 {
-  "version": 1,
+  "version": 2,
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "api",
   "projects": {
-    "quicksend": {
-      "root": "apps/quicksend",
-      "sourceRoot": "apps/quicksend/src",
-      "projectType": "application",
-      "schematics": {},
-      "architect": {
-        "build": {
-          "builder": "@nrwl/web:build",
-          "options": {
-            "outputPath": "dist/apps/quicksend",
-            "index": "apps/quicksend/src/index.html",
-            "main": "apps/quicksend/src/main.tsx",
-            "polyfills": "apps/quicksend/src/polyfills.ts",
-            "tsConfig": "apps/quicksend/tsconfig.app.json",
-            "assets": [
-              "apps/quicksend/src/favicon.ico",
-              "apps/quicksend/src/assets"
-            ],
-            "styles": [],
-            "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
-          },
-          "configurations": {
-            "production": {
-              "fileReplacements": [
-                {
-                  "replace": "apps/quicksend/src/environments/environment.ts",
-                  "with": "apps/quicksend/src/environments/environment.prod.ts"
-                }
-              ],
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false,
-              "extractCss": true,
-              "namedChunks": false,
-              "extractLicenses": true,
-              "vendorChunk": false,
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "2mb",
-                  "maximumError": "5mb"
-                }
-              ]
-            }
-          }
-        },
-        "serve": {
-          "builder": "@nrwl/web:dev-server",
-          "options": {
-            "buildTarget": "quicksend:build",
-            "proxyConfig": "apps/quicksend/proxy.conf.json"
-          },
-          "configurations": {
-            "production": {
-              "buildTarget": "quicksend:build:production"
-            }
-          }
-        },
-        "lint": {
-          "builder": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/quicksend/**/*.{ts,tsx,js,jsx}"]
-          }
-        },
-        "test": {
-          "builder": "@nrwl/jest:jest",
-          "options": {
-            "jestConfig": "apps/quicksend/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "quicksend-e2e": {
-      "root": "apps/quicksend-e2e",
-      "sourceRoot": "apps/quicksend-e2e/src",
-      "projectType": "application",
-      "architect": {
-        "e2e": {
-          "builder": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/quicksend-e2e/cypress.json",
-            "tsConfig": "apps/quicksend-e2e/tsconfig.e2e.json",
-            "devServerTarget": "quicksend:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "quicksend:serve:production"
-            }
-          }
-        },
-        "lint": {
-          "builder": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/quicksend-e2e/**/*.{js,ts}"]
-          }
-        }
-      }
-    },
     "api": {
       "root": "apps/api",
       "sourceRoot": "apps/api/src",
       "projectType": "application",
       "prefix": "api",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/node:build",
+          "executor": "@nrwl/node:build",
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/api",
             "main": "apps/api/src/main.ts",
@@ -131,19 +35,20 @@
           }
         },
         "serve": {
-          "builder": "@nrwl/node:execute",
+          "executor": "@nrwl/node:execute",
           "options": {
             "buildTarget": "api:build"
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["apps/api/**/*.ts"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/api"],
           "options": {
             "jestConfig": "apps/api/jest.config.js",
             "passWithNoTests": true
@@ -151,43 +56,43 @@
         }
       }
     },
-    "interfaces": {
-      "root": "libs/interfaces",
-      "sourceRoot": "libs/interfaces/src",
+    "nest-transmit": {
+      "root": "libs/nest-transmit",
+      "sourceRoot": "libs/nest-transmit/src",
       "projectType": "library",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["libs/interfaces/**/*.ts"]
+            "lintFilePatterns": ["libs/nest-transmit/**/*.ts"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/nest-transmit"],
           "options": {
-            "jestConfig": "libs/interfaces/jest.config.js",
+            "jestConfig": "libs/nest-transmit/jest.config.js",
             "passWithNoTests": true
           }
         }
       }
     },
-    "multiparter": {
-      "root": "libs/multiparter",
-      "sourceRoot": "libs/multiparter/src",
+    "transmit": {
+      "root": "libs/transmit",
+      "sourceRoot": "libs/transmit/src",
       "projectType": "library",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["libs/multiparter/**/*.ts"]
+            "lintFilePatterns": ["libs/transmit/**/*.ts"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/transmit"],
           "options": {
-            "jestConfig": "libs/multiparter/jest.config.js",
+            "jestConfig": "libs/transmit/jest.config.js",
             "passWithNoTests": true
           }
         }
@@ -197,16 +102,16 @@
       "root": "libs/utils",
       "sourceRoot": "libs/utils/src",
       "projectType": "library",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "lint": {
-          "builder": "@nrwl/linter:eslint",
+          "executor": "@nrwl/linter:eslint",
           "options": {
             "lintFilePatterns": ["libs/utils/**/*.ts"]
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/utils"],
           "options": {
             "jestConfig": "libs/utils/jest.config.js",
             "passWithNoTests": true
@@ -214,25 +119,5 @@
         }
       }
     }
-  },
-  "cli": {
-    "defaultCollection": "@nrwl/react"
-  },
-  "schematics": {
-    "@nrwl/react": {
-      "application": {
-        "style": "styled-components",
-        "linter": "eslint",
-        "babel": true
-      },
-      "component": {
-        "style": "styled-components"
-      },
-      "library": {
-        "style": "styled-components",
-        "linter": "eslint"
-      }
-    }
-  },
-  "defaultProject": "api"
+  }
 }

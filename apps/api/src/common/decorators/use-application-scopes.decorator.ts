@@ -1,6 +1,6 @@
 import { CustomDecorator, SetMetadata } from "@nestjs/common";
 
-import { ApplicationScopesEnum } from "../../modules/applications/enums/application-scopes.enum";
+import { ApplicationScopesEnum } from "../../applications/enums/application-scopes.enum";
 
 export const REQUIRED_APPLICATION_SCOPES = "REQUIRED_APPLICATION_SCOPES";
 

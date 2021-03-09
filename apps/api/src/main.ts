@@ -9,14 +9,14 @@ import { Logger } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory } from "@nestjs/core";
 
-import { AppModule } from "./app.module";
+import { AppModule } from "./app/app.module";
 
 import {
   domainsNamespace,
   httpNamespace,
   redisNamespace,
   secretsNamespace
-} from "./modules/config/config.namespaces";
+} from "./config/config.namespaces";
 
 const IS_PROD = process.env.NODE_ENV === "production";
 

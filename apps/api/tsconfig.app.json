@@ -4,11 +4,7 @@
     "outDir": "../../dist/out-tsc",
     "types": ["node"],
     "emitDecoratorMetadata": true,
-    "module": "commonjs",
-    "target": "es2018",
-    "strict": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ESNext"]
+    "target": "es2015"
   },
   "exclude": ["**/*.spec.ts"],
   "include": ["**/*.ts"]

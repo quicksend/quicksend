@@ -5,6 +5,7 @@ import { Request } from "../interfaces/request.interface";
 export const CurrentUser = createParamDecorator(
   (field: keyof Request["user"], ctx: ExecutionContext) => {
     const { user } = ctx.switchToHttp().getRequest<Request>();
+
     return field ? user && user[field] : user;
   }
 );

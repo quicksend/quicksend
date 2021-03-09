@@ -7,27 +7,30 @@ import {
 
 import { Request } from "express";
 
-export const DEFAULT_FIELD = "Quicksend-API-Args";
-
-export const DEFAULT_EXCEPTION_FACTORY = () => {
-  return new BadRequestException(`Header '${DEFAULT_FIELD}' must be a JSON!`);
-};
-
 export interface JSONHeaderOptions {
-  exceptionFactory?: (field: string) => HttpException;
-  field?: string;
-  optional?: boolean;
+  exceptionFactory: (field?: string) => HttpException;
+  field: string;
+  optional: boolean;
 }
 
+export const DEFAULT_JSON_HEADER_OPTIONS: JSONHeaderOptions = {
+  exceptionFactory: (field?: string) => {
+    return new BadRequestException(
+      `Header '${field || DEFAULT_JSON_HEADER_OPTIONS.field}' must be JSON!`
+    );
+  },
+  field: "Quicksend-API-Args",
+  optional: false
+};
+
 export const JSONHeader = createParamDecorator(
-  (options: JSONHeaderOptions | undefined, ctx: ExecutionContext) => {
+  (options: Partial<JSONHeaderOptions> | undefined, ctx: ExecutionContext) => {
     const { headers } = ctx.switchToHttp().getRequest<Request>();
 
-    const {
-      exceptionFactory = DEFAULT_EXCEPTION_FACTORY,
-      field = DEFAULT_FIELD,
-      optional = false
-    } = options || {};
+    const { exceptionFactory, field, optional } = {
+      ...DEFAULT_JSON_HEADER_OPTIONS,
+      ...options
+    };
 
     const parse = (value: unknown) => {
       if (typeof value !== "string") {

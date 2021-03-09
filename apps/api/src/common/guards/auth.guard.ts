@@ -12,10 +12,10 @@ import { atob } from "@quicksend/utils";
 
 import { Request } from "../interfaces/request.interface";
 
-import { ApplicationScopesEnum } from "../../modules/applications/enums/application-scopes.enum";
+import { ApplicationScopesEnum } from "../../applications/enums/application-scopes.enum";
 
-import { ApplicationsService } from "../../modules/applications/applications.service";
-import { UserService } from "../../modules/user/user.service";
+import { ApplicationsService } from "../../applications/applications.service";
+import { UserService } from "../../user/user.service";
 
 import { REQUIRED_APPLICATION_SCOPES } from "../../common/decorators/use-application-scopes.decorator";
 
@@ -68,14 +68,16 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException("Invalid application token!");
     }
 
-    const application = await this.applicationsService.findOne({ id });
+    const application = await this.applicationsService.findOne({ id, secret });
 
-    if (!application || application.secret !== secret) {
+    if (!application) {
       throw new UnauthorizedException("Invalid application token!");
     }
 
-    // Only allow routes that has UseScopes() to allow the usage of an application token
-    const hasSufficientScopes = scopes && scopes.every((scope) => scopes.includes(scope)); // prettier-ignore
+    // Only allow routes that has UseApplicationScopes() to allow the usage of an application token
+    const hasSufficientScopes = scopes?.every((scope) =>
+      application.scopes.includes(scope)
+    );
 
     if (!hasSufficientScopes) {
       throw new ForbiddenException("Insufficient scopes!");
