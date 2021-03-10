@@ -1,5 +1,6 @@
+import { IncomingFile } from "./incoming-file.interface";
+
 export interface TransmitManager {
-  createReadable(filename: string): Promise<NodeJS.ReadableStream>;
-  createWritable(filename: string): Promise<NodeJS.WritableStream>;
-  delete(filename: string): Promise<void>;
+  createWritableStream(file: IncomingFile): Promise<NodeJS.WritableStream>;
+  deleteFile(file: IncomingFile): Promise<void>;
 }

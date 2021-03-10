@@ -1,6 +1,4 @@
 import * as Busboy from "busboy";
-
-import * as os from "os";
 import * as stream from "stream";
 
 import { EventEmitter } from "events";
@@ -38,9 +36,7 @@ const pipeline = promisify(stream.pipeline);
 
 export const TRANSMIT_DEFAULT_OPTIONS: TransmitOptions = {
   hashAlgorithm: "sha256",
-  manager: new DiskManager({
-    directory: os.tmpdir()
-  }),
+  manager: new DiskManager(),
   minFields: 0,
   maxFields: 100,
   minFiles: 1,
@@ -117,7 +113,7 @@ export class Transmit extends EventEmitter {
    */
   async deleteUploadedFiles(): Promise<void> {
     await settlePromises(
-      this.incoming.map((file) => this.manager.delete(file.discriminator))
+      this.incoming.map((file) => this.manager.deleteFile(file))
     );
   }
 
@@ -305,7 +301,7 @@ export class Transmit extends EventEmitter {
   }
 
   private async writeFile(file: IncomingFile, readable: BusboyReadable) {
-    const writable = await this.manager.createWritable(file.discriminator);
+    const writable = await this.manager.createWritableStream(file);
 
     const hash = new HashCalculator(this.options.hashAlgorithm);
     const meter = new StreamMeter();

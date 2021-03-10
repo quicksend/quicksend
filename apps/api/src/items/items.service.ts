@@ -1,37 +1,39 @@
 import { Injectable } from "@nestjs/common";
-import { InjectQueue } from "@nestjs/bull";
 
 import { FindConditions } from "typeorm";
-import { Queue } from "bull";
 
-import { TransmitService } from "@quicksend/nest-transmit";
+import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
 
-import { ItemsProcessor } from "./items.processor";
-
 import { CannotFindItemException } from "./items.exceptions";
-
-import { DELETE_ITEM_JOB_NAME } from "./jobs/delete-item.job";
 
 @Injectable()
 export class ItemsService {
   constructor(
-    private readonly transmitService: TransmitService,
-    private readonly uowService: UnitOfWorkService,
-
-    @InjectQueue(ItemsProcessor.QUEUE_NAME)
-    private readonly itemsProcessor: Queue
+    private readonly storageService: StorageService,
+    private readonly uowService: UnitOfWorkService
   ) {}
 
   private get itemRepository() {
     return this.uowService.getCustomRepository(ItemRepository);
   }
 
-  get manager() {
-    return this.transmitService.manager;
+  /**
+   * Finds an item and creates a readable stream
+   */
+  async createReadableStream(
+    conditions: FindConditions<ItemEntity>
+  ): Promise<NodeJS.ReadableStream> {
+    const item = await this.itemRepository.findOne(conditions);
+
+    if (!item) {
+      throw new CannotFindItemException();
+    }
+
+    return this.storageService.createReadableStream(item.discriminator);
   }
 
   /**
@@ -46,9 +48,7 @@ export class ItemsService {
 
     await this.itemRepository.remove(item);
 
-    await this.itemsProcessor.add(DELETE_ITEM_JOB_NAME, {
-      discriminator: item.discriminator
-    });
+    await this.storageService.deleteFile(item.discriminator);
 
     return item;
   }
@@ -85,20 +85,5 @@ export class ItemsService {
     await this.itemRepository.save(item);
 
     return item;
-  }
-
-  /**
-   * Finds an item and creates a readable stream
-   */
-  async read(
-    conditions: FindConditions<ItemEntity>
-  ): Promise<NodeJS.ReadableStream> {
-    const item = await this.itemRepository.findOne(conditions);
-
-    if (!item) {
-      throw new CannotFindItemException();
-    }
-
-    return this.transmitService.read(item.discriminator);
   }
 }

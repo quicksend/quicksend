@@ -32,6 +32,7 @@ import { ConfigModule } from "../config/config.module";
 import { FilesModule } from "../files/files.module";
 import { FoldersModule } from "../folders/folders.module";
 import { ItemsModule } from "../items/items.module";
+import { StorageModule } from "../storage/storage.module";
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
 import { UserModule } from "../user/user.module";
 
@@ -40,6 +41,7 @@ import { ThrottlerModuleConfig } from "../config/modules/throttler-module.config
 import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
 
 import { ItemsProcessor } from "../items/items.processor";
+import { StorageProcessor } from "../storage/storage.processor";
 
 @Module({
   imports: [
@@ -58,6 +60,8 @@ import { ItemsProcessor } from "../items/items.processor";
     FoldersModule,
 
     ItemsModule,
+
+    StorageModule,
 
     ThrottlerModule.forRootAsync({
       useClass: ThrottlerModuleConfig
@@ -100,8 +104,14 @@ import { ItemsProcessor } from "../items/items.processor";
   ]
 })
 export class AppModule implements NestModule {
-  constructor(@InjectQueue(ItemsProcessor.QUEUE_NAME) itemProcessor: Queue) {
-    setQueues([new BullAdapter(itemProcessor)]);
+  constructor(
+    @InjectQueue(ItemsProcessor.QUEUE_NAME) itemProcessor: Queue,
+    @InjectQueue(StorageProcessor.QUEUE_NAME) storageProcessor: Queue
+  ) {
+    setQueues([
+      new BullAdapter(itemProcessor),
+      new BullAdapter(storageProcessor)
+    ]);
   }
 
   configure(consumer: MiddlewareConsumer): void {

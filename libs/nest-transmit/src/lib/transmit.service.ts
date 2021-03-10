@@ -3,6 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { IncomingMessage } from "http";
 
 import {
+  IncomingFile,
   ParseAsyncResults,
   Transmit,
   TransmitOptions,
@@ -31,15 +32,11 @@ export class TransmitService {
     return this.transmitModuleOptions.manager;
   }
 
-  delete(filename: string): Promise<void> {
-    return this.manager.delete(filename);
+  delete(file: IncomingFile): Promise<void> {
+    return this.manager.deleteFile(file);
   }
 
-  read(filename: string): Promise<NodeJS.ReadableStream> {
-    return this.manager.createReadable(filename);
-  }
-
-  write(
+  parse(
     req: IncomingMessage,
     localTransmitOptions: Partial<TransmitOptions> = {}
   ): Promise<ParseAsyncResults> {

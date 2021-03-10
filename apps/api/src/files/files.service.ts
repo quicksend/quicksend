@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { File } from "@quicksend/transmit";
+import { TransmitService } from "@quicksend/nest-transmit";
 
 import { FindConditions } from "typeorm";
 
@@ -23,6 +24,7 @@ export class FilesService {
   constructor(
     private readonly folderService: FoldersService,
     private readonly itemsService: ItemsService,
+    private readonly transmitService: TransmitService,
     private readonly uowService: UnitOfWorkService
   ) {}
 
@@ -82,8 +84,8 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
-    return this.itemsService.read({
-      discriminator: file.item.discriminator
+    return this.itemsService.createReadableStream({
+      id: file.item.id
     });
   }
 
@@ -107,7 +109,7 @@ export class FilesService {
     // If there are no other files that reference the related item, then it should be deleted
     if (count === 0) {
       await this.itemsService.deleteOne({
-        discriminator: file.item.discriminator
+        id: file.item.id
       });
     }
 
@@ -232,7 +234,7 @@ export class FilesService {
     // If the grabbed item discriminator doesn't match with the discriminator of the uploaded file,
     // it means that the item already exist, therefore we need to deduplicate by deleting the uploaded file.
     if (item.discriminator !== metadata.discriminator) {
-      await this.itemsService.manager.delete(metadata.discriminator);
+      await this.transmitService.delete(metadata);
     }
 
     const file = this.fileRepository.create({

@@ -1,47 +1,48 @@
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 
-import { chunk } from "@quicksend/utils";
+import { IncomingFile, TransmitManager } from "../transmit.interfaces";
 
-import { TransmitManager } from "../transmit.interfaces";
+export const DISK_MANAGER_DEFAULT_OPTIONS: DiskManagerOptions = {
+  directory: os.tmpdir()
+};
 
 export interface DiskManagerOptions {
   directory: string;
 }
 
 export class DiskManager implements TransmitManager {
-  constructor(private readonly options: DiskManagerOptions) {}
+  protected readonly options: DiskManagerOptions;
 
-  async createReadable(filename: string): Promise<NodeJS.ReadableStream> {
-    return fs.createReadStream(this.getLocationOnDisk(filename));
+  constructor(options: Partial<DiskManagerOptions> = {}) {
+    this.options = {
+      ...DISK_MANAGER_DEFAULT_OPTIONS,
+      ...options
+    };
   }
 
-  async createWritable(filename: string): Promise<NodeJS.WritableStream> {
-    await fs.promises.mkdir(this.getDestinationOnDisk(filename), {
+  async createWritableStream(
+    file: IncomingFile
+  ): Promise<NodeJS.WritableStream> {
+    await fs.promises.mkdir(this.options.directory, {
       recursive: true
     });
 
-    return fs.createWriteStream(this.getLocationOnDisk(filename));
+    const pathToFile = path.join(this.options.directory, file.discriminator);
+
+    return fs.createWriteStream(pathToFile);
   }
 
-  async delete(filename: string): Promise<void> {
+  async deleteFile(file: IncomingFile): Promise<void> {
+    const pathToFile = path.join(this.options.directory, file.discriminator);
+
     try {
-      await fs.promises.unlink(this.getLocationOnDisk(filename));
+      await fs.promises.unlink(pathToFile);
     } catch (error) {
       if (error.code !== "ENOENT") {
         throw error;
       }
     }
-  }
-
-  private getDestinationOnDisk(filename: string): string {
-    return path.join(
-      this.options.directory,
-      chunk.string(filename.slice(0, -1), 2).join(path.sep)
-    );
-  }
-
-  private getLocationOnDisk(filename: string): string {
-    return path.join(this.getDestinationOnDisk(filename), filename);
   }
 }

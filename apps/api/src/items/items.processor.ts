@@ -1,18 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { InjectQueue } from "@nestjs/bull";
 import { Process, Processor } from "@nestjs/bull";
 
-import { Job, Queue } from "bull";
+import { Job } from "bull";
 
 import { Counter } from "@quicksend/utils";
 
-import { TransmitService } from "@quicksend/nest-transmit";
+import { StorageService } from "../storage/storage.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
-
-import { DeleteItemJob, DELETE_ITEM_JOB_NAME } from "./jobs/delete-item.job";
 
 import {
   DeleteOrphanedItemsJob,
@@ -25,20 +22,12 @@ export class ItemsProcessor {
   static readonly QUEUE_NAME = "item";
 
   constructor(
-    private readonly transmitService: TransmitService,
-    private readonly uowService: UnitOfWorkService,
-
-    @InjectQueue("item")
-    private readonly itemsProcessor: Queue
+    private readonly storageService: StorageService,
+    private readonly uowService: UnitOfWorkService
   ) {}
 
   private get itemRepository() {
     return this.uowService.getCustomRepository(ItemRepository);
-  }
-
-  @Process(DELETE_ITEM_JOB_NAME)
-  async deleteItem(job: Job<DeleteItemJob>): Promise<void> {
-    return this.transmitService.delete(job.data.discriminator);
   }
 
   @Process(DELETE_ORPHANED_ITEMS_JOB_NAME)
@@ -61,9 +50,7 @@ export class ItemsProcessor {
                   discriminator: item.discriminator
                 });
 
-                await this.itemsProcessor.add("delete", {
-                  discriminator: item.discriminator
-                });
+                await this.storageService.deleteFile(item.discriminator);
               }
             })
             .finally(() => pendingDeletes.decrement());
