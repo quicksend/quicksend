@@ -32,11 +32,11 @@ export class TransmitService {
     return this.transmitModuleOptions.manager;
   }
 
-  delete(file: IncomingFile): Promise<void> {
+  deleteFile(file: IncomingFile): Promise<void> {
     return this.manager.deleteFile(file);
   }
 
-  parse(
+  parseAsync(
     req: IncomingMessage,
     localTransmitOptions: Partial<TransmitOptions> = {}
   ): Promise<ParseAsyncResults> {

@@ -234,7 +234,7 @@ export class FilesService {
     // If the grabbed item discriminator doesn't match with the discriminator of the uploaded file,
     // it means that the item already exist, therefore we need to deduplicate by deleting the uploaded file.
     if (item.discriminator !== metadata.discriminator) {
-      await this.transmitService.delete(metadata);
+      await this.transmitService.deleteFile(metadata);
     }
 
     const file = this.fileRepository.create({
