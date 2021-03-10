@@ -1,20 +1,15 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity } from "typeorm";
 
 import { Exclude, Transform } from "class-transformer";
 import { Max, Min } from "class-validator";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FileEntity } from "../files/file.entity";
-
-@Entity({ name: "item" })
+@Entity("item")
 export class ItemEntity extends BaseEntity {
   @Column({ unique: true })
   @Exclude()
   discriminator!: string;
-
-  @OneToMany(() => FileEntity, (file) => file.item)
-  files!: FileEntity;
 
   @Column({ unique: true })
   hash!: string;

@@ -6,9 +6,9 @@ import { FolderEntity } from "../folders/folder.entity";
 import { ItemEntity } from "../items/item.entity";
 import { UserEntity } from "../user/user.entity";
 
-@Entity({ name: "file" })
+@Entity("file")
 export class FileEntity extends BaseEntity {
-  @ManyToOne(() => ItemEntity, (item) => item.files, {
+  @ManyToOne(() => ItemEntity, {
     eager: true,
     nullable: false,
     onDelete: "CASCADE"
@@ -18,14 +18,14 @@ export class FileEntity extends BaseEntity {
   @Column()
   name!: string;
 
-  @ManyToOne(() => FolderEntity, (folder) => folder.children, {
+  @ManyToOne(() => FolderEntity, {
     eager: true,
     nullable: false,
     onDelete: "CASCADE"
   })
   parent!: FolderEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.files, {
+  @ManyToOne(() => UserEntity, {
     eager: true,
     nullable: false
   })

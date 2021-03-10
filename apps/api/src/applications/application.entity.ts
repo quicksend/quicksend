@@ -6,7 +6,7 @@ import { UserEntity } from "../user/user.entity";
 
 import { ApplicationScopesEnum } from "./enums/application-scopes.enum";
 
-@Entity({ name: "application" })
+@Entity("application")
 export class ApplicationEntity extends BaseEntity {
   @Column()
   name!: string;
@@ -29,7 +29,7 @@ export class ApplicationEntity extends BaseEntity {
   })
   secret!: string | null;
 
-  @ManyToOne(() => UserEntity, (user) => user.files, {
+  @ManyToOne(() => UserEntity, {
     eager: true,
     nullable: false
   })

@@ -1,16 +1,13 @@
 import * as argon2 from "argon2";
 
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity } from "typeorm";
 
 import { Exclude } from "class-transformer";
 import { IsAlphanumeric, IsEmail, ValidateIf } from "class-validator";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FileEntity } from "../files/file.entity";
-import { FolderEntity } from "../folders/folder.entity";
-
-@Entity({ name: "user" })
+@Entity("user")
 export class UserEntity extends BaseEntity {
   @Column({ default: false })
   @Exclude()
@@ -28,12 +25,6 @@ export class UserEntity extends BaseEntity {
   @IsEmail()
   @ValidateIf((_object, value) => value !== null)
   email!: string | null; // null if user is deleted
-
-  @OneToMany(() => FileEntity, (file) => file.user)
-  files!: FileEntity[];
-
-  @OneToMany(() => FolderEntity, (folder) => folder.user)
-  folders!: FolderEntity[];
 
   @Column({
     nullable: true,

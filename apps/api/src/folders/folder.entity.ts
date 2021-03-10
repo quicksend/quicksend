@@ -11,7 +11,7 @@ import { BaseEntity } from "../common/entities/base.entity";
 
 import { UserEntity } from "../user/user.entity";
 
-@Entity({ name: "folder" })
+@Entity("folder")
 @Tree("closure-table")
 export class FolderEntity extends BaseEntity {
   @TreeChildren()
@@ -23,7 +23,7 @@ export class FolderEntity extends BaseEntity {
   @TreeParent()
   parent!: FolderEntity | null;
 
-  @ManyToOne(() => UserEntity, (user) => user.files, {
+  @ManyToOne(() => UserEntity, {
     eager: true,
     nullable: false
   })
