@@ -12,7 +12,7 @@ import { redisNamespace } from "../config.namespaces";
 export class SharedBullModuleConfig implements SharedBullConfigurationFactory {
   constructor(
     @Inject(redisNamespace.KEY)
-    private redisConfig: ConfigType<typeof redisNamespace>
+    private readonly redisConfig: ConfigType<typeof redisNamespace>
   ) {}
 
   createSharedConfiguration(): QueueOptions {

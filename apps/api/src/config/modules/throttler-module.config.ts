@@ -15,10 +15,10 @@ import { redisNamespace, throttlerNamespace } from "../config.namespaces";
 export class ThrottlerModuleConfig implements ThrottlerOptionsFactory {
   constructor(
     @Inject(redisNamespace.KEY)
-    private redisConfig: ConfigType<typeof redisNamespace>,
+    private readonly redisConfig: ConfigType<typeof redisNamespace>,
 
     @Inject(throttlerNamespace.KEY)
-    private throttlerConfig: ConfigType<typeof throttlerNamespace>
+    private readonly throttlerConfig: ConfigType<typeof throttlerNamespace>
   ) {}
 
   createThrottlerOptions(): ThrottlerModuleOptions {

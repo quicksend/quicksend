@@ -17,10 +17,10 @@ import {
 export class TransmitModuleConfig implements TransmitModuleOptionsFactory {
   constructor(
     @Inject(limitsNamespace.KEY)
-    private limitsConfig: ConfigType<typeof limitsNamespace>,
+    private readonly limitsConfig: ConfigType<typeof limitsNamespace>,
 
     @Inject(storageNamespace.KEY)
-    private storageConfig: ConfigType<typeof storageNamespace>
+    private readonly storageConfig: ConfigType<typeof storageNamespace>
   ) {}
 
   get transmitManager() {

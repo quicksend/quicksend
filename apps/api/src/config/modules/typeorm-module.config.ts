@@ -10,7 +10,7 @@ import { postgresNamespace } from "../config.namespaces";
 export class TypeOrmModuleConfig implements TypeOrmOptionsFactory {
   constructor(
     @Inject(postgresNamespace.KEY)
-    private postgresConfig: ConfigType<typeof postgresNamespace>
+    private readonly postgresConfig: ConfigType<typeof postgresNamespace>
   ) {}
 
   createTypeOrmOptions(): TypeOrmModuleOptions {
