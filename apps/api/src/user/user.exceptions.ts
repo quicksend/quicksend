@@ -1,5 +1,11 @@
 export class UserException extends Error {}
 
+export class CantFindUserException extends UserException {
+  constructor() {
+    super("This user cannot be found.");
+  }
+}
+
 export class EmailConflictException extends UserException {
   constructor() {
     super("This email is already in use!");

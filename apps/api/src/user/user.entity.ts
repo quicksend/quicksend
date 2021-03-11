@@ -9,11 +9,17 @@ import { BaseEntity } from "../common/entities/base.entity";
 
 @Entity("user")
 export class UserEntity extends BaseEntity {
-  @Column({ default: false })
+  @Column({
+    nullable: true,
+    type: "varchar",
+    unique: true
+  })
   @Exclude()
-  activated!: boolean;
+  activationToken!: string | null;
 
-  @Column({ default: false })
+  @Column({
+    default: false
+  })
   admin!: boolean;
 
   @Column({
@@ -39,6 +45,10 @@ export class UserEntity extends BaseEntity {
   })
   @IsAlphanumeric()
   username!: string;
+
+  get activated(): boolean {
+    return !this.activationToken;
+  }
 
   async comparePassword(plainTextPassword: string): Promise<boolean> {
     if (!this.password) {

@@ -2,12 +2,15 @@ import { Injectable } from "@nestjs/common";
 
 import { FindConditions, FindOneOptions } from "typeorm";
 
+import { generateRandomString } from "@quicksend/utils";
+
 import { FoldersService } from "../folders/folders.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { UserEntity } from "./user.entity";
 
 import {
+  CantFindUserException,
   EmailConflictException,
   IncorrectPasswordException,
   UsernameConflictException
@@ -22,6 +25,23 @@ export class UserService {
 
   private get userRepository() {
     return this.uowService.getRepository(UserEntity);
+  }
+
+  /**
+   * Removes activation token from user to "activate" it
+   */
+  async activate(token: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      activationToken: token
+    });
+
+    if (!user || user.activated) {
+      throw new CantFindUserException();
+    }
+
+    user.activationToken = null;
+
+    return this.userRepository.save(user);
   }
 
   /**
@@ -50,7 +70,10 @@ export class UserService {
       throw new UsernameConflictException();
     }
 
+    const activationToken = await generateRandomString(16);
+
     const user = this.userRepository.create({
+      activationToken,
       email,
       password,
       username
@@ -71,7 +94,7 @@ export class UserService {
       throw new IncorrectPasswordException();
     }
 
-    user.activated = false;
+    user.activationToken = null;
     user.admin = false;
     user.password = null;
 

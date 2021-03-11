@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   UseFilters,
   UseGuards
@@ -25,20 +26,26 @@ import { DeleteUserDto } from "./dto/delete-user.dto";
 
 @Controller("user")
 @UseFilters(UserExceptionFilter)
-@UseGuards(AuthGuard)
 export class UserController {
   constructor(
     private readonly uowService: UnitOfWorkService,
     private readonly userService: UserService
   ) {}
 
+  @Post("activate/:token")
+  activate(@Param("token") token: string): Promise<UserEntity> {
+    return this.userService.activate(token);
+  }
+
   @Get("@me")
   @UseApplicationScopes(ApplicationScopesEnum.READ_USER_PROFILE)
+  @UseGuards(AuthGuard)
   me(@CurrentUser() user: UserEntity): UserEntity {
     return user;
   }
 
   @Post("@me/delete")
+  @UseGuards(AuthGuard)
   async delete(
     @Body() dto: DeleteUserDto,
     @CurrentUser() user: UserEntity
