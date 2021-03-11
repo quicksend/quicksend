@@ -56,22 +56,22 @@
         }
       }
     },
-    "nest-transmit": {
-      "root": "libs/nest-transmit",
-      "sourceRoot": "libs/nest-transmit/src",
+    "nestjs-transmit": {
+      "root": "libs/nestjs-transmit",
+      "sourceRoot": "libs/nestjs-transmit/src",
       "projectType": "library",
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["libs/nest-transmit/**/*.ts"]
+            "lintFilePatterns": ["libs/nestjs-transmit/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/nest-transmit"],
+          "outputs": ["coverage/libs/nestjs-transmit"],
           "options": {
-            "jestConfig": "libs/nest-transmit/jest.config.js",
+            "jestConfig": "libs/nestjs-transmit/jest.config.js",
             "passWithNoTests": true
           }
         }

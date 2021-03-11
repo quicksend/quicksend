@@ -6,7 +6,7 @@ import { DiskManager } from "@quicksend/transmit";
 import {
   TransmitModuleOptions,
   TransmitModuleOptionsFactory
-} from "@quicksend/nest-transmit";
+} from "@quicksend/nestjs-transmit";
 
 import {
   limitsNamespace,

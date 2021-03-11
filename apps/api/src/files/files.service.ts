@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { File } from "@quicksend/transmit";
-import { TransmitService } from "@quicksend/nest-transmit";
+import { TransmitService } from "@quicksend/nestjs-transmit";
 
 import { FindConditions } from "typeorm";
 

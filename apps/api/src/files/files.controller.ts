@@ -20,7 +20,7 @@ import {
   Files,
   TransmitExceptionFilter,
   TransmitInterceptor
-} from "@quicksend/nest-transmit";
+} from "@quicksend/nestjs-transmit";
 
 import { Response } from "express";
 
