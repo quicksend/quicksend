@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 
 import { FindConditions, FindOneOptions } from "typeorm";
 
+import { FoldersService } from "../folders/folders.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
-import { FolderEntity } from "../folders/folder.entity";
 import { UserEntity } from "./user.entity";
 
 import {
@@ -15,11 +15,10 @@ import {
 
 @Injectable()
 export class UserService {
-  constructor(private readonly uowService: UnitOfWorkService) {}
-
-  private get folderRepository() {
-    return this.uowService.getTreeRepository(FolderEntity);
-  }
+  constructor(
+    private readonly foldersService: FoldersService,
+    private readonly uowService: UnitOfWorkService
+  ) {}
 
   private get userRepository() {
     return this.uowService.getRepository(UserEntity);
@@ -59,9 +58,7 @@ export class UserService {
 
     await this.userRepository.save(user);
 
-    const root = this.folderRepository.create({ name: "/", user });
-
-    await this.folderRepository.save(root);
+    await this.foldersService.create("/", null, user);
 
     return user;
   }
@@ -73,13 +70,6 @@ export class UserService {
     if (!(await user.comparePassword(password))) {
       throw new IncorrectPasswordException();
     }
-
-    const roots = await this.folderRepository.find({
-      parent: null,
-      user
-    });
-
-    await this.folderRepository.remove(roots);
 
     user.activated = false;
     user.admin = false;

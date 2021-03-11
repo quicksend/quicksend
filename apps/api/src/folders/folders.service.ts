@@ -35,19 +35,18 @@ export class FoldersService {
    */
   async create(
     name: string,
-    parentId: string,
+    parentId: string | null,
     user: UserEntity
   ): Promise<FolderEntity> {
-    const parent = await this.folderRepository.findOneWithRelations({
-      id: parentId,
-      user
-    });
+    const parent = parentId
+      ? await this.folderRepository.findOne({ id: parentId, user })
+      : null;
 
-    if (!parent) {
+    if (!parent && parentId) {
       throw new CantFindDestinationFolderException();
     }
 
-    const duplicate = await this.folderRepository.findOneWithRelations({
+    const duplicate = await this.folderRepository.findOne({
       name,
       parent,
       user
@@ -74,7 +73,6 @@ export class FoldersService {
       throw new CantFindFolderException();
     }
 
-    // Don't delete root folders
     if (!folder.parent) {
       throw new CantDeleteFolderException();
     }
