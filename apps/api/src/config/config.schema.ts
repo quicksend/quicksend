@@ -7,8 +7,8 @@ export const ConfigSchema = Joi.object<ConfigEnvironment>({
   CLEANUP_FREQUENCY: Joi.number().min(0).default(60 * 1000),
   CLEANUP_LIMIT: Joi.number().min(0).default(250),
 
-  BACKEND_DOMAIN: Joi.string().required(),
-  FRONTEND_DOMAIN: Joi.string().required(),
+  BACKEND_URL: Joi.string().uri(),
+  FRONTEND_URL: Joi.string().uri(),
 
   STORAGE_MANAGER: Joi.string().default("disk"),
 
@@ -37,7 +37,6 @@ export const ConfigSchema = Joi.object<ConfigEnvironment>({
   SMTP_PASSWORD: Joi.string().required(),
   SMTP_PORT: Joi.number().min(0).max(65535).default(465),
   SMTP_SECURE: Joi.boolean().default(true),
-  SMTP_TLS: Joi.boolean().default(true),
   SMTP_USERNAME: Joi.string().required(),
 
   THROTTLER_LIMIT: Joi.number().min(0).default(250),

@@ -12,20 +12,13 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app/app.module";
 
 import {
-  domainsNamespace,
   httpNamespace,
   redisNamespace,
   secretsNamespace
 } from "./config/config.namespaces";
 
-const IS_PROD = process.env.NODE_ENV === "production";
-
 (async () => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
-  const domainsConfig = app.get<ConfigType<typeof domainsNamespace>>(
-    domainsNamespace.KEY
-  );
 
   const httpConfig = app.get<ConfigType<typeof httpNamespace>>(
     httpNamespace.KEY
@@ -43,7 +36,7 @@ const IS_PROD = process.env.NODE_ENV === "production";
 
   app.enableCors({
     credentials: true,
-    origin: `${IS_PROD ? "https" : "http"}://${domainsConfig.frontend}`
+    origin: httpConfig.frontendUrl.toString()
   });
 
   app.use(helmet()).use(
@@ -51,7 +44,7 @@ const IS_PROD = process.env.NODE_ENV === "production";
       cookie: {
         maxAge: 14 * 8.64e7,
         sameSite: "strict",
-        secure: IS_PROD
+        secure: httpConfig.frontendUrl.protocol.startsWith("https")
       },
       name: "sid.the.science.kid",
       resave: false,

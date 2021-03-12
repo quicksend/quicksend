@@ -12,6 +12,7 @@
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@quicksend/nestjs-mailer": ["libs/nestjs-mailer/src/index.ts"],
       "@quicksend/nestjs-transmit": ["libs/nestjs-transmit/src/index.ts"],
       "@quicksend/transmit": ["libs/transmit/src/index.ts"],
       "@quicksend/utils": ["libs/utils/src/index.ts"]

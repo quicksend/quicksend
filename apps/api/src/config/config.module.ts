@@ -6,7 +6,6 @@ import { ConfigSchema } from "./config.schema";
 
 import {
   cleanupNamespace,
-  domainsNamespace,
   httpNamespace,
   limitsNamespace,
   postgresNamespace,
@@ -28,7 +27,6 @@ const IS_PROD = process.env.NODE_ENV === "production";
       isGlobal: true,
       load: [
         cleanupNamespace,
-        domainsNamespace,
         httpNamespace,
         limitsNamespace,
         postgresNamespace,

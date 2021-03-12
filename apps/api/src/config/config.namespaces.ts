@@ -1,5 +1,4 @@
 export * from "./namespaces/cleanup.namespace";
-export * from "./namespaces/domains.namespace";
 export * from "./namespaces/http.namespace";
 export * from "./namespaces/limits.namespace";
 export * from "./namespaces/postgres.namespace";

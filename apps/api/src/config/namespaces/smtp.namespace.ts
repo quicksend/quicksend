@@ -6,7 +6,6 @@ export interface SMTPConfig {
   password: string;
   port: number;
   secure: boolean;
-  tls: boolean;
   username: string;
 }
 
@@ -17,8 +16,7 @@ export const smtpNamespace = registerAs<ConfigFactory<SMTPConfig>>(
     hostname: process.env.SMTP_HOSTNAME!,
     password: process.env.SMTP_PASSWORD!,
     port: +Number(process.env.SMTP_PORT) || 465,
-    secure: Boolean(process.env.SMTP_SECURE) || true,
-    tls: Boolean(process.env.SMTP_TLS) || true,
+    secure: Boolean(process.env.SMTP_SSL) || true,
     username: process.env.SMTP_USERNAME!
   })
 );
