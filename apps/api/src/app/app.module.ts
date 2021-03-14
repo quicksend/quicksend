@@ -4,12 +4,14 @@ import { BullModule, InjectQueue } from "@nestjs/bull";
 
 import {
   ClassSerializerInterceptor,
+  Global,
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod
 } from "@nestjs/common";
 
+import { MailerModule } from "@quicksend/nestjs-mailer";
 import { ThrottlerGuard, ThrottlerModule } from "nestjs-throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -36,6 +38,7 @@ import { StorageModule } from "../storage/storage.module";
 import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
 import { UserModule } from "../user/user.module";
 
+import { MailerModuleConfig } from "../config/modules/mailer-module.config";
 import { SharedBullModuleConfig } from "../config/modules/shared-bull-module.config";
 import { ThrottlerModuleConfig } from "../config/modules/throttler-module.config";
 import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
@@ -43,6 +46,7 @@ import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
 import { ItemsProcessor } from "../items/items.processor";
 import { StorageProcessor } from "../storage/storage.processor";
 
+@Global()
 @Module({
   imports: [
     ApplicationsModule,
@@ -61,6 +65,10 @@ import { StorageProcessor } from "../storage/storage.processor";
 
     ItemsModule,
 
+    MailerModule.registerAsync({
+      useClass: MailerModuleConfig
+    }),
+
     StorageModule,
 
     ThrottlerModule.forRootAsync({
@@ -76,6 +84,7 @@ import { StorageProcessor } from "../storage/storage.processor";
     UserModule
   ],
   controllers: [AppController],
+  exports: [MailerModule, UnitOfWorkModule],
   providers: [
     {
       provide: APP_FILTER,

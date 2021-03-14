@@ -24,13 +24,13 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
     return UserEntity;
   }
 
-  async beforeInsert(event: InsertEvent<UserEntity>) {
+  async beforeInsert(event: InsertEvent<Partial<UserEntity>>) {
     if (event.entity && event.entity.password) {
       event.entity.password = await argon2.hash(event.entity.password);
     }
   }
 
-  async beforeUpdate(event: UpdateEvent<UserEntity>) {
+  async beforeUpdate(event: UpdateEvent<Partial<UserEntity>>) {
     if (
       event.entity && // will be undefined if entity is (soft)deleted
       event.entity.password &&

@@ -30,14 +30,14 @@ export class UserEntity extends BaseEntity {
   @Exclude()
   @IsEmail()
   @ValidateIf((_object, value) => value !== null)
-  email!: string | null; // null if user is deleted
+  email!: string; // null if user is deleted
 
   @Column({
     nullable: true,
     type: "varchar"
   })
   @Exclude()
-  password!: string | null; // null if user is deleted
+  password!: string; // null if user is deleted
 
   @Column({
     length: 32,

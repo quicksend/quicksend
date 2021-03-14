@@ -32,7 +32,7 @@ export const ConfigSchema = Joi.object<ConfigEnvironment>({
   RECAPTCHA_SECRET: Joi.string().required(),
   SESSIONS_SECRET: Joi.string().required(),
 
-  SMTP_FROM: Joi.string().email().required(),
+  SMTP_FROM: Joi.string().required(),
   SMTP_HOSTNAME: Joi.string().required(),
   SMTP_PASSWORD: Joi.string().required(),
   SMTP_PORT: Joi.number().min(0).max(65535).default(465),

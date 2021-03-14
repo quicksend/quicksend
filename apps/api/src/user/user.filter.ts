@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Catch,
   ConflictException,
   ExceptionFilter,
@@ -10,6 +11,8 @@ import {
   CantFindUserException,
   EmailConflictException,
   IncorrectPasswordException,
+  InvalidEmailConfirmationTokenException,
+  InvalidPasswordResetTokenException,
   UserException,
   UsernameConflictException
 } from "./user.exceptions";
@@ -26,6 +29,12 @@ export class UserExceptionFilter implements ExceptionFilter {
 
       case IncorrectPasswordException:
         throw new UnauthorizedException(exception.message);
+
+      case InvalidEmailConfirmationTokenException:
+        throw new BadRequestException(exception.message);
+
+      case InvalidPasswordResetTokenException:
+        throw new BadRequestException(exception.message);
 
       case UsernameConflictException:
         throw new ConflictException(exception.message);

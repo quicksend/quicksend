@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   UseFilters,
   UseGuards
@@ -22,7 +23,10 @@ import { UserService } from "./user.service";
 
 import { UserExceptionFilter } from "./user.filter";
 
+import { ChangeEmailDto } from "./dto/change-email.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { DeleteUserDto } from "./dto/delete-user.dto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Controller("user")
 @UseFilters(UserExceptionFilter)
@@ -32,9 +36,35 @@ export class UserController {
     private readonly userService: UserService
   ) {}
 
-  @Post("activate/:token")
-  activate(@Param("token") token: string): Promise<UserEntity> {
-    return this.userService.activate(token);
+  @Patch("activate/:token")
+  async activate(@Param("token") token: string): Promise<UserEntity> {
+    return this.uowService.withTransaction(() =>
+      this.userService.activate(token)
+    );
+  }
+
+  @Patch("confirm-email/:token")
+  async confirmEmail(@Param("token") token: string): Promise<void> {
+    return this.uowService.withTransaction(() =>
+      this.userService.confirmEmail(token)
+    );
+  }
+
+  @Patch("reset-password/:token")
+  async resetPassword(
+    @Body() dto: ResetPasswordDto,
+    @Param("token") token: string
+  ): Promise<void> {
+    return this.uowService.withTransaction(() =>
+      this.userService.resetPassword(token, dto.password)
+    );
+  }
+
+  @Patch("revert-email-change/:token")
+  async revertEmailChange(@Param("token") token: string): Promise<void> {
+    return this.uowService.withTransaction(() =>
+      this.userService.revertEmailChange(token)
+    );
   }
 
   @Get("@me")
@@ -42,6 +72,28 @@ export class UserController {
   @UseGuards(AuthGuard)
   me(@CurrentUser() user: UserEntity): UserEntity {
     return user;
+  }
+
+  @Post("@me/change-email")
+  @UseGuards(AuthGuard)
+  async changeEmail(
+    @Body() dto: ChangeEmailDto,
+    @CurrentUser() user: UserEntity
+  ): Promise<void> {
+    return this.uowService.withTransaction(() =>
+      this.userService.createEmailConfirmation(user, dto.email, dto.password)
+    );
+  }
+
+  @Patch("@me/change-password")
+  @UseGuards(AuthGuard)
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @CurrentUser() user: UserEntity
+  ): Promise<UserEntity> {
+    return this.uowService.withTransaction(() =>
+      this.userService.changePassword(user, dto.oldPassword, dto.newPassword)
+    );
   }
 
   @Post("@me/delete")

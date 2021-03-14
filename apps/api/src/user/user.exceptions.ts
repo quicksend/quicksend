@@ -18,6 +18,18 @@ export class IncorrectPasswordException extends UserException {
   }
 }
 
+export class InvalidEmailConfirmationTokenException extends UserException {
+  constructor() {
+    super("Invalid email confirmation token!");
+  }
+}
+
+export class InvalidPasswordResetTokenException extends UserException {
+  constructor() {
+    super("Invalid password reset token!");
+  }
+}
+
 export class UsernameConflictException extends UserException {
   constructor() {
     super("This username is already in use!");

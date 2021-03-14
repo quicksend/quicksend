@@ -1,27 +1,52 @@
-import { Injectable } from "@nestjs/common";
+import { URL } from "url";
+
+import { ConfigType } from "@nestjs/config";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { FindConditions, FindOneOptions } from "typeorm";
 
-import { generateRandomString } from "@quicksend/utils";
+import { MailerService } from "@quicksend/nestjs-mailer";
 
 import { FoldersService } from "../folders/folders.service";
 import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
+import { EmailConfirmationEntity } from "./entities/email-confirmation.entity";
+import { PasswordResetEntity } from "./entities/password-reset.entity";
 import { UserEntity } from "./user.entity";
 
 import {
   CantFindUserException,
   EmailConflictException,
   IncorrectPasswordException,
+  InvalidEmailConfirmationTokenException,
+  InvalidPasswordResetTokenException,
   UsernameConflictException
 } from "./user.exceptions";
+
+import { generateRandomString } from "@quicksend/utils";
+
+import { httpNamespace } from "../config/config.namespaces";
+
+import { renderEmail } from "../common/utils/render-email.util";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly foldersService: FoldersService,
-    private readonly uowService: UnitOfWorkService
+    private readonly mailerService: MailerService,
+    private readonly uowService: UnitOfWorkService,
+
+    @Inject(httpNamespace.KEY)
+    private readonly httpConfig: ConfigType<typeof httpNamespace>
   ) {}
+
+  private get emailConfirmationRepository() {
+    return this.uowService.getRepository(EmailConfirmationEntity);
+  }
+
+  private get passwordResetRepository() {
+    return this.uowService.getRepository(PasswordResetEntity);
+  }
 
   private get userRepository() {
     return this.uowService.getRepository(UserEntity);
@@ -45,7 +70,113 @@ export class UserService {
   }
 
   /**
-   * Create a new user if the email and username does not exist
+   * Change the password of a user and notify user through email
+   */
+  async changePassword(
+    user: UserEntity,
+    oldPassword: string,
+    newPassword: string
+  ): Promise<UserEntity> {
+    if (!(await user.comparePassword(oldPassword))) {
+      throw new IncorrectPasswordException();
+    }
+
+    user.password = newPassword;
+
+    await this.userRepository.save(user);
+
+    await this.notifyPasswordChange(user);
+
+    return user;
+  }
+
+  /**
+   * Create an email confirmation and send the token to the user's new email address
+   */
+  async createEmailConfirmation(
+    user: UserEntity,
+    newEmail: string,
+    password: string
+  ): Promise<void> {
+    if (!(await user.comparePassword(password))) {
+      throw new IncorrectPasswordException();
+    }
+
+    const isEmailTaken = await this.userRepository.findOne(
+      { email: newEmail },
+      { withDeleted: true }
+    );
+
+    if (isEmailTaken) {
+      throw new EmailConflictException();
+    }
+
+    const confirmation = this.emailConfirmationRepository.create({
+      newEmail,
+      oldEmail: user.email,
+      user
+    });
+
+    await this.emailConfirmationRepository.save(confirmation);
+
+    await this.sendEmailConfirmation(user, confirmation);
+  }
+
+  /**
+   * Create a password reset entity and email the reset token to the user
+   */
+  async createPasswordReset(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ email });
+
+    if (!user || !user.activated) {
+      return;
+    }
+
+    const reset = this.passwordResetRepository.create({ user });
+
+    await this.passwordResetRepository.save(reset);
+
+    await this.sendPasswordResetToken(reset);
+  }
+
+  /**
+   * Change the user's email address linked to the email confirmation token
+   */
+  async confirmEmail(token: string): Promise<void> {
+    const confirmation = await this.emailConfirmationRepository.findOne({
+      token
+    });
+
+    if (!confirmation || !confirmation.user.activated) {
+      throw new InvalidEmailConfirmationTokenException();
+    }
+
+    if (confirmation.expired) {
+      throw new InvalidEmailConfirmationTokenException();
+    }
+
+    const isEmailTaken = await this.userRepository.findOne(
+      { email: confirmation.newEmail },
+      { withDeleted: true }
+    );
+
+    if (isEmailTaken) {
+      throw new EmailConflictException();
+    }
+
+    confirmation.user.email = confirmation.newEmail;
+
+    await this.userRepository.save(confirmation.user);
+
+    await this.emailConfirmationRepository.softDelete({
+      user: confirmation.user
+    });
+
+    await this.notifyEmailChange(confirmation.user, confirmation);
+  }
+
+  /**
+   * Create a new user and email them with an activation link
    */
   async create(
     email: string,
@@ -83,6 +214,8 @@ export class UserService {
 
     await this.foldersService.create("/", null, user);
 
+    await this.sendActivationToken(user);
+
     return user;
   }
 
@@ -94,9 +227,11 @@ export class UserService {
       throw new IncorrectPasswordException();
     }
 
+    // TODO: Delete all of user's data
+
     user.activationToken = null;
     user.admin = false;
-    user.password = null;
+    user.password = null as never; // force the password to be null
 
     await this.userRepository.save(user);
     await this.userRepository.softDelete({ id: user.id });
@@ -112,9 +247,153 @@ export class UserService {
     return this.userRepository.findOne(conditions, options);
   }
 
-  findOneByQuery(
-    options: FindOneOptions<UserEntity>
-  ): Promise<UserEntity | undefined> {
-    return this.userRepository.findOne(options);
+  /**
+   * Reset a user's password with a reset token and notify user through email
+   */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const reset = await this.passwordResetRepository.findOne({ token });
+
+    if (!reset || !reset.user.activated) {
+      throw new InvalidPasswordResetTokenException();
+    }
+
+    if (reset.expired) {
+      throw new InvalidPasswordResetTokenException();
+    }
+
+    reset.user.password = newPassword;
+
+    await this.userRepository.save(reset.user);
+
+    await this.passwordResetRepository.delete({ user: reset.user });
+
+    // TODO: Delete all user sessions
+
+    await this.notifyPasswordChange(reset.user);
+  }
+
+  async revertEmailChange(token: string): Promise<void> {
+    const confirmation = await this.emailConfirmationRepository.findOne(
+      { token },
+      { withDeleted: true }
+    );
+
+    if (!confirmation || !confirmation.user.activated) {
+      throw new InvalidPasswordResetTokenException();
+    }
+
+    if (confirmation.expired) {
+      throw new InvalidPasswordResetTokenException();
+    }
+
+    confirmation.user.email = confirmation.oldEmail;
+
+    await this.userRepository.save(confirmation.user);
+
+    await this.emailConfirmationRepository.delete({
+      user: confirmation.user
+    });
+
+    // TODO: Delete all user sessions
+  }
+
+  private async notifyEmailChange(
+    user: UserEntity,
+    confirmation: EmailConfirmationEntity
+  ): Promise<void> {
+    const resetEmailUrl = new URL(
+      `/revert-email-change/${confirmation.token}`,
+      this.httpConfig.frontendUrl.toString()
+    );
+
+    const email = await renderEmail("email-changed", {
+      newEmail: user.email,
+      url: resetEmailUrl,
+      username: user.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: "Your email has been changed",
+      to: confirmation.oldEmail
+    });
+  }
+
+  private async notifyPasswordChange(user: UserEntity): Promise<void> {
+    const resetPasswordUrl = new URL(
+      "/forgot-password",
+      this.httpConfig.frontendUrl.toString()
+    );
+
+    const email = await renderEmail("password-changed", {
+      url: resetPasswordUrl.href,
+      username: user.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: "Your password has been changed",
+      to: user.email
+    });
+  }
+
+  private async sendActivationToken(user: UserEntity): Promise<void> {
+    const activateUserUrl = new URL(
+      `/user/activate/${user.activationToken}`,
+      this.httpConfig.frontendUrl.toString()
+    );
+
+    const email = await renderEmail("activate-account", {
+      url: activateUserUrl.href,
+      username: user.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: "Activate your account",
+      to: user.email
+    });
+  }
+
+  private async sendEmailConfirmation(
+    user: UserEntity,
+    confirmation: EmailConfirmationEntity
+  ) {
+    const confirmationUrl = new URL(
+      `/user/confirm-email/${confirmation.token}`,
+      this.httpConfig.frontendUrl.toString()
+    );
+
+    const email = await renderEmail("email-confirmation", {
+      newEmail: user.email,
+      url: confirmationUrl.href,
+      username: user.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: "Please confirm your email address",
+      to: confirmation.newEmail
+    });
+  }
+
+  private async sendPasswordResetToken(
+    reset: PasswordResetEntity
+  ): Promise<void> {
+    const resetPasswordUrl = new URL(
+      `/user/reset-password/${reset.token}`,
+      this.httpConfig.frontendUrl.toString()
+    );
+
+    const email = await renderEmail("reset-password", {
+      url: resetPasswordUrl.href,
+      username: reset.user.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: "Password reset requested",
+      to: reset.user.email
+    });
   }
 }
