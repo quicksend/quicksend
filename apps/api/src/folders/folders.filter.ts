@@ -1,10 +1,14 @@
 import {
+  ArgumentsHost,
   Catch,
   ConflictException,
   ExceptionFilter,
   ForbiddenException,
+  InternalServerErrorException,
   NotFoundException
 } from "@nestjs/common";
+
+import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
   CantDeleteFolderException,
@@ -18,32 +22,34 @@ import {
 } from "./folders.exceptions";
 
 @Catch(FoldersException)
-export class FoldersExceptionFilter implements ExceptionFilter {
-  catch(exception: FoldersException): void {
+export class FoldersExceptionFilter
+  extends HttpExceptionFilter
+  implements ExceptionFilter {
+  catch(exception: FoldersException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case CantDeleteFolderException:
-        throw new ForbiddenException(exception.message);
+        return super.catch(new ForbiddenException(exception), host);
 
       case CantFindDestinationFolderException:
-        throw new NotFoundException(exception.message);
+        return super.catch(new NotFoundException(exception), host);
 
       case CantFindFolderException:
-        throw new NotFoundException(exception.message);
+        return super.catch(new NotFoundException(exception), host);
 
       case CantMoveFolderException:
-        throw new ForbiddenException(exception.message);
+        return super.catch(new ForbiddenException(exception), host);
 
       case CantMoveFolderIntoChildrenException:
-        throw new ForbiddenException(exception.message);
+        return super.catch(new ForbiddenException(exception), host);
 
       case CantMoveFolderIntoItselfException:
-        throw new ForbiddenException(exception.message);
+        return super.catch(new ForbiddenException(exception), host);
 
       case FolderConflictException:
-        throw new ConflictException(exception.message);
+        return super.catch(new ConflictException(exception), host);
 
       default:
-        throw exception;
+        return super.catch(new InternalServerErrorException(exception), host);
     }
   }
 }

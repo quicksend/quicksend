@@ -1,9 +1,13 @@
 import {
+  ArgumentsHost,
   Catch,
   ConflictException,
   ExceptionFilter,
+  InternalServerErrorException,
   NotFoundException
 } from "@nestjs/common";
+
+import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
   ApplicationConflictException,
@@ -12,17 +16,19 @@ import {
 } from "./applications.exceptions";
 
 @Catch(ApplicationsException)
-export class ApplicationsExceptionFilter implements ExceptionFilter {
-  catch(exception: ApplicationsException): void {
+export class ApplicationsExceptionFilter
+  extends HttpExceptionFilter
+  implements ExceptionFilter {
+  catch(exception: ApplicationsException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case ApplicationConflictException:
-        throw new ConflictException(exception.message);
+        return super.catch(new ConflictException(exception), host);
 
       case CantFindApplicationException:
-        throw new NotFoundException(exception.message);
+        return super.catch(new NotFoundException(exception), host);
 
       default:
-        throw exception;
+        return super.catch(new InternalServerErrorException(exception), host);
     }
   }
 }

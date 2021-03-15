@@ -1,9 +1,13 @@
 import {
+  ArgumentsHost,
   Catch,
   ExceptionFilter,
   ForbiddenException,
+  InternalServerErrorException,
   UnauthorizedException
 } from "@nestjs/common";
+
+import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
   AuthenticationException,
@@ -12,17 +16,19 @@ import {
 } from "./auth.exceptions";
 
 @Catch(AuthenticationException)
-export class AuthExceptionFilter implements ExceptionFilter {
-  catch(exception: AuthenticationException): void {
+export class AuthExceptionFilter
+  extends HttpExceptionFilter
+  implements ExceptionFilter {
+  catch(exception: AuthenticationException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case InvalidLoginCredentialsException:
-        throw new UnauthorizedException(exception.message);
+        return super.catch(new UnauthorizedException(exception), host);
 
       case UserNotActivatedException:
-        throw new ForbiddenException(exception.message);
+        return super.catch(new ForbiddenException(exception), host);
 
       default:
-        throw exception;
+        return super.catch(new InternalServerErrorException(exception), host);
     }
   }
 }

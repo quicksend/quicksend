@@ -1,9 +1,13 @@
 import {
+  ArgumentsHost,
   Catch,
   ConflictException,
   ExceptionFilter,
+  InternalServerErrorException,
   NotFoundException
 } from "@nestjs/common";
+
+import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
   CantFindFileException,
@@ -12,17 +16,19 @@ import {
 } from "./files.exceptions";
 
 @Catch(FilesException)
-export class FilesExceptionFilter implements ExceptionFilter {
-  catch(exception: FilesException): void {
+export class FilesExceptionFilter
+  extends HttpExceptionFilter
+  implements ExceptionFilter {
+  catch(exception: FilesException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case CantFindFileException:
-        throw new NotFoundException(exception.message);
+        return super.catch(new NotFoundException(exception), host);
 
       case FileConflictException:
-        throw new ConflictException(exception.message);
+        return super.catch(new ConflictException(exception), host);
 
       default:
-        throw exception;
+        return super.catch(new InternalServerErrorException(exception), host);
     }
   }
 }
