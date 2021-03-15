@@ -1,6 +1,7 @@
 import { URL } from "url";
 
 import { ConfigType } from "@nestjs/config";
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Inject, Injectable } from "@nestjs/common";
 
 import { FindConditions, FindOneOptions } from "typeorm";
@@ -295,6 +296,23 @@ export class UserService {
     });
 
     // TODO: Delete all user sessions
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  private async deleteExpiredTokens(): Promise<void> {
+    await Promise.all([
+      this.emailConfirmationRepository
+        .createQueryBuilder()
+        .delete()
+        .where("now() >= expiresAt")
+        .execute(),
+
+      this.passwordResetRepository
+        .createQueryBuilder()
+        .delete()
+        .where("now() >= expiresAt")
+        .execute()
+    ]);
   }
 
   private async notifyEmailChange(
