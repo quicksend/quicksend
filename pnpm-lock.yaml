@@ -4,6 +4,7 @@ dependencies:
   '@nestjs/config': 0.6.3_813873694847d279c299c5d41a416301
   '@nestjs/core': 7.6.13_1eb5e6299d748bf3a79eb1b79f4236dc
   '@nestjs/platform-express': 7.6.13_482ecb7fc1344b7ddb92c74eaa880d5f
+  '@nestjs/schedule': 0.4.3_ed24abb85276d4e877634883430b47b6
   '@nestjs/typeorm': 7.1.5_2c495002ac18a41e1fc11cddc33b6273
   argon2: 0.27.1
   bull: 3.20.1
@@ -805,6 +806,18 @@ packages:
       '@nestjs/core': ^7.0.0
     resolution:
       integrity: sha512-o9h6MJJccr+yR9FoAX4Cz/GrxNTeQAfHGSHkzPxElhph5QR23tWuwy9jvgUOCfxaH7T5hgg50R025b5XuGhozg==
+  /@nestjs/schedule/0.4.3_ed24abb85276d4e877634883430b47b6:
+    dependencies:
+      '@nestjs/common': 7.6.13_72c71fae9438f0c01bf19f98b0b41cfb
+      cron: 1.7.2
+      reflect-metadata: 0.1.13
+      uuid: 8.3.2
+    dev: false
+    peerDependencies:
+      '@nestjs/common': ^6.10.11 || ^7.0.0
+      reflect-metadata: ^0.1.12
+    resolution:
+      integrity: sha512-EowkpwD09lrdMFzjt/kNQgaq6MG0GrNadNoOEebbfyA0qBU0UTg7J+FVullTR9+5HtaegqqAuWDvZlVoGHYz+Q==
   /@nestjs/schematics/7.2.8_typescript@4.0.7:
     dependencies:
       '@angular-devkit/core': 11.2.0
@@ -3034,6 +3047,12 @@ packages:
       node: '>=0.8'
     resolution:
       integrity: sha512-s4odpheTyydAbTBQepsqd2rNWGa2iV3cyo8g7zbI2QQYGLVsfbhmwukayS1XHppe02Oy1fg7mg6xoaraVJeEcg==
+  /cron/1.7.2:
+    dependencies:
+      moment-timezone: 0.5.33
+    dev: false
+    resolution:
+      integrity: sha512-+SaJ2OfeRvfQqwXQ2kgr0Y5pzBR/lijf5OpnnaruwWnmI799JfWr2jN2ItOV9s3A/+TFOt6mxvKzQq5F0Jp6VQ==
   /cross-spawn/6.0.5:
     dependencies:
       nice-try: 1.0.5
@@ -10450,6 +10469,7 @@ specifiers:
   '@nestjs/config': ^0.6.3
   '@nestjs/core': ^7.0.0
   '@nestjs/platform-express': ^7.0.0
+  '@nestjs/schedule': ^0.4.3
   '@nestjs/schematics': ^7.0.0
   '@nestjs/testing': ^7.0.0
   '@nestjs/typeorm': ^7.1.5

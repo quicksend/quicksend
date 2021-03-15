@@ -1,4 +1,7 @@
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Injectable } from "@nestjs/common";
+
+import { Counter } from "@quicksend/utils";
 
 import { FindConditions } from "typeorm";
 
@@ -85,5 +88,39 @@ export class ItemsService {
     await this.itemRepository.save(item);
 
     return item;
+  }
+
+  @Cron(CronExpression.EVERY_SECOND)
+  private async deleteOrphanedItems(): Promise<void> {
+    const stream = await this.itemRepository.getOrphanedItems();
+
+    const pendingDeletes = new Counter();
+
+    return new Promise((resolve, reject) => {
+      stream
+        .on("data", (item: Partial<ItemEntity>) => {
+          pendingDeletes.increment();
+
+          this.itemRepository.manager
+            .transaction(async (manager) => {
+              if (item.discriminator) {
+                // Delete from database first because if any error should occur, it will
+                // happen before the physical file is placed on the deletion queue
+                await manager.delete(ItemEntity, {
+                  discriminator: item.discriminator
+                });
+
+                await this.storageService.deleteFile(item.discriminator);
+              }
+            })
+            .finally(() => pendingDeletes.decrement());
+        })
+        .on("end", () => {
+          pendingDeletes.onceItEqualsTo(0, () => resolve());
+        })
+        .on("error", (error: Error) => {
+          pendingDeletes.onceItEqualsTo(0, () => reject(error));
+        });
+    });
   }
 }

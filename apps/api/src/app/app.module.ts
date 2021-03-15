@@ -11,6 +11,7 @@ import {
   RequestMethod
 } from "@nestjs/common";
 
+import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerGuard, ThrottlerModule } from "nestjs-throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 
@@ -51,7 +52,6 @@ import { SharedBullModuleConfig } from "../config/modules/shared-bull-module.con
 import { ThrottlerModuleConfig } from "../config/modules/throttler-module.config";
 import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
 
-import { ItemsProcessor } from "../items/items.processor";
 import { StorageProcessor } from "../storage/storage.processor";
 
 import { TransactionInterceptor } from "../transaction/transaction.interceptor";
@@ -82,6 +82,8 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
     RequestContextModule.register({
       context: RequestContext
     }),
+
+    ScheduleModule.forRoot(),
 
     StorageModule,
 
@@ -136,13 +138,9 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
 })
 export class AppModule implements NestModule {
   constructor(
-    @InjectQueue(ItemsProcessor.QUEUE_NAME) itemProcessor: Queue,
     @InjectQueue(StorageProcessor.QUEUE_NAME) storageProcessor: Queue
   ) {
-    setQueues([
-      new BullAdapter(itemProcessor),
-      new BullAdapter(storageProcessor)
-    ]);
+    setQueues([new BullAdapter(storageProcessor)]);
   }
 
   configure(consumer: MiddlewareConsumer): void {
