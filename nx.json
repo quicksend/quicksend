@@ -18,6 +18,7 @@
   "projects": {
     "api": { "tags": [] },
     "nestjs-mailer": { "tags": [] },
+    "nestjs-request-context": { "tags": [] },
     "nestjs-transmit": { "tags": [] },
     "transmit": { "tags": [] },
     "utils": { "tags": [] }

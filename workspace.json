@@ -88,6 +88,38 @@
         }
       }
     },
+    "nestjs-request-context": {
+      "root": "libs/nestjs-request-context",
+      "sourceRoot": "libs/nestjs-request-context/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["libs/nestjs-request-context/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/nestjs-request-context"],
+          "options": {
+            "jestConfig": "libs/nestjs-request-context/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/libs/nestjs-request-context",
+            "tsConfig": "libs/nestjs-request-context/tsconfig.lib.json",
+            "packageJson": "libs/nestjs-request-context/package.json",
+            "main": "libs/nestjs-request-context/src/index.ts",
+            "assets": ["libs/nestjs-request-context/*.md"]
+          }
+        }
+      }
+    },
     "nestjs-transmit": {
       "root": "libs/nestjs-transmit",
       "sourceRoot": "libs/nestjs-transmit/src",
