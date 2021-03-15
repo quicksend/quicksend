@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { FindConditions } from "typeorm";
 
 import { StorageService } from "../storage/storage.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
@@ -14,11 +14,11 @@ import { CannotFindItemException } from "./items.exceptions";
 export class ItemsService {
   constructor(
     private readonly storageService: StorageService,
-    private readonly uowService: UnitOfWorkService
+    private readonly transactionService: TransactionService
   ) {}
 
   private get itemRepository() {
-    return this.uowService.getCustomRepository(ItemRepository);
+    return this.transactionService.getCustomRepository(ItemRepository);
   }
 
   /**

@@ -8,7 +8,7 @@ import { FindConditions, FindOneOptions } from "typeorm";
 import { MailerService } from "@quicksend/nestjs-mailer";
 
 import { FoldersService } from "../folders/folders.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { EmailConfirmationEntity } from "./entities/email-confirmation.entity";
 import { PasswordResetEntity } from "./entities/password-reset.entity";
@@ -34,22 +34,22 @@ export class UserService {
   constructor(
     private readonly foldersService: FoldersService,
     private readonly mailerService: MailerService,
-    private readonly uowService: UnitOfWorkService,
+    private readonly transactionService: TransactionService,
 
     @Inject(httpNamespace.KEY)
     private readonly httpConfig: ConfigType<typeof httpNamespace>
   ) {}
 
   private get emailConfirmationRepository() {
-    return this.uowService.getRepository(EmailConfirmationEntity);
+    return this.transactionService.getRepository(EmailConfirmationEntity);
   }
 
   private get passwordResetRepository() {
-    return this.uowService.getRepository(PasswordResetEntity);
+    return this.transactionService.getRepository(PasswordResetEntity);
   }
 
   private get userRepository() {
-    return this.uowService.getRepository(UserEntity);
+    return this.transactionService.getRepository(UserEntity);
   }
 
   /**

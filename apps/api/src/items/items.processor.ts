@@ -6,7 +6,7 @@ import { Job } from "bull";
 import { Counter } from "@quicksend/utils";
 
 import { StorageService } from "../storage/storage.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
@@ -23,11 +23,11 @@ export class ItemsProcessor {
 
   constructor(
     private readonly storageService: StorageService,
-    private readonly uowService: UnitOfWorkService
+    private readonly transactionService: TransactionService
   ) {}
 
   private get itemRepository() {
-    return this.uowService.getCustomRepository(ItemRepository);
+    return this.transactionService.getCustomRepository(ItemRepository);
   }
 
   @Process(DELETE_ORPHANED_ITEMS_JOB_NAME)
@@ -41,19 +41,20 @@ export class ItemsProcessor {
         .on("data", (item: Partial<ItemEntity>) => {
           pendingDeletes.increment();
 
-          this.uowService
-            .withTransaction(async () => {
-              if (item.discriminator) {
-                // Delete from database first because if any error should occur, it will
-                // happen before the physical file is placed on the deletion queue
-                await this.itemRepository.delete({
-                  discriminator: item.discriminator
-                });
+          // TODO: Refactor with nestjs/schedule
+          // this.transactionService
+          //   .withTransaction(async () => {
+          //     if (item.discriminator) {
+          //       // Delete from database first because if any error should occur, it will
+          //       // happen before the physical file is placed on the deletion queue
+          //       await this.itemRepository.delete({
+          //         discriminator: item.discriminator
+          //       });
 
-                await this.storageService.deleteFile(item.discriminator);
-              }
-            })
-            .finally(() => pendingDeletes.decrement());
+          //       await this.storageService.deleteFile(item.discriminator);
+          //     }
+          //   })
+          //   .finally(() => pendingDeletes.decrement());
         })
         .on("end", () => {
           pendingDeletes.onceItEqualsTo(0, () => resolve());

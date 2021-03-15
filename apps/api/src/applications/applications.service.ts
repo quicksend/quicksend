@@ -4,7 +4,7 @@ import { FindConditions } from "typeorm";
 
 import { generateRandomString } from "@quicksend/utils";
 
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { ApplicationEntity } from "./application.entity";
 import { UserEntity } from "../user/user.entity";
@@ -18,10 +18,10 @@ import {
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private readonly uowService: UnitOfWorkService) {}
+  constructor(private readonly transactionService: TransactionService) {}
 
   private get applicationRepository() {
-    return this.uowService.getRepository(ApplicationEntity);
+    return this.transactionService.getRepository(ApplicationEntity);
   }
 
   /**

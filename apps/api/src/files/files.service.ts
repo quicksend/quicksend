@@ -7,7 +7,7 @@ import { FindConditions } from "typeorm";
 
 import { FoldersService } from "../folders/folders.service";
 import { ItemsService } from "../items/items.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { FileEntity } from "./file.entity";
 import { FolderEntity } from "../folders/folder.entity";
@@ -24,12 +24,12 @@ export class FilesService {
   constructor(
     private readonly folderService: FoldersService,
     private readonly itemsService: ItemsService,
-    private readonly transmitService: TransmitService,
-    private readonly uowService: UnitOfWorkService
+    private readonly transactionService: TransactionService,
+    private readonly transmitService: TransmitService
   ) {}
 
   private get fileRepository() {
-    return this.uowService.getRepository(FileEntity);
+    return this.transactionService.getRepository(FileEntity);
   }
 
   /**

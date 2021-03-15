@@ -28,7 +28,7 @@ export class ApplicationsController {
   constructor(private readonly applicationsService: ApplicationsService) {}
 
   @Post()
-  async create(
+  create(
     @Body() dto: CreateApplicationDto,
     @CurrentUser() user: UserEntity
   ): Promise<ApplicationEntity> {
@@ -36,7 +36,7 @@ export class ApplicationsController {
   }
 
   @Get(":id")
-  async find(
+  find(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<ApplicationEntity> {
@@ -44,7 +44,7 @@ export class ApplicationsController {
   }
 
   @Delete(":id/delete")
-  async delete(
+  delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<ApplicationEntity> {
@@ -52,7 +52,7 @@ export class ApplicationsController {
   }
 
   @Post(":id/regenerate-secret")
-  async regenerateSecret(
+  regenerateSecret(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<ApplicationEntity> {

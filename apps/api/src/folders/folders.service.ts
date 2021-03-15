@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
+import { TransactionService } from "../transaction/transaction.service";
 
 import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
@@ -22,10 +22,10 @@ import {
 
 @Injectable()
 export class FoldersService {
-  constructor(private readonly uowService: UnitOfWorkService) {}
+  constructor(private readonly transaction: TransactionService) {}
 
   private get folderRepository() {
-    return this.uowService.getCustomRepository(FolderRepository);
+    return this.transaction.getCustomRepository(FolderRepository);
   }
 
   // TODO: add method to allow copying folders maybe?

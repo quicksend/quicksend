@@ -35,7 +35,6 @@ import { ValidationPipe } from "../common/pipes/validation.pipe";
 import { ApplicationScopesEnum } from "../applications/enums/application-scopes.enum";
 
 import { FilesService } from "./files.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FilesExceptionFilter } from "./files.filter";
 import { FoldersExceptionFilter } from "../folders/folders.filter";
@@ -56,14 +55,11 @@ import { UploadFileDto } from "./dto/upload-file.dto";
 )
 @UseGuards(AuthGuard)
 export class FilesController {
-  constructor(
-    private readonly filesService: FilesService,
-    private readonly uowService: UnitOfWorkService
-  ) {}
+  constructor(private readonly filesService: FilesService) {}
 
   @Get(":id")
   @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_METADATA)
-  async find(
+  find(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
@@ -72,25 +68,21 @@ export class FilesController {
 
   @Post(":id/copy")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
-  async copy(
+  copy(
     @Body() dto: CopyFileDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
-    return this.uowService.withTransaction(() =>
-      this.filesService.copy({ id, user }, { id: dto.destination, user })
-    );
+    return this.filesService.copy({ id, user }, { id: dto.destination, user });
   }
 
   @Delete(":id/delete")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
-  async delete(
+  delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
-    return this.uowService.withTransaction(() =>
-      this.filesService.deleteOne({ id, user })
-    );
+    return this.filesService.deleteOne({ id, user });
   }
 
   @Get(":id/download")
@@ -118,7 +110,7 @@ export class FilesController {
 
   @Patch(":id/move")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
-  async move(
+  move(
     @Body() dto: MoveFileDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -128,7 +120,7 @@ export class FilesController {
 
   @Patch(":id/rename")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
-  async rename(
+  rename(
     @Body() dto: RenameFileDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
@@ -139,16 +131,14 @@ export class FilesController {
   @Post("upload")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_CONTENTS)
   @UseInterceptors(TransmitInterceptor())
-  async upload(
+  upload(
     @CurrentUser() user: UserEntity,
     @Files() files: File[], // guaranteed to have at least 1 file
     @JSONHeader(ValidationPipe({ validateCustomDecorators: true })) dto: UploadFileDto // prettier-ignore
   ): Promise<FileEntity> {
-    return this.uowService.withTransaction(() =>
-      this.filesService.save(files[0], {
-        id: dto.destination,
-        user
-      })
-    );
+    return this.filesService.save(files[0], {
+      id: dto.destination,
+      user
+    });
   }
 }

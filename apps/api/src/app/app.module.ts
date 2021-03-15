@@ -11,9 +11,15 @@ import {
   RequestMethod
 } from "@nestjs/common";
 
-import { MailerModule } from "@quicksend/nestjs-mailer";
 import { ThrottlerGuard, ThrottlerModule } from "nestjs-throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
+
+import { MailerModule } from "@quicksend/nestjs-mailer";
+
+import {
+  RequestContextInterceptor,
+  RequestContextModule
+} from "@quicksend/nestjs-request-context";
 
 import { BullAdapter, router, setQueues } from "bull-board";
 import { Queue } from "bull";
@@ -23,6 +29,8 @@ import { AppController } from "./app.controller";
 import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 import { ThrottlerExceptionFilter } from "../common/filters/throttler-exception.filter";
 import { ValidationExceptionFilter } from "../common/filters/validation-exception.filter";
+
+import { RequestContext } from "../common/classes/request-context";
 
 import { SessionCheckMiddleware } from "../common/middlewares/session-check.middleware";
 
@@ -35,7 +43,7 @@ import { FilesModule } from "../files/files.module";
 import { FoldersModule } from "../folders/folders.module";
 import { ItemsModule } from "../items/items.module";
 import { StorageModule } from "../storage/storage.module";
-import { UnitOfWorkModule } from "../unit-of-work/unit-of-work.module";
+import { TransactionModule } from "../transaction/transaction.module";
 import { UserModule } from "../user/user.module";
 
 import { MailerModuleConfig } from "../config/modules/mailer-module.config";
@@ -45,6 +53,8 @@ import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
 
 import { ItemsProcessor } from "../items/items.processor";
 import { StorageProcessor } from "../storage/storage.processor";
+
+import { TransactionInterceptor } from "../transaction/transaction.interceptor";
 
 @Global()
 @Module({
@@ -69,6 +79,10 @@ import { StorageProcessor } from "../storage/storage.processor";
       useClass: MailerModuleConfig
     }),
 
+    RequestContextModule.register({
+      context: RequestContext
+    }),
+
     StorageModule,
 
     ThrottlerModule.forRootAsync({
@@ -79,12 +93,12 @@ import { StorageProcessor } from "../storage/storage.processor";
       useClass: TypeOrmModuleConfig
     }),
 
-    UnitOfWorkModule,
+    TransactionModule,
 
     UserModule
   ],
   controllers: [AppController],
-  exports: [MailerModule, UnitOfWorkModule],
+  exports: [MailerModule, TransactionModule],
   providers: [
     {
       provide: APP_FILTER,
@@ -105,6 +119,14 @@ import { StorageProcessor } from "../storage/storage.processor";
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestContextInterceptor()
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransactionInterceptor()
     },
     {
       provide: APP_PIPE,

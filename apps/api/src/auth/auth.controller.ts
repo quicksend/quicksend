@@ -12,7 +12,6 @@ import { RecaptchaGuard } from "../common/guards/recaptcha.guard";
 import { Request } from "../common/interfaces/request.interface";
 
 import { AuthService } from "./auth.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { UserService } from "../user/user.service";
 
 import { AuthExceptionFilter } from "./auth.filter";
@@ -29,16 +28,13 @@ import { RegisterDto } from "./dto/register.dto";
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly uowService: UnitOfWorkService,
     private readonly userService: UserService
   ) {}
 
   @Post("forgot-password")
   @UseGuards(RecaptchaGuard)
-  async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.createPasswordReset(dto.email)
-    );
+  forgotPassword(@Body() dto: ForgotPasswordDto): Promise<void> {
+    return this.userService.createPasswordReset(dto.email);
   }
 
   @Post("login")
@@ -66,9 +62,7 @@ export class AuthController {
 
   @Post("register")
   @UseGuards(RecaptchaGuard)
-  async register(@Body() dto: RegisterDto): Promise<UserEntity> {
-    return this.uowService.withTransaction(() =>
-      this.userService.create(dto.email, dto.password, dto.username)
-    );
+  register(@Body() dto: RegisterDto): Promise<UserEntity> {
+    return this.userService.create(dto.email, dto.password, dto.username);
   }
 }

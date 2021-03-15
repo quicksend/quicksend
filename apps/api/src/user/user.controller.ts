@@ -18,7 +18,6 @@ import { ApplicationScopesEnum } from "../applications/enums/application-scopes.
 
 import { UserEntity } from "./user.entity";
 
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 import { UserService } from "./user.service";
 
 import { UserExceptionFilter } from "./user.filter";
@@ -31,40 +30,29 @@ import { ResetPasswordDto } from "./dto/reset-password.dto";
 @Controller("user")
 @UseFilters(UserExceptionFilter)
 export class UserController {
-  constructor(
-    private readonly uowService: UnitOfWorkService,
-    private readonly userService: UserService
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Patch("activate/:token")
-  async activate(@Param("token") token: string): Promise<UserEntity> {
-    return this.uowService.withTransaction(() =>
-      this.userService.activate(token)
-    );
+  activate(@Param("token") token: string): Promise<UserEntity> {
+    return this.userService.activate(token);
   }
 
   @Patch("confirm-email/:token")
-  async confirmEmail(@Param("token") token: string): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.confirmEmail(token)
-    );
+  confirmEmail(@Param("token") token: string): Promise<void> {
+    return this.userService.confirmEmail(token);
   }
 
   @Patch("reset-password/:token")
-  async resetPassword(
+  resetPassword(
     @Body() dto: ResetPasswordDto,
     @Param("token") token: string
   ): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.resetPassword(token, dto.password)
-    );
+    return this.userService.resetPassword(token, dto.password);
   }
 
   @Patch("revert-email-change/:token")
-  async revertEmailChange(@Param("token") token: string): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.revertEmailChange(token)
-    );
+  revertEmailChange(@Param("token") token: string): Promise<void> {
+    return this.userService.revertEmailChange(token);
   }
 
   @Get("@me")
@@ -76,23 +64,27 @@ export class UserController {
 
   @Post("@me/change-email")
   @UseGuards(AuthGuard)
-  async changeEmail(
+  changeEmail(
     @Body() dto: ChangeEmailDto,
     @CurrentUser() user: UserEntity
   ): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.createEmailConfirmation(user, dto.email, dto.password)
+    return this.userService.createEmailConfirmation(
+      user,
+      dto.email,
+      dto.password
     );
   }
 
   @Patch("@me/change-password")
   @UseGuards(AuthGuard)
-  async changePassword(
+  changePassword(
     @Body() dto: ChangePasswordDto,
     @CurrentUser() user: UserEntity
   ): Promise<UserEntity> {
-    return this.uowService.withTransaction(() =>
-      this.userService.changePassword(user, dto.oldPassword, dto.newPassword)
+    return this.userService.changePassword(
+      user,
+      dto.oldPassword,
+      dto.newPassword
     );
   }
 
@@ -102,8 +94,6 @@ export class UserController {
     @Body() dto: DeleteUserDto,
     @CurrentUser() user: UserEntity
   ): Promise<void> {
-    return this.uowService.withTransaction(() =>
-      this.userService.deleteOne(user, dto.password)
-    );
+    this.userService.deleteOne(user, dto.password);
   }
 }

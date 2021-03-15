@@ -21,7 +21,6 @@ import { FolderEntity } from "./folder.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { FoldersService } from "./folders.service";
-import { UnitOfWorkService } from "../unit-of-work/unit-of-work.service";
 
 import { FoldersExceptionFilter } from "./folders.filter";
 
@@ -33,25 +32,20 @@ import { RenameFolderDto } from "./dto/rename-folder.dto";
 @UseFilters(FoldersExceptionFilter)
 @UseGuards(AuthGuard)
 export class FolderController {
-  constructor(
-    private readonly foldersService: FoldersService,
-    private readonly uowService: UnitOfWorkService
-  ) {}
+  constructor(private readonly foldersService: FoldersService) {}
 
   @Post()
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  async create(
+  create(
     @Body() dto: CreateFolderDto,
     @CurrentUser() user: UserEntity
   ): Promise<FolderEntity> {
-    return this.uowService.withTransaction(() =>
-      this.foldersService.create(dto.name, dto.parent, user)
-    );
+    return this.foldersService.create(dto.name, dto.parent, user);
   }
 
   @Get(":id?")
   @UseApplicationScopes(ApplicationScopesEnum.READ_FOLDER_METADATA)
-  async find(
+  find(
     @CurrentUser() user: UserEntity,
     @Param("id") id?: string
   ): Promise<FolderEntity> {
@@ -62,36 +56,30 @@ export class FolderController {
 
   @Delete(":id/delete")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  async delete(
+  delete(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    return this.uowService.withTransaction(() =>
-      this.foldersService.deleteOne({ id, user })
-    );
+    return this.foldersService.deleteOne({ id, user });
   }
 
   @Patch(":id/move")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  async move(
+  move(
     @Body() dto: MoveFolderDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    return this.uowService.withTransaction(() =>
-      this.foldersService.move({ id, user }, { id: dto.parent, user })
-    );
+    return this.foldersService.move({ id, user }, { id: dto.parent, user });
   }
 
   @Patch(":id/rename")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  async rename(
+  rename(
     @Body() dto: RenameFolderDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FolderEntity> {
-    return this.uowService.withTransaction(() =>
-      this.foldersService.rename({ id, user }, dto.name)
-    );
+    return this.foldersService.rename({ id, user }, dto.name);
   }
 }
