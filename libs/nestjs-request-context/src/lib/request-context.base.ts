@@ -11,7 +11,7 @@ export abstract class RequestContext {
     return RequestContext.als.enterWith(new constructor());
   }
 
-  static get<T extends RequestContext>(): T {
-    return RequestContext.als.getStore() as T;
+  static get<T extends RequestContext>(): T | undefined {
+    return RequestContext.als.getStore() as T | undefined;
   }
 }

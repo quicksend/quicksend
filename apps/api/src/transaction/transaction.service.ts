@@ -20,7 +20,7 @@ export class TransactionService {
   ): CustomRepository {
     const store = RequestContext.get<RequestContext>();
 
-    if (store.transactionManager) {
+    if (store && store.transactionManager) {
       return store.transactionManager.getCustomRepository(target);
     }
 
@@ -32,7 +32,7 @@ export class TransactionService {
   ): Repository<Entity> {
     const store = RequestContext.get<RequestContext>();
 
-    if (store.transactionManager) {
+    if (store && store.transactionManager) {
       return store.transactionManager.getRepository(target);
     }
 
@@ -44,7 +44,7 @@ export class TransactionService {
   ): TreeRepository<Entity> {
     const store = RequestContext.get<RequestContext>();
 
-    if (store.transactionManager) {
+    if (store && store.transactionManager) {
       return store.transactionManager.getTreeRepository(target);
     }
 

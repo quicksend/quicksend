@@ -25,21 +25,32 @@ export const TransactionInterceptor = (
     ) {}
 
     intercept(_ctx: ExecutionContext, next: CallHandler): Observable<unknown> {
-      return of(this.withTransaction(() => next.handle()));
+      const store = RequestContext.get<RequestContext>();
+
+      // Relies on request context to propagate transaction in nested services
+      if (!store) {
+        throw new Error(
+          `Request context is ${store} when trying to use transactions!`
+        );
+      }
+
+      return of(this.withTransaction(() => next.handle(), store));
     }
 
     /**
      * Wrap all database actions into one transaction
      */
-    async withTransaction<T>(work: () => Observable<T>): Promise<T> {
+    async withTransaction<T>(
+      work: () => Observable<T>,
+      store: RequestContext
+    ): Promise<T> {
       const queryRunner = this.connection.createQueryRunner();
 
       await queryRunner.connect();
       await queryRunner.startTransaction(isolationLevel);
 
-      const store = RequestContext.get<RequestContext>();
-
-      // Set the transaction manager that will be used for the entirety of this request
+      // Set the entity manager that will be used for the entirety of this request,
+      // so that transaction service can use this entity manager for nested transactions
       store.transactionManager = queryRunner.manager;
 
       try {
