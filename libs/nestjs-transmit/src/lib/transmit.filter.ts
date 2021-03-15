@@ -1,4 +1,5 @@
 import {
+  ArgumentsHost,
   BadRequestException,
   Catch,
   ExceptionFilter,
@@ -6,6 +7,8 @@ import {
   PayloadTooLargeException,
   UnsupportedMediaTypeException
 } from "@nestjs/common";
+
+import { BaseExceptionFilter } from "@nestjs/core";
 
 import {
   FieldNameTooLargeException,
@@ -22,41 +25,52 @@ import {
 } from "@quicksend/transmit";
 
 @Catch(TransmitException)
-export class TransmitExceptionFilter implements ExceptionFilter {
-  catch(exception: TransmitException): void {
+export class TransmitExceptionFilter
+  extends BaseExceptionFilter
+  implements ExceptionFilter {
+  catch(exception: TransmitException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case FieldNameTooLargeException:
-        throw new PayloadTooLargeException("Field name too large!");
+        return super.catch(
+          new PayloadTooLargeException("Field name too large!"),
+          host
+        );
 
       case FieldValueTooLargeException:
-        throw new PayloadTooLargeException("Field value too large!");
+        return super.catch(
+          new PayloadTooLargeException("Field value too large!"),
+          host
+        );
 
       case FileTooLargeException:
-        throw new PayloadTooLargeException("File too large!");
+        return super.catch(
+          new PayloadTooLargeException("File too large!"),
+          host
+        );
 
       case FileTooSmallException:
-        throw new BadRequestException("File too small!");
+        return super.catch(new BadRequestException("File too small!"), host);
 
       case NotEnoughFieldsException:
-        throw new BadRequestException("Not enough fields!");
+        return super.catch(new BadRequestException("Not enough fields!"), host);
 
       case NotEnoughFilesException:
-        throw new BadRequestException("Not enough files!");
+        return super.catch(new BadRequestException("Not enough files!"), host);
 
       case TooManyFieldsException:
-        throw new BadRequestException("Too many fields!");
+        return super.catch(new BadRequestException("Too many fields!"), host);
 
       case TooManyFilesException:
-        throw new BadRequestException("Too many files!");
+        return super.catch(new BadRequestException("Too many files!"), host);
 
       case TooManyPartsException:
-        throw new BadRequestException("Too many parts!");
+        return super.catch(new BadRequestException("Too many parts!"), host);
 
       case UnsupportedContentTypeException:
-        throw new UnsupportedMediaTypeException();
+        return super.catch(new UnsupportedMediaTypeException(), host);
 
       default:
-        throw new InternalServerErrorException(exception);
+        return super.catch(new InternalServerErrorException(exception), host);
     }
   }
 }
