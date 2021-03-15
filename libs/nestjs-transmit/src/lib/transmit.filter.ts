@@ -32,45 +32,51 @@ export class TransmitExceptionFilter
     switch (exception.constructor) {
       case FieldNameTooLargeException:
         return super.catch(
-          new PayloadTooLargeException("Field name too large!"),
+          new PayloadTooLargeException(exception.message),
           host
         );
 
       case FieldValueTooLargeException:
         return super.catch(
-          new PayloadTooLargeException("Field value too large!"),
+          new PayloadTooLargeException(exception.message),
           host
         );
 
       case FileTooLargeException:
         return super.catch(
-          new PayloadTooLargeException("File too large!"),
+          new PayloadTooLargeException(exception.message),
           host
         );
 
       case FileTooSmallException:
-        return super.catch(new BadRequestException("File too small!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case NotEnoughFieldsException:
-        return super.catch(new BadRequestException("Not enough fields!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case NotEnoughFilesException:
-        return super.catch(new BadRequestException("Not enough files!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case TooManyFieldsException:
-        return super.catch(new BadRequestException("Too many fields!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case TooManyFilesException:
-        return super.catch(new BadRequestException("Too many files!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case TooManyPartsException:
-        return super.catch(new BadRequestException("Too many parts!"), host);
+        return super.catch(new BadRequestException(exception.message), host);
 
       case UnsupportedContentTypeException:
-        return super.catch(new UnsupportedMediaTypeException(), host);
+        return super.catch(
+          new UnsupportedMediaTypeException(exception.message),
+          host
+        );
 
       default:
-        return super.catch(new InternalServerErrorException(exception), host);
+        return super.catch(
+          new InternalServerErrorException(exception.message),
+          host
+        );
     }
   }
 }
