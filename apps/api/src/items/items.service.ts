@@ -90,7 +90,7 @@ export class ItemsService {
     return item;
   }
 
-  @Cron(CronExpression.EVERY_SECOND)
+  @Cron(CronExpression.EVERY_MINUTE)
   private async deleteOrphanedItems(): Promise<void> {
     const stream = await this.itemRepository.getOrphanedItems();
 
