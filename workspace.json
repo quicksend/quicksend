@@ -1,8 +1,6 @@
 {
   "version": 2,
-  "cli": {
-    "defaultCollection": "@nrwl/nest"
-  },
+  "cli": { "defaultCollection": "@nrwl/nest" },
   "defaultProject": "api",
   "projects": {
     "api": {
@@ -36,15 +34,11 @@
         },
         "serve": {
           "executor": "@nrwl/node:execute",
-          "options": {
-            "buildTarget": "api:build"
-          }
+          "options": { "buildTarget": "api:build" }
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["apps/api/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["apps/api/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -63,9 +57,7 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/nestjs-mailer/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["libs/nestjs-mailer/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
@@ -88,80 +80,6 @@
         }
       }
     },
-    "nestjs-request-context": {
-      "root": "libs/nestjs-request-context",
-      "sourceRoot": "libs/nestjs-request-context/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/nestjs-request-context/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/nestjs-request-context"],
-          "options": {
-            "jestConfig": "libs/nestjs-request-context/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/nestjs-request-context",
-            "tsConfig": "libs/nestjs-request-context/tsconfig.lib.json",
-            "packageJson": "libs/nestjs-request-context/package.json",
-            "main": "libs/nestjs-request-context/src/index.ts",
-            "assets": ["libs/nestjs-request-context/*.md"]
-          }
-        }
-      }
-    },
-    "nestjs-transmit": {
-      "root": "libs/nestjs-transmit",
-      "sourceRoot": "libs/nestjs-transmit/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/nestjs-transmit/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/nestjs-transmit"],
-          "options": {
-            "jestConfig": "libs/nestjs-transmit/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "transmit": {
-      "root": "libs/transmit",
-      "sourceRoot": "libs/transmit/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/transmit/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/transmit"],
-          "options": {
-            "jestConfig": "libs/transmit/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
     "utils": {
       "root": "libs/utils",
       "sourceRoot": "libs/utils/src",
@@ -169,9 +87,7 @@
       "targets": {
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": {
-            "lintFilePatterns": ["libs/utils/**/*.ts"]
-          }
+          "options": { "lintFilePatterns": ["libs/utils/**/*.ts"] }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
