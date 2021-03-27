@@ -8,8 +8,6 @@ import {
 
 import { Reflector } from "@nestjs/core";
 
-import { atob } from "@quicksend/utils";
-
 import { Request } from "../interfaces/request.interface";
 
 import { ApplicationScopesEnum } from "../../applications/enums/application-scopes.enum";
@@ -18,6 +16,8 @@ import { ApplicationsService } from "../../applications/applications.service";
 import { UserService } from "../../user/user.service";
 
 import { REQUIRED_APPLICATION_SCOPES } from "../../common/decorators/use-application-scopes.decorator";
+
+import { atob } from "../utils/atob.util";
 
 export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
 

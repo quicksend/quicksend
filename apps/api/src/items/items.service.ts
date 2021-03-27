@@ -1,7 +1,7 @@
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { Injectable } from "@nestjs/common";
 
-import { Counter } from "@quicksend/utils";
+import { Counter } from "../common/utils/counter.util";
 
 import { FindConditions } from "typeorm";
 

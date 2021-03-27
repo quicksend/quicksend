@@ -15,9 +15,5 @@
       "options": { "cacheableOperations": ["build", "lint", "test", "e2e"] }
     }
   },
-  "projects": {
-    "api": { "tags": [] },
-    "nestjs-mailer": { "tags": [] },
-    "utils": { "tags": [] }
-  }
+  "projects": { "api": { "tags": [] }, "nestjs-mailer": { "tags": [] } }
 }

@@ -24,10 +24,9 @@ import {
   UsernameConflictException
 } from "./user.exceptions";
 
-import { generateRandomString } from "@quicksend/utils";
-
 import { httpNamespace } from "../config/config.namespaces";
 
+import { generateRandomString } from "../common/utils/generate-random-string.util";
 import { renderEmail } from "../common/utils/render-email.util";
 
 @Injectable()

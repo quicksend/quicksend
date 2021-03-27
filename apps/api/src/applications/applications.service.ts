@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { FindConditions } from "typeorm";
 
-import { generateRandomString } from "@quicksend/utils";
+import { generateRandomString } from "../common/utils/generate-random-string.util";
 
 import { TransactionService } from "../transaction/transaction.service";
 

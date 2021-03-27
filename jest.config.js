@@ -1,7 +1,3 @@
 module.exports = {
-  projects: [
-    "<rootDir>/apps/api",
-    "<rootDir>/libs/nestjs-mailer",
-    "<rootDir>/libs/utils"
-  ]
+  projects: ["<rootDir>/apps/api", "<rootDir>/libs/nestjs-mailer"]
 };

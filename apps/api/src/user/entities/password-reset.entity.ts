@@ -1,10 +1,9 @@
 import { BeforeInsert, Column, Entity, ManyToOne } from "typeorm";
 
 import { BaseEntity } from "../../common/entities/base.entity";
-
 import { UserEntity } from "../user.entity";
 
-import { generateRandomString } from "@quicksend/utils";
+import { generateRandomString } from "../../common/utils/generate-random-string.util";
 
 @Entity("password-reset")
 export class PasswordResetEntity extends BaseEntity {
