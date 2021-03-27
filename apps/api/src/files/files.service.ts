@@ -8,16 +8,26 @@ import { FindConditions } from "typeorm";
 import { FoldersService } from "../folders/folders.service";
 import { ItemsService } from "../items/items.service";
 import { TransactionService } from "../transaction/transaction.service";
+import { UserService } from "../user/user.service";
 
 import { FileEntity } from "./file.entity";
+import { FilePolicyEntity } from "./entities/file-policy.entity";
 import { FolderEntity } from "../folders/folder.entity";
+import { UserEntity } from "../user/user.entity";
+
+import { FilePolicyLevelsEnum } from "./enums/file-policies-levels.enum";
 
 import {
+  CantAccessFileException,
   CantFindFileException,
+  CantFindFilePolicyException,
+  FileBeneficiaryCannotBeOwner,
   FileConflictException
 } from "./files.exceptions";
 
 import { CantFindDestinationFolderException } from "../folders/folders.exceptions";
+
+import { CantFindUserException } from "../user/user.exceptions";
 
 @Injectable()
 export class FilesService {
@@ -25,11 +35,16 @@ export class FilesService {
     private readonly folderService: FoldersService,
     private readonly itemsService: ItemsService,
     private readonly transactionService: TransactionService,
-    private readonly transmitService: TransmitService
+    private readonly transmitService: TransmitService,
+    private readonly userService: UserService
   ) {}
 
   private get fileRepository() {
     return this.transactionService.getRepository(FileEntity);
+  }
+
+  private get filePolicyRepository() {
+    return this.transactionService.getRepository(FilePolicyEntity);
   }
 
   /**
@@ -76,12 +91,23 @@ export class FilesService {
    * Find a file and returns a readable stream from item service
    */
   async createReadableStream(
-    conditions: FindConditions<FileEntity>
+    conditions: FindConditions<FileEntity>,
+    user: UserEntity
   ): Promise<NodeJS.ReadableStream> {
     const file = await this.fileRepository.findOne(conditions);
 
     if (!file) {
       throw new CantFindFileException();
+    }
+
+    const hasAccess = await this.hasAccess(
+      file,
+      user,
+      FilePolicyLevelsEnum.READ_FILE
+    );
+
+    if (!hasAccess) {
+      throw new CantAccessFileException();
     }
 
     return this.itemsService.createReadableStream({
@@ -126,10 +152,12 @@ export class FilesService {
   }
 
   /**
-   * Find a file or throws an error if it does not exist
+   * Find a file or throw an error if it does not exist or if
+   * the user does not have access
    */
   async findOneOrFail(
-    conditions: FindConditions<FileEntity>
+    conditions: FindConditions<FileEntity>,
+    user: UserEntity
   ): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(conditions);
 
@@ -137,7 +165,37 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
+    const hasAccess = await this.hasAccess(
+      file,
+      user,
+      FilePolicyLevelsEnum.READ_FILE
+    );
+
+    if (!hasAccess) {
+      throw new CantAccessFileException();
+    }
+
     return file;
+  }
+
+  /**
+   * Checks whether a user has access to a file with a given level
+   */
+  async hasAccess(
+    file: FileEntity,
+    user: UserEntity,
+    level: FilePolicyLevelsEnum
+  ): Promise<boolean> {
+    if (file.public || file.user.id === user.id) {
+      return true;
+    }
+
+    const policy = await this.filePolicyRepository.findOne({
+      beneficiary: user,
+      file
+    });
+
+    return !!policy && policy.level === level;
   }
 
   /**
@@ -207,6 +265,7 @@ export class FilesService {
    */
   async save(
     metadata: File,
+    isPublic: boolean,
     folderConditions: FindConditions<FolderEntity>
   ): Promise<FileEntity> {
     const parent = await this.folderService.findOne(folderConditions);
@@ -241,9 +300,101 @@ export class FilesService {
       name: metadata.name,
       item,
       parent,
+      public: isPublic,
       user: parent.user
     });
 
     return this.fileRepository.save(file);
+  }
+
+  async setPublicity(
+    conditions: FindConditions<FileEntity>,
+    isPublic: boolean
+  ): Promise<FileEntity> {
+    const file = await this.fileRepository.findOne(conditions);
+
+    if (!file) {
+      throw new CantFindFileException();
+    }
+
+    file.public = isPublic;
+
+    return this.fileRepository.save(file);
+  }
+
+  /**
+   * Upserts a sharing policy for a beneficiary
+   */
+  async share(
+    fileConditions: FindConditions<FileEntity>,
+    beneficiaryConditions: FindConditions<UserEntity>,
+    level: FilePolicyLevelsEnum
+  ): Promise<FilePolicyEntity> {
+    const file = await this.fileRepository.findOne(fileConditions);
+
+    if (!file) {
+      throw new CantFindFileException();
+    }
+
+    const beneficiary = await this.userService.findOne(beneficiaryConditions);
+
+    if (!beneficiary) {
+      throw new CantFindUserException();
+    }
+
+    if (file.user.id === beneficiary.id) {
+      throw new FileBeneficiaryCannotBeOwner();
+    }
+
+    const duplicate = await this.filePolicyRepository.findOne({
+      beneficiary,
+      file
+    });
+
+    // Update the level if the policy for this user already exists
+    if (duplicate) {
+      duplicate.level = level;
+
+      return this.filePolicyRepository.save(duplicate);
+    }
+
+    const policy = this.filePolicyRepository.create({
+      beneficiary,
+      file,
+      level
+    });
+
+    return this.filePolicyRepository.save(policy);
+  }
+
+  /**
+   * Deletes a sharing policy for a user
+   */
+  async unshare(
+    fileConditions: FindConditions<FileEntity>,
+    beneficiaryConditions: FindConditions<UserEntity>
+  ): Promise<FilePolicyEntity> {
+    const file = await this.fileRepository.findOne(fileConditions);
+
+    if (!file) {
+      throw new CantFindFileException();
+    }
+
+    const beneficiary = await this.userService.findOne(beneficiaryConditions);
+
+    if (!beneficiary) {
+      throw new CantFindUserException();
+    }
+
+    const policy = await this.filePolicyRepository.findOne({
+      beneficiary,
+      file
+    });
+
+    if (!policy) {
+      throw new CantFindFilePolicyException();
+    }
+
+    return this.filePolicyRepository.remove(policy);
   }
 }

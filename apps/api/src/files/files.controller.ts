@@ -26,6 +26,7 @@ import { Response } from "express";
 
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { JSONHeader } from "../common/decorators/json-header.decorator";
+import { OptionalAuth } from "../common/decorators/optional-auth.decorator";
 import { UseApplicationScopes } from "../common/decorators/use-application-scopes.decorator";
 
 import { AuthGuard } from "../common/guards/auth.guard";
@@ -36,22 +37,28 @@ import { ApplicationScopesEnum } from "../applications/enums/application-scopes.
 
 import { FilesService } from "./files.service";
 
-import { FilesExceptionFilter } from "./files.filter";
-import { FoldersExceptionFilter } from "../folders/folders.filter";
-
 import { FileEntity } from "./file.entity";
+import { FilePolicyEntity } from "./entities/file-policy.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { CopyFileDto } from "./dto/copy-file.dto";
 import { MoveFileDto } from "./dto/move-file.dto";
 import { RenameFileDto } from "./dto/rename-file.dto";
+import { ShareFileDto } from "./dto/share-file.dto";
+import { UnshareFileDto } from "./dto/unshare-file.dto";
+import { UpdateFilePublicityDto } from "./dto/update-file-publicity.dto";
 import { UploadFileDto } from "./dto/upload-file.dto";
+
+import { FilesExceptionFilter } from "./files.filter";
+import { FoldersExceptionFilter } from "../folders/folders.filter";
+import { UserExceptionFilter } from "../user/user.filter";
 
 @Controller("files")
 @UseFilters(
   FilesExceptionFilter,
   FoldersExceptionFilter,
-  TransmitExceptionFilter
+  TransmitExceptionFilter,
+  UserExceptionFilter
 )
 @UseGuards(AuthGuard)
 export class FilesController {
@@ -63,7 +70,7 @@ export class FilesController {
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
   ): Promise<FileEntity> {
-    return this.filesService.findOneOrFail({ id, user });
+    return this.filesService.findOneOrFail({ id }, user);
   }
 
   @Post(":id/copy")
@@ -86,13 +93,14 @@ export class FilesController {
   }
 
   @Get(":id/download")
+  @OptionalAuth()
   @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_CONTENTS)
   async download(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string,
     @Res() response: Response
   ): Promise<void> {
-    const readable = await this.filesService.createReadableStream({ id, user });
+    const readable = await this.filesService.createReadableStream({ id }, user);
 
     readable.on("error", (error) => {
       Logger.error(error);
@@ -128,6 +136,40 @@ export class FilesController {
     return this.filesService.rename({ id, user }, dto.name);
   }
 
+  @Post(":id/share")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
+  share(
+    @Body() dto: ShareFileDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FilePolicyEntity> {
+    return this.filesService.share(
+      { id, user },
+      { id: dto.beneficiary },
+      dto.level
+    );
+  }
+
+  @Post(":id/unshare")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
+  unshare(
+    @Body() dto: UnshareFileDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FilePolicyEntity> {
+    return this.filesService.unshare({ id, user }, { id: dto.beneficiary });
+  }
+
+  @Patch(":id/update-publicity")
+  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
+  updatePublicity(
+    @Body() dto: UpdateFilePublicityDto,
+    @CurrentUser() user: UserEntity,
+    @Param("id") id: string
+  ): Promise<FileEntity> {
+    return this.filesService.setPublicity({ id, user }, dto.isPublic);
+  }
+
   @Post("upload")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_CONTENTS)
   @UseInterceptors(TransmitInterceptor())
@@ -136,7 +178,7 @@ export class FilesController {
     @Files() files: File[], // guaranteed to have at least 1 file
     @JSONHeader(ValidationPipe({ validateCustomDecorators: true })) dto: UploadFileDto // prettier-ignore
   ): Promise<FileEntity> {
-    return this.filesService.save(files[0], {
+    return this.filesService.save(files[0], dto.isPublic, {
       id: dto.destination,
       user
     });

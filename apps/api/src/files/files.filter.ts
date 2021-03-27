@@ -3,6 +3,7 @@ import {
   Catch,
   ConflictException,
   ExceptionFilter,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException
 } from "@nestjs/common";
@@ -10,7 +11,10 @@ import {
 import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
+  CantAccessFileException,
   CantFindFileException,
+  CantFindFilePolicyException,
+  FileBeneficiaryCannotBeOwner,
   FileConflictException,
   FilesException
 } from "./files.exceptions";
@@ -21,8 +25,17 @@ export class FilesExceptionFilter
   implements ExceptionFilter {
   catch(exception: FilesException, host: ArgumentsHost): void {
     switch (exception.constructor) {
+      case CantAccessFileException:
+        return super.catch(new ForbiddenException(exception), host);
+
       case CantFindFileException:
         return super.catch(new NotFoundException(exception), host);
+
+      case CantFindFilePolicyException:
+        return super.catch(new NotFoundException(exception), host);
+
+      case FileBeneficiaryCannotBeOwner:
+        return super.catch(new ForbiddenException(exception), host);
 
       case FileConflictException:
         return super.catch(new ConflictException(exception), host);

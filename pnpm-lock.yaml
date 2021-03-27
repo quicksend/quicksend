@@ -7,7 +7,7 @@ dependencies:
   '@nestjs/schedule': 0.4.3_a4eba26968d72bf015d9bf44e71ae9b6
   '@nestjs/typeorm': 7.1.5_5132052c488a3330b1ba44e2060552df
   '@quicksend/nestjs-request-context': 1.0.1_685c9d88475ba83fcac91c69092177de
-  '@quicksend/nestjs-transmit': 1.0.1_e8d24caea9a3d6135d23b7cdba95324e
+  '@quicksend/nestjs-transmit': 1.0.2_e8d24caea9a3d6135d23b7cdba95324e
   '@quicksend/transmit': 1.0.9
   argon2: 0.27.1
   bull: 3.22.0
@@ -1076,7 +1076,7 @@ packages:
       rxjs: ^6.0.0
     resolution:
       integrity: sha512-gCtWN1LI/FCAm7PJtS+ueXsMwtJjGKAV/7Yhf4lid6HzvfsEgtfFTiWhcqO2yRn7S0k2zyvEECEnXHWMjIgppg==
-  /@quicksend/nestjs-transmit/1.0.1_e8d24caea9a3d6135d23b7cdba95324e:
+  /@quicksend/nestjs-transmit/1.0.2_e8d24caea9a3d6135d23b7cdba95324e:
     dependencies:
       '@nestjs/common': 7.6.15_72c71fae9438f0c01bf19f98b0b41cfb
       '@nestjs/core': 7.6.15_addc498901482b108c9689926fe42327
@@ -1093,7 +1093,7 @@ packages:
       reflect-metadata: ^0.1.12
       rxjs: ^6.0.0
     resolution:
-      integrity: sha512-fpm874/YQs9gpcMFIexHghRRSLDHz+77XNEUVToYxColVzkhNrYW8G2u6QW1mVy9+r6JjG+X4eAoPRzVoZcUdw==
+      integrity: sha512-TPXmE2NpEKISohUkGoBulFe6Vzzn7GCtT6aHxFBLFL4LUrO0lmEP4bbFOsc5lxInAhsGd75oOagdVXOkLUDDYg==
   /@quicksend/transmit/1.0.9:
     dependencies:
       busboy: 0.3.1
@@ -10538,7 +10538,7 @@ specifiers:
   '@nrwl/tao': 11.4.0
   '@nrwl/workspace': 11.4.0
   '@quicksend/nestjs-request-context': ^1.0.1
-  '@quicksend/nestjs-transmit': ^1.0.1
+  '@quicksend/nestjs-transmit': ^1.0.2
   '@quicksend/transmit': ^1.0.9
   '@types/bull': ^3.15.0
   '@types/busboy': ^0.2.3

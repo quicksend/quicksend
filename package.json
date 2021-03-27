@@ -35,7 +35,7 @@
     "@nestjs/schedule": "^0.4.3",
     "@nestjs/typeorm": "^7.1.5",
     "@quicksend/nestjs-request-context": "^1.0.1",
-    "@quicksend/nestjs-transmit": "^1.0.1",
+    "@quicksend/nestjs-transmit": "^1.0.2",
     "@quicksend/transmit": "^1.0.9",
     "argon2": "^0.27.1",
     "bull": "^3.20.1",
