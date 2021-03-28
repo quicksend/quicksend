@@ -11,7 +11,7 @@ import { FoldersModule } from "../folders/folders.module";
 import { ItemsModule } from "../items/items.module";
 
 import { FileEntity } from "./file.entity";
-import { FilePolicyEntity } from "./entities/file-policy.entity";
+import { FileInvitationEntity } from "./entities/file-invitation.entity";
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { FilePolicyEntity } from "./entities/file-policy.entity";
       useClass: TransmitModuleConfig
     }),
 
-    TypeOrmModule.forFeature([FileEntity, FilePolicyEntity])
+    TypeOrmModule.forFeature([FileEntity, FileInvitationEntity])
   ],
   controllers: [FilesController],
   exports: [FilesService],

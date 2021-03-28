@@ -1,12 +1,12 @@
 import { IsEnum, IsNotEmpty, IsString } from "class-validator";
 
-import { FilePolicyLevelsEnum } from "../enums/file-policies-levels.enum";
+import { FileInvitationPrivilegeEnum } from "../enums/file-invitation-privilege.enum";
 
 export class ShareFileDto {
   @IsNotEmpty()
   @IsString()
-  beneficiary!: string;
+  invitee!: string;
 
-  @IsEnum(FilePolicyLevelsEnum)
-  level!: FilePolicyLevelsEnum;
+  @IsEnum(FileInvitationPrivilegeEnum)
+  privilege!: FileInvitationPrivilegeEnum;
 }

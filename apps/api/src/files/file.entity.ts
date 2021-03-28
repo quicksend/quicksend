@@ -2,13 +2,16 @@ import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
-import { FilePolicyEntity } from "./entities/file-policy.entity";
+import { FileInvitationEntity } from "./entities/file-invitation.entity";
 import { FolderEntity } from "../folders/folder.entity";
 import { ItemEntity } from "../items/item.entity";
 import { UserEntity } from "../user/user.entity";
 
 @Entity("file")
 export class FileEntity extends BaseEntity {
+  @OneToMany(() => FileInvitationEntity, (invitation) => invitation.file)
+  invitations!: FileInvitationEntity[];
+
   @ManyToOne(() => ItemEntity, {
     eager: true,
     nullable: false,
@@ -25,9 +28,6 @@ export class FileEntity extends BaseEntity {
     onDelete: "CASCADE"
   })
   parent!: FolderEntity;
-
-  @OneToMany(() => FilePolicyEntity, (policy) => policy.file)
-  policies!: FilePolicyEntity[];
 
   @Column({
     default: false

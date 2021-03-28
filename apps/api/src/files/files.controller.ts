@@ -38,14 +38,13 @@ import { ApplicationScopesEnum } from "../applications/enums/application-scopes.
 import { FilesService } from "./files.service";
 
 import { FileEntity } from "./file.entity";
-import { FilePolicyEntity } from "./entities/file-policy.entity";
+import { FileInvitationEntity } from "./entities/file-invitation.entity";
 import { UserEntity } from "../user/user.entity";
 
 import { CopyFileDto } from "./dto/copy-file.dto";
 import { MoveFileDto } from "./dto/move-file.dto";
 import { RenameFileDto } from "./dto/rename-file.dto";
 import { ShareFileDto } from "./dto/share-file.dto";
-import { UnshareFileDto } from "./dto/unshare-file.dto";
 import { UpdateFilePublicityDto } from "./dto/update-file-publicity.dto";
 import { UploadFileDto } from "./dto/upload-file.dto";
 
@@ -142,22 +141,22 @@ export class FilesController {
     @Body() dto: ShareFileDto,
     @CurrentUser() user: UserEntity,
     @Param("id") id: string
-  ): Promise<FilePolicyEntity> {
+  ): Promise<FileInvitationEntity> {
     return this.filesService.share(
       { id, user },
-      { id: dto.beneficiary },
-      dto.level
+      { id: dto.invitee },
+      dto.privilege
     );
   }
 
-  @Post(":id/unshare")
+  @Delete(":id/unshare/:invitee")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   unshare(
-    @Body() dto: UnshareFileDto,
     @CurrentUser() user: UserEntity,
-    @Param("id") id: string
-  ): Promise<FilePolicyEntity> {
-    return this.filesService.unshare({ id, user }, { id: dto.beneficiary });
+    @Param("id") id: string,
+    @Param("invitee") invitee: string
+  ): Promise<FileInvitationEntity> {
+    return this.filesService.unshare({ id, user }, { id: invitee });
   }
 
   @Patch(":id/update-publicity")

@@ -11,18 +11,18 @@ import { TransactionService } from "../transaction/transaction.service";
 import { UserService } from "../user/user.service";
 
 import { FileEntity } from "./file.entity";
-import { FilePolicyEntity } from "./entities/file-policy.entity";
+import { FileInvitationEntity } from "./entities/file-invitation.entity";
 import { FolderEntity } from "../folders/folder.entity";
 import { UserEntity } from "../user/user.entity";
 
-import { FilePolicyLevelsEnum } from "./enums/file-policies-levels.enum";
+import { FileInvitationPrivilegeEnum } from "./enums/file-invitation-privilege.enum";
 
 import {
   CantAccessFileException,
   CantFindFileException,
-  CantFindFilePolicyException,
-  FileBeneficiaryCannotBeOwner,
-  FileConflictException
+  CantFindFileInvitationException,
+  FileConflictException,
+  FileInviteeCannotBeOwner
 } from "./files.exceptions";
 
 import { CantFindDestinationFolderException } from "../folders/folders.exceptions";
@@ -43,8 +43,8 @@ export class FilesService {
     return this.transactionService.getRepository(FileEntity);
   }
 
-  private get filePolicyRepository() {
-    return this.transactionService.getRepository(FilePolicyEntity);
+  private get fileInvitationRepository() {
+    return this.transactionService.getRepository(FileInvitationEntity);
   }
 
   /**
@@ -103,7 +103,7 @@ export class FilesService {
     const hasAccess = await this.hasAccess(
       file,
       user,
-      FilePolicyLevelsEnum.READ_FILE
+      FileInvitationPrivilegeEnum.READ_ONLY
     );
 
     if (!hasAccess) {
@@ -168,7 +168,7 @@ export class FilesService {
     const hasAccess = await this.hasAccess(
       file,
       user,
-      FilePolicyLevelsEnum.READ_FILE
+      FileInvitationPrivilegeEnum.READ_ONLY
     );
 
     if (!hasAccess) {
@@ -179,23 +179,23 @@ export class FilesService {
   }
 
   /**
-   * Checks whether a user has access to a file with a given level
+   * Checks whether a user has access to a file with a given privilege
    */
   async hasAccess(
     file: FileEntity,
     user: UserEntity,
-    level: FilePolicyLevelsEnum
+    privilege: FileInvitationPrivilegeEnum
   ): Promise<boolean> {
     if (file.public || file.user.id === user.id) {
       return true;
     }
 
-    const policy = await this.filePolicyRepository.findOne({
-      beneficiary: user,
+    const invitation = await this.fileInvitationRepository.findOne({
+      invitee: user,
       file
     });
 
-    return !!policy && policy.level === level;
+    return !!invitation && invitation.privilege >= privilege;
   }
 
   /**
@@ -323,78 +323,79 @@ export class FilesService {
   }
 
   /**
-   * Upserts a sharing policy for a beneficiary
+   * Invites a user to a file or updates the privilege of the
+   * invitation if the user has already been invited
    */
   async share(
     fileConditions: FindConditions<FileEntity>,
-    beneficiaryConditions: FindConditions<UserEntity>,
-    level: FilePolicyLevelsEnum
-  ): Promise<FilePolicyEntity> {
+    inviteeConditions: FindConditions<UserEntity>,
+    privilege: FileInvitationPrivilegeEnum
+  ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
     if (!file) {
       throw new CantFindFileException();
     }
 
-    const beneficiary = await this.userService.findOne(beneficiaryConditions);
+    const invitee = await this.userService.findOne(inviteeConditions);
 
-    if (!beneficiary) {
+    if (!invitee) {
       throw new CantFindUserException();
     }
 
-    if (file.user.id === beneficiary.id) {
-      throw new FileBeneficiaryCannotBeOwner();
+    if (file.user.id === invitee.id) {
+      throw new FileInviteeCannotBeOwner();
     }
 
-    const duplicate = await this.filePolicyRepository.findOne({
-      beneficiary,
+    const duplicate = await this.fileInvitationRepository.findOne({
+      invitee,
       file
     });
 
-    // Update the level if the policy for this user already exists
+    // Update the privilege if the user is already invited to this file
     if (duplicate) {
-      duplicate.level = level;
+      duplicate.privilege = privilege;
 
-      return this.filePolicyRepository.save(duplicate);
+      return this.fileInvitationRepository.save(duplicate);
     }
 
-    const policy = this.filePolicyRepository.create({
-      beneficiary,
+    const invitation = this.fileInvitationRepository.create({
+      invitee,
       file,
-      level
+      privilege
     });
 
-    return this.filePolicyRepository.save(policy);
+    return this.fileInvitationRepository.save(invitation);
   }
 
   /**
-   * Deletes a sharing policy for a user
+   * Delete a file invitation for a user
    */
   async unshare(
     fileConditions: FindConditions<FileEntity>,
-    beneficiaryConditions: FindConditions<UserEntity>
-  ): Promise<FilePolicyEntity> {
+    inviteeConditions: FindConditions<UserEntity>
+  ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
     if (!file) {
       throw new CantFindFileException();
     }
 
-    const beneficiary = await this.userService.findOne(beneficiaryConditions);
+    const invitee = await this.userService.findOne(inviteeConditions);
 
-    if (!beneficiary) {
+    if (!invitee) {
       throw new CantFindUserException();
     }
 
-    const policy = await this.filePolicyRepository.findOne({
-      beneficiary,
+    const invitation = await this.fileInvitationRepository.findOne({
+      invitee,
       file
     });
 
-    if (!policy) {
-      throw new CantFindFilePolicyException();
+    if (!invitation) {
+      throw new CantFindFileInvitationException();
     }
 
-    return this.filePolicyRepository.remove(policy);
+    return this.fileInvitationRepository.remove(invitation);
   }
 }
