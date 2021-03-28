@@ -5,7 +5,7 @@ import { UserEntity } from "../user.entity";
 
 import { generateRandomString } from "../../common/utils/generate-random-string.util";
 
-@Entity("email-confirmation")
+@Entity("email_confirmation")
 export class EmailConfirmationEntity extends BaseEntity {
   @Column()
   expiresAt!: Date;

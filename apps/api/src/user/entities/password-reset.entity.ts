@@ -5,7 +5,7 @@ import { UserEntity } from "../user.entity";
 
 import { generateRandomString } from "../../common/utils/generate-random-string.util";
 
-@Entity("password-reset")
+@Entity("password_reset")
 export class PasswordResetEntity extends BaseEntity {
   @Column()
   expiresAt!: Date;
