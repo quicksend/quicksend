@@ -1,11 +1,5 @@
 export class FilesException extends Error {}
 
-export class CantAccessFileException extends FilesException {
-  constructor() {
-    super("This file cannot be accessed.");
-  }
-}
-
 export class CantFindFileException extends FilesException {
   constructor() {
     super("This file cannot be found.");
@@ -27,5 +21,11 @@ export class FileConflictException extends FilesException {
 export class FileInviteeCannotBeOwner extends FilesException {
   constructor() {
     super("The file invitee cannot be the owner of the file.");
+  }
+}
+
+export class InsufficientPrivilegesException extends FilesException {
+  constructor() {
+    super("Insufficient privileges for this file.");
   }
 }

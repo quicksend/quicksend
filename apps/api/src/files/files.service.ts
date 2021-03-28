@@ -18,11 +18,11 @@ import { UserEntity } from "../user/user.entity";
 import { FileInvitationPrivilegeEnum } from "./enums/file-invitation-privilege.enum";
 
 import {
-  CantAccessFileException,
   CantFindFileException,
   CantFindFileInvitationException,
   FileConflictException,
-  FileInviteeCannotBeOwner
+  FileInviteeCannotBeOwner,
+  InsufficientPrivilegesException
 } from "./files.exceptions";
 
 import { CantFindDestinationFolderException } from "../folders/folders.exceptions";
@@ -100,14 +100,14 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
-    const hasAccess = await this.hasAccess(
+    const hasPrivilege = await this.hasPrivilege(
       file,
       user,
       FileInvitationPrivilegeEnum.READ_ONLY
     );
 
-    if (!hasAccess) {
-      throw new CantAccessFileException();
+    if (!hasPrivilege) {
+      throw new InsufficientPrivilegesException();
     }
 
     return this.itemsService.createReadableStream({
@@ -165,23 +165,23 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
-    const hasAccess = await this.hasAccess(
+    const hasPrivilege = await this.hasPrivilege(
       file,
       user,
       FileInvitationPrivilegeEnum.READ_ONLY
     );
 
-    if (!hasAccess) {
-      throw new CantAccessFileException();
+    if (!hasPrivilege) {
+      throw new InsufficientPrivilegesException();
     }
 
     return file;
   }
 
   /**
-   * Checks whether a user has access to a file with a given privilege
+   * Checks whether a user has privilege to a file
    */
-  async hasAccess(
+  async hasPrivilege(
     file: FileEntity,
     user: UserEntity,
     privilege: FileInvitationPrivilegeEnum
