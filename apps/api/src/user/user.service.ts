@@ -230,7 +230,6 @@ export class UserService {
     // TODO: Delete all of user's data
 
     user.activationToken = null;
-    user.admin = false;
     user.password = null as never; // force the password to be null
 
     await this.userRepository.save(user);

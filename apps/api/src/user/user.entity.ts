@@ -18,11 +18,6 @@ export class UserEntity extends BaseEntity {
   activationToken!: string | null;
 
   @Column({
-    default: false
-  })
-  admin!: boolean;
-
-  @Column({
     nullable: true,
     type: "varchar",
     unique: true
