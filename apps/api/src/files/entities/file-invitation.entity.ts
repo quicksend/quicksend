@@ -8,6 +8,12 @@ import { FileInvitationPrivilegeEnum } from "../enums/file-invitation-privilege.
 
 @Entity("file_invitation")
 export class FileInvitationEntity extends BaseEntity {
+  @Column({
+    nullable: true,
+    type: "timestamp"
+  })
+  expiresAt!: Date | null;
+
   @ManyToOne(() => FileEntity, (file) => file.invitations, {
     eager: true,
     nullable: false,
@@ -25,8 +31,11 @@ export class FileInvitationEntity extends BaseEntity {
   @Column({
     default: FileInvitationPrivilegeEnum.READ_ONLY,
     enum: FileInvitationPrivilegeEnum,
-    nullable: false,
     type: "enum"
   })
   privilege!: FileInvitationPrivilegeEnum;
+
+  get expired() {
+    return this.expiresAt && Date.now() >= this.expiresAt.getTime();
+  }
 }

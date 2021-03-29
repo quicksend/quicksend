@@ -145,7 +145,8 @@ export class FilesController {
     return this.filesService.share(
       { id, user },
       { id: dto.invitee },
-      dto.privilege
+      dto.privilege,
+      dto.expiresAt
     );
   }
 

@@ -1,3 +1,4 @@
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { Injectable } from "@nestjs/common";
 
 import { File } from "@quicksend/transmit";
@@ -195,7 +196,11 @@ export class FilesService {
       file
     });
 
-    return !!invitation && invitation.privilege >= privilege;
+    if (!invitation || invitation.expired) {
+      return false;
+    }
+
+    return invitation.privilege >= privilege;
   }
 
   /**
@@ -329,7 +334,8 @@ export class FilesService {
   async share(
     fileConditions: FindConditions<FileEntity>,
     inviteeConditions: FindConditions<UserEntity>,
-    privilege: FileInvitationPrivilegeEnum
+    privilege: FileInvitationPrivilegeEnum,
+    expiresAt?: Date
   ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
@@ -352,14 +358,16 @@ export class FilesService {
       file
     });
 
-    // Update the privilege if the user is already invited to this file
+    // Update the invitation if the user is already invited to this file
     if (duplicate) {
+      duplicate.expiresAt = expiresAt || null;
       duplicate.privilege = privilege;
 
       return this.fileInvitationRepository.save(duplicate);
     }
 
     const invitation = this.fileInvitationRepository.create({
+      expiresAt,
       invitee,
       file,
       privilege
@@ -397,5 +405,14 @@ export class FilesService {
     }
 
     return this.fileInvitationRepository.remove(invitation);
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  private async deleteExpiredInvitations(): Promise<void> {
+    await this.fileInvitationRepository
+      .createQueryBuilder()
+      .delete()
+      .where("now() >= expiresAt")
+      .execute();
   }
 }
