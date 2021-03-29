@@ -377,34 +377,38 @@ export class FilesService {
   }
 
   /**
-   * Delete a file invitation for a user
+   * Delete a invitee if specified, otherwise removes all invitees for this file
    */
   async unshare(
     fileConditions: FindConditions<FileEntity>,
-    inviteeConditions: FindConditions<UserEntity>
-  ): Promise<FileInvitationEntity> {
+    inviteeConditions?: FindConditions<UserEntity>
+  ): Promise<void> {
     const file = await this.fileRepository.findOne(fileConditions);
 
     if (!file) {
       throw new CantFindFileException();
     }
 
-    const invitee = await this.userService.findOne(inviteeConditions);
+    if (inviteeConditions) {
+      const invitee = await this.userService.findOne(inviteeConditions);
 
-    if (!invitee) {
-      throw new CantFindUserException();
+      if (!invitee) {
+        throw new CantFindUserException();
+      }
+
+      const invitation = await this.fileInvitationRepository.findOne({
+        invitee,
+        file
+      });
+
+      if (!invitation) {
+        throw new CantFindFileInvitationException();
+      }
+
+      await this.fileInvitationRepository.remove(invitation);
+    } else {
+      await this.fileInvitationRepository.delete({ file });
     }
-
-    const invitation = await this.fileInvitationRepository.findOne({
-      invitee,
-      file
-    });
-
-    if (!invitation) {
-      throw new CantFindFileInvitationException();
-    }
-
-    return this.fileInvitationRepository.remove(invitation);
   }
 
   @Cron(CronExpression.EVERY_MINUTE)

@@ -150,14 +150,16 @@ export class FilesController {
     );
   }
 
-  @Delete(":id/unshare/:invitee")
+  @Delete(":id/unshare/:invitee?")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
   unshare(
     @CurrentUser() user: UserEntity,
     @Param("id") id: string,
-    @Param("invitee") invitee: string
-  ): Promise<FileInvitationEntity> {
-    return this.filesService.unshare({ id, user }, { id: invitee });
+    @Param("invitee") invitee?: string
+  ): Promise<void> {
+    return invitee
+      ? this.filesService.unshare({ id, user }, { id: invitee })
+      : this.filesService.unshare({ id, user });
   }
 
   @Patch(":id/update-publicity")
