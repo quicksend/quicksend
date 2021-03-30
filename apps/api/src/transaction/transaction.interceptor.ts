@@ -13,7 +13,7 @@ import { IsolationLevel } from "typeorm/driver/types/IsolationLevel";
 
 import { Observable, of } from "rxjs";
 
-import { RequestContext } from "../common/classes/request-context";
+import { RequestContext } from "../common/contexts/request.context";
 
 export const TransactionInterceptor = (
   isolationLevel?: IsolationLevel

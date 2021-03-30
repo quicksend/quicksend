@@ -31,7 +31,7 @@ import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 import { ThrottlerExceptionFilter } from "../common/filters/throttler-exception.filter";
 import { ValidationExceptionFilter } from "../common/filters/validation-exception.filter";
 
-import { RequestContext } from "../common/classes/request-context";
+import { RequestContext } from "../common/contexts/request.context";
 
 import { SessionCheckMiddleware } from "../common/middlewares/session-check.middleware";
 

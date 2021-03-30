@@ -10,7 +10,7 @@ import {
   getTreeRepository
 } from "typeorm";
 
-import { RequestContext } from "../common/classes/request-context";
+import { RequestContext } from "../common/contexts/request.context";
 
 @Injectable()
 export class TransactionService {
