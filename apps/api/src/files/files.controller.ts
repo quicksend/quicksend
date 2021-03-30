@@ -139,7 +139,8 @@ export class FilesController {
       { id, user },
       dto.invitee ? { id: dto.invitee } : null,
       dto.privilege,
-      dto.expiresAt
+      dto.expiresAt,
+      dto.notifyInvitee
     );
   }
 

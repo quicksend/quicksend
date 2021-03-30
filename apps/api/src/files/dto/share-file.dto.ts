@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -21,6 +22,9 @@ export class ShareFileDto {
   @IsNotEmpty()
   @IsString()
   invitee: string | null = null;
+
+  @IsBoolean()
+  notifyInvitee = true;
 
   @IsEnum(FileInvitationPrivilegeEnum)
   privilege!: FileInvitationPrivilegeEnum;

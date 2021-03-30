@@ -1,0 +1,100 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-button
+        background-color="#395eca"
+        border-radius="6px"
+        font-family="Roboto"
+        font-weight="500"
+        inner-padding="16px 24px"
+        padding="0"
+      ></mj-button>
+      <mj-font
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap"
+        name="Roboto"
+      ></mj-font>
+      <mj-section background-color="#fff" padding="0"></mj-section>
+      <mj-text font-family="Roboto" padding="0"></mj-text>
+    </mj-attributes>
+    <mj-style inline="inline">
+      .bg-white { background-color: #fff !important; }
+    </mj-style>
+    <mj-style inline="inline">
+      .border { border: 1px solid #ddd !important; }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#111f51">
+    <mj-section background-color="transparent" padding-top="40px">
+      <mj-column>
+        <mj-image
+          src="https://imgur.com/download/oMYywJ2/"
+          width="250px"
+        ></mj-image>
+      </mj-column>
+    </mj-section>
+    <mj-wrapper background-color="#111f51" padding="40px">
+      <mj-section
+        border-bottom="1px solid #ddd"
+        border-radius="6px 6px 0 0"
+        padding="36px 24px"
+      >
+        <mj-column>
+          <mj-text
+            align="center"
+            color="#1a202c"
+            font-size="24px"
+            font-weight="700"
+            line-height="36px"
+          >
+            {{inviter}}
+            shared a file with you.
+          </mj-text>
+        </mj-column>
+      </mj-section>
+      <mj-section background-color="#f4f4f4" padding-top="36px">
+        <mj-column>
+          {{#if message}}
+            <mj-text
+              align="center"
+              color="#2d3748"
+              font-size="18px"
+              font-weight="400"
+              line-height="32px"
+              padding="0 24px"
+            >
+              {{message}}
+            </mj-text>
+          {{/if}}
+          <mj-social
+            font-family="Roboto"
+            font-size="16px"
+            icon-size="32px"
+            mode="horizontal"
+            padding="24px"
+            text-padding="20px"
+          >
+            <mj-social-element
+              css-class="border"
+              href="{{url}}"
+              src="https://i.imgur.com/3DEFQEW.png"
+              padding="15px 0px 15px 15px"
+            >
+              {{filename}}
+            </mj-social-element>
+          </mj-social>
+        </mj-column>
+      </mj-section>
+      <mj-section
+        background-color="#f4f4f4"
+        border-radius="0 0 6px 6px"
+        padding-bottom="36px"
+      >
+        <mj-column>
+          <mj-button font-size="16px" href="{{url}}">
+            Open file
+          </mj-button>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

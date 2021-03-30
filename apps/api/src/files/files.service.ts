@@ -1,10 +1,13 @@
+import { ConfigType } from "@nestjs/config";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 
 import { File } from "@quicksend/transmit";
-import { TransmitService } from "@quicksend/nestjs-transmit";
-
 import { FindConditions } from "typeorm";
+import { URL } from "url";
+
+import { MailerService } from "@quicksend/nestjs-mailer";
+import { TransmitService } from "@quicksend/nestjs-transmit";
 
 import { FoldersService } from "../folders/folders.service";
 import { ItemsService } from "../items/items.service";
@@ -28,14 +31,21 @@ import {
   InsufficientPrivilegesException
 } from "./files.exceptions";
 
+import { httpNamespace } from "../config/config.namespaces";
+import { renderEmail } from "../common/utils/render-email.util";
+
 @Injectable()
 export class FilesService {
   constructor(
     private readonly folderService: FoldersService,
     private readonly itemsService: ItemsService,
+    private readonly mailerService: MailerService,
     private readonly transactionService: TransactionService,
     private readonly transmitService: TransmitService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+
+    @Inject(httpNamespace.KEY)
+    private readonly httpConfig: ConfigType<typeof httpNamespace>
   ) {}
 
   private get fileRepository() {
@@ -329,7 +339,8 @@ export class FilesService {
     fileConditions: FindConditions<FileEntity>,
     inviteeConditions: FindConditions<UserEntity> | null,
     privilege: FileInvitationPrivilegeEnum,
-    expiresAt: Date | null
+    expiresAt: Date | null,
+    notifyInvitee: boolean
   ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
@@ -369,7 +380,13 @@ export class FilesService {
         privilege
       });
 
-      return this.fileInvitationRepository.save(invitation);
+      await this.fileInvitationRepository.save(invitation);
+
+      if (notifyInvitee) {
+        await this.notifyFileInvitee(invitation);
+      }
+
+      return invitation;
     }
 
     // Otherwise, create an invitation for everyone
@@ -421,5 +438,30 @@ export class FilesService {
       .delete()
       .where("now() >= expiresAt")
       .execute();
+  }
+
+  private async notifyFileInvitee(
+    invitation: FileInvitationEntity
+  ): Promise<void> {
+    if (!invitation.invitee) {
+      return;
+    }
+
+    const email = await renderEmail("file-invitation", {
+      filename: invitation.file.name,
+      inviter: invitation.file.user.username,
+      message: `Here's the file that ${invitation.file.user.username} shared with you.`,
+      url: new URL(
+        `/files/${invitation.file.id}`,
+        this.httpConfig.frontendUrl.toString()
+      ),
+      username: invitation.invitee.username
+    });
+
+    await this.mailerService.send({
+      html: email,
+      subject: `${invitation.file.user.username} shared "${invitation.file.name}" with you.`,
+      to: invitation.invitee.email
+    });
   }
 }
