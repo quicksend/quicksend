@@ -1,6 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
-
 import { ConfigType } from "@nestjs/config";
+import { Inject, Injectable } from "@nestjs/common";
 
 import {
   ThrottlerModuleOptions,

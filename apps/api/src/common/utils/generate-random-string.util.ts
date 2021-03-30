@@ -1,4 +1,4 @@
-import * as crypto from "crypto";
+import crypto from "crypto";
 
 export const generateRandomString = (size = 4): Promise<string> => {
   return new Promise((resolve, reject) => {

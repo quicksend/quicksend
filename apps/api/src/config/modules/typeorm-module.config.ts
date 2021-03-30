@@ -1,7 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
-
 import { ConfigType } from "@nestjs/config";
-
+import { Inject, Injectable } from "@nestjs/common";
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from "@nestjs/typeorm";
 
 import { postgresNamespace } from "../config.namespaces";

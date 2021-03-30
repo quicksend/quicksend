@@ -1,7 +1,5 @@
-import { Inject, Injectable } from "@nestjs/common";
-
 import { ConfigType } from "@nestjs/config";
-
+import { Inject, Injectable } from "@nestjs/common";
 import { SharedBullConfigurationFactory } from "@nestjs/bull";
 
 import { QueueOptions } from "bull";

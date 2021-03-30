@@ -1,8 +1,8 @@
-import * as helmet from "helmet";
-import * as session from "express-session";
+import helmet from "helmet";
+import session from "express-session";
 
-import * as Redis from "ioredis";
-import * as RedisStore from "connect-redis";
+import Redis from "ioredis";
+import RedisStore from "connect-redis";
 
 import { ConfigType } from "@nestjs/config";
 import { Logger } from "@nestjs/common";

@@ -1,33 +1,31 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import path from "path";
 
-import { compile } from "handlebars";
+import handlebars from "handlebars";
+import mjml2html from "mjml";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const mjml2html = require("mjml");
-
-const mjmlDirectory = path.join(__dirname, "./assets/emails");
+export const MJML_DIRECTORY = path.join(__dirname, "./assets/emails");
 
 export const renderEmail = async (
   filename: string,
   context: Record<string, unknown> = {}
 ) => {
-  const location = path.join(mjmlDirectory, `${filename}.handlebars`);
+  const location = path.join(MJML_DIRECTORY, `${filename}.handlebars`);
 
   const mjml = await fs.promises.readFile(location, {
     encoding: "utf-8"
   });
 
-  const template = compile(mjml);
+  const template = handlebars.compile(mjml);
 
   const rendered = template(context);
 
   const { errors, html } = mjml2html(rendered, {
-    actualPath: mjmlDirectory
+    actualPath: MJML_DIRECTORY
   });
 
   if (errors.length > 0) {
-    throw new Error(errors);
+    throw new Error(errors.join("\n"));
   }
 
   return html;
