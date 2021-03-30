@@ -12,7 +12,9 @@ import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
   CantFindFileException,
+  CantFindFileDestinationException,
   CantFindFileInvitationException,
+  CantFindFileInvitee,
   FileConflictException,
   FileInviteeCannotBeOwner,
   FilesException,
@@ -28,7 +30,13 @@ export class FilesExceptionFilter
       case CantFindFileException:
         return super.catch(new NotFoundException(exception), host);
 
+      case CantFindFileDestinationException:
+        return super.catch(new NotFoundException(exception), host);
+
       case CantFindFileInvitationException:
+        return super.catch(new NotFoundException(exception), host);
+
+      case CantFindFileInvitee:
         return super.catch(new NotFoundException(exception), host);
 
       case FileConflictException:

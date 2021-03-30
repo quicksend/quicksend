@@ -49,16 +49,9 @@ import { UpdateFilePublicityDto } from "./dto/update-file-publicity.dto";
 import { UploadFileDto } from "./dto/upload-file.dto";
 
 import { FilesExceptionFilter } from "./files.filter";
-import { FoldersExceptionFilter } from "../folders/folders.filter";
-import { UserExceptionFilter } from "../user/user.filter";
 
 @Controller("files")
-@UseFilters(
-  FilesExceptionFilter,
-  FoldersExceptionFilter,
-  TransmitExceptionFilter,
-  UserExceptionFilter
-)
+@UseFilters(FilesExceptionFilter)
 @UseGuards(AuthGuard)
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
@@ -174,6 +167,7 @@ export class FilesController {
 
   @Post("upload")
   @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_CONTENTS)
+  @UseFilters(TransmitExceptionFilter)
   @UseInterceptors(TransmitInterceptor())
   upload(
     @CurrentUser() user: UserEntity,

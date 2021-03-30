@@ -6,9 +6,21 @@ export class CantFindFileException extends FilesException {
   }
 }
 
+export class CantFindFileDestinationException extends FilesException {
+  constructor() {
+    super("This file destination cannot be found.");
+  }
+}
+
 export class CantFindFileInvitationException extends FilesException {
   constructor() {
     super("This file invitation cannot be found.");
+  }
+}
+
+export class CantFindFileInvitee extends FilesException {
+  constructor() {
+    super("This file invitee cannot be found.");
   }
 }
 

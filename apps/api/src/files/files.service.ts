@@ -20,15 +20,13 @@ import { FileInvitationPrivilegeEnum } from "./enums/file-invitation-privilege.e
 
 import {
   CantFindFileException,
+  CantFindFileDestinationException,
   CantFindFileInvitationException,
+  CantFindFileInvitee,
   FileConflictException,
   FileInviteeCannotBeOwner,
   InsufficientPrivilegesException
 } from "./files.exceptions";
-
-import { CantFindDestinationFolderException } from "../folders/folders.exceptions";
-
-import { CantFindUserException } from "../user/user.exceptions";
 
 @Injectable()
 export class FilesService {
@@ -64,7 +62,7 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new CantFindDestinationFolderException();
+      throw new CantFindFileDestinationException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -219,7 +217,7 @@ export class FilesService {
     const destination = await this.folderService.findOne(to);
 
     if (!destination) {
-      throw new CantFindDestinationFolderException();
+      throw new CantFindFileDestinationException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -276,7 +274,7 @@ export class FilesService {
     const parent = await this.folderService.findOne(folderConditions);
 
     if (!parent) {
-      throw new CantFindDestinationFolderException();
+      throw new CantFindFileDestinationException();
     }
 
     const duplicate = await this.fileRepository.findOne({
@@ -346,7 +344,7 @@ export class FilesService {
     const invitee = await this.userService.findOne(inviteeConditions);
 
     if (!invitee) {
-      throw new CantFindUserException();
+      throw new CantFindFileInvitee();
     }
 
     if (file.user.id === invitee.id) {
@@ -393,7 +391,7 @@ export class FilesService {
       const invitee = await this.userService.findOne(inviteeConditions);
 
       if (!invitee) {
-        throw new CantFindUserException();
+        throw new CantFindFileInvitee();
       }
 
       const invitation = await this.fileInvitationRepository.findOne({
