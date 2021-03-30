@@ -379,34 +379,30 @@ export class FilesService {
    */
   async unshare(
     fileConditions: FindConditions<FileEntity>,
-    inviteeConditions?: FindConditions<UserEntity>
-  ): Promise<void> {
+    inviteeConditions: FindConditions<UserEntity>
+  ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
     if (!file) {
       throw new CantFindFileException();
     }
 
-    if (inviteeConditions) {
-      const invitee = await this.userService.findOne(inviteeConditions);
+    const invitee = await this.userService.findOne(inviteeConditions);
 
-      if (!invitee) {
-        throw new CantFindFileInvitee();
-      }
-
-      const invitation = await this.fileInvitationRepository.findOne({
-        invitee,
-        file
-      });
-
-      if (!invitation) {
-        throw new CantFindFileInvitationException();
-      }
-
-      await this.fileInvitationRepository.remove(invitation);
-    } else {
-      await this.fileInvitationRepository.delete({ file });
+    if (!invitee) {
+      throw new CantFindFileInvitee();
     }
+
+    const invitation = await this.fileInvitationRepository.findOne({
+      invitee,
+      file
+    });
+
+    if (!invitation) {
+      throw new CantFindFileInvitationException();
+    }
+
+    return this.fileInvitationRepository.remove(invitation);
   }
 
   @Cron(CronExpression.EVERY_MINUTE)
