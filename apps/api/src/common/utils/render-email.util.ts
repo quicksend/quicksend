@@ -1,22 +1,33 @@
-import * as ejs from "ejs";
+import * as fs from "fs";
 import * as path from "path";
+
+import { compile } from "handlebars";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const mjml2html = require("mjml");
 
 const mjmlDirectory = path.join(__dirname, "./assets/emails");
 
-export const renderEmail = async (mjmlTemplate: string, data?: ejs.Data) => {
-  const mjmlPath = path.join(mjmlDirectory, `${mjmlTemplate}.mjml`);
+export const renderEmail = async (
+  filename: string,
+  context: Record<string, unknown> = {}
+) => {
+  const location = path.join(mjmlDirectory, `${filename}.handlebars`);
 
-  const mjml = await ejs.renderFile(mjmlPath, data);
+  const mjml = await fs.promises.readFile(location, {
+    encoding: "utf-8"
+  });
 
-  const { errors, html } = mjml2html(mjml, {
+  const template = compile(mjml);
+
+  const rendered = template(context);
+
+  const { errors, html } = mjml2html(rendered, {
     actualPath: mjmlDirectory
   });
 
   if (errors.length > 0) {
-    throw new Error(errors.map((error: Error) => error.message).join("\n"));
+    throw new Error(errors);
   }
 
   return html;

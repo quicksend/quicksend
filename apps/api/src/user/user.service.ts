@@ -323,6 +323,7 @@ export class UserService {
     );
 
     const email = await renderEmail("email-changed", {
+      date: new Date().toUTCString(),
       newEmail: user.email,
       url: resetEmailUrl,
       username: user.username
@@ -342,6 +343,7 @@ export class UserService {
     );
 
     const email = await renderEmail("password-changed", {
+      date: new Date().toUTCString(),
       url: resetPasswordUrl.href,
       username: user.username
     });
