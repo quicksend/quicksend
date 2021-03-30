@@ -23,10 +23,9 @@ export class FileInvitationEntity extends BaseEntity {
 
   @JoinColumn()
   @OneToOne(() => UserEntity, {
-    eager: true,
-    nullable: false
+    eager: true
   })
-  invitee!: UserEntity;
+  invitee!: UserEntity | null;
 
   @Column({
     default: FileInvitationPrivilegeEnum.READ_ONLY,

@@ -3,9 +3,9 @@ import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { Request } from "../interfaces/request.interface";
 
 export const CurrentUser = createParamDecorator(
-  (field: keyof Request["user"], ctx: ExecutionContext) => {
+  (_data: unknown, ctx: ExecutionContext) => {
     const { user } = ctx.switchToHttp().getRequest<Request>();
 
-    return field ? user && user[field] : user;
+    return user || null;
   }
 );

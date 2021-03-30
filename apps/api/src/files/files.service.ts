@@ -91,7 +91,7 @@ export class FilesService {
    */
   async createReadableStream(
     conditions: FindConditions<FileEntity>,
-    user: UserEntity
+    user: UserEntity | null
   ): Promise<NodeJS.ReadableStream> {
     const file = await this.fileRepository.findOne(conditions);
 
@@ -156,7 +156,7 @@ export class FilesService {
    */
   async findOneOrFail(
     conditions: FindConditions<FileEntity>,
-    user: UserEntity
+    user: UserEntity | null
   ): Promise<FileEntity> {
     const file = await this.fileRepository.findOne(conditions);
 
@@ -182,16 +182,16 @@ export class FilesService {
    */
   async hasPrivilege(
     file: FileEntity,
-    user: UserEntity,
+    user: UserEntity | null,
     privilege: FileInvitationPrivilegeEnum
   ): Promise<boolean> {
-    if (file.public || file.user.id === user.id) {
+    if (user && file.user.id === user.id) {
       return true;
     }
 
     const invitation = await this.fileInvitationRepository.findOne({
-      invitee: user,
-      file
+      file,
+      invitee: user
     });
 
     if (!invitation || invitation.expired) {
@@ -303,26 +303,22 @@ export class FilesService {
       name: metadata.name,
       item,
       parent,
-      public: isPublic,
       user: parent.user
     });
 
-    return this.fileRepository.save(file);
-  }
+    await this.fileRepository.save(file);
 
-  async setPublicity(
-    conditions: FindConditions<FileEntity>,
-    isPublic: boolean
-  ): Promise<FileEntity> {
-    const file = await this.fileRepository.findOne(conditions);
+    if (isPublic) {
+      const invitation = this.fileInvitationRepository.create({
+        file,
+        invitee: null,
+        privilege: FileInvitationPrivilegeEnum.READ_ONLY
+      });
 
-    if (!file) {
-      throw new CantFindFileException();
+      await this.fileInvitationRepository.save(invitation);
     }
 
-    file.public = isPublic;
-
-    return this.fileRepository.save(file);
+    return file;
   }
 
   /**
@@ -331,9 +327,9 @@ export class FilesService {
    */
   async share(
     fileConditions: FindConditions<FileEntity>,
-    inviteeConditions: FindConditions<UserEntity>,
+    inviteeConditions: FindConditions<UserEntity> | null,
     privilege: FileInvitationPrivilegeEnum,
-    expiresAt?: Date
+    expiresAt: Date | null
   ): Promise<FileInvitationEntity> {
     const file = await this.fileRepository.findOne(fileConditions);
 
@@ -341,33 +337,46 @@ export class FilesService {
       throw new CantFindFileException();
     }
 
-    const invitee = await this.userService.findOne(inviteeConditions);
-
-    if (!invitee) {
-      throw new CantFindFileInvitee();
-    }
-
-    if (file.user.id === invitee.id) {
-      throw new FileInviteeCannotBeOwner();
-    }
-
     const duplicate = await this.fileInvitationRepository.findOne({
-      invitee,
-      file
+      file,
+      invitee: null
     });
 
     // Update the invitation if the user is already invited to this file
     if (duplicate) {
-      duplicate.expiresAt = expiresAt || null;
+      duplicate.expiresAt = expiresAt;
       duplicate.privilege = privilege;
 
       return this.fileInvitationRepository.save(duplicate);
     }
 
+    // If it is shared to a specific person
+    if (inviteeConditions) {
+      const invitee = await this.userService.findOne(inviteeConditions);
+
+      if (!invitee) {
+        throw new CantFindFileInvitee();
+      }
+
+      if (file.user.id === invitee.id) {
+        throw new FileInviteeCannotBeOwner();
+      }
+
+      const invitation = this.fileInvitationRepository.create({
+        expiresAt,
+        file,
+        invitee,
+        privilege
+      });
+
+      return this.fileInvitationRepository.save(invitation);
+    }
+
+    // Otherwise, create an invitation for everyone
     const invitation = this.fileInvitationRepository.create({
       expiresAt,
-      invitee,
       file,
+      invitee: null,
       privilege
     });
 

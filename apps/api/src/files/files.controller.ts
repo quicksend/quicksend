@@ -45,7 +45,6 @@ import { CopyFileDto } from "./dto/copy-file.dto";
 import { MoveFileDto } from "./dto/move-file.dto";
 import { RenameFileDto } from "./dto/rename-file.dto";
 import { ShareFileDto } from "./dto/share-file.dto";
-import { UpdateFilePublicityDto } from "./dto/update-file-publicity.dto";
 import { UploadFileDto } from "./dto/upload-file.dto";
 
 import { FilesExceptionFilter } from "./files.filter";
@@ -57,9 +56,10 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Get(":id")
+  @OptionalAuth()
   @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_METADATA)
   find(
-    @CurrentUser() user: UserEntity,
+    @CurrentUser() user: UserEntity | null,
     @Param("id") id: string
   ): Promise<FileEntity> {
     return this.filesService.findOneOrFail({ id }, user);
@@ -88,7 +88,7 @@ export class FilesController {
   @OptionalAuth()
   @UseApplicationScopes(ApplicationScopesEnum.READ_FILE_CONTENTS)
   async download(
-    @CurrentUser() user: UserEntity,
+    @CurrentUser() user: UserEntity | null,
     @Param("id") id: string,
     @Res() response: Response
   ): Promise<void> {
@@ -137,7 +137,7 @@ export class FilesController {
   ): Promise<FileInvitationEntity> {
     return this.filesService.share(
       { id, user },
-      { id: dto.invitee },
+      dto.invitee ? { id: dto.invitee } : null,
       dto.privilege,
       dto.expiresAt
     );
@@ -151,16 +151,6 @@ export class FilesController {
     @Param("invitation") invitation: string
   ): Promise<FileInvitationEntity> {
     return this.filesService.unshare({ id, user }, { id: invitation });
-  }
-
-  @Patch(":id/update-publicity")
-  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FILE_METADATA)
-  updatePublicity(
-    @Body() dto: UpdateFilePublicityDto,
-    @CurrentUser() user: UserEntity,
-    @Param("id") id: string
-  ): Promise<FileEntity> {
-    return this.filesService.setPublicity({ id, user }, dto.isPublic);
   }
 
   @Post("upload")

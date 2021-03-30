@@ -29,11 +29,6 @@ export class FileEntity extends BaseEntity {
   })
   parent!: FolderEntity;
 
-  @Column({
-    default: false
-  })
-  public!: boolean;
-
   @ManyToOne(() => UserEntity, {
     eager: true,
     nullable: false

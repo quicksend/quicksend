@@ -16,11 +16,11 @@ export class ShareFileDto {
   @IsOptional()
   @MinDate(new Date())
   @Type(() => Date)
-  expiresAt?: Date;
+  expiresAt: Date | null = null;
 
   @IsNotEmpty()
   @IsString()
-  invitee!: string;
+  invitee: string | null = null;
 
   @IsEnum(FileInvitationPrivilegeEnum)
   privilege!: FileInvitationPrivilegeEnum;
