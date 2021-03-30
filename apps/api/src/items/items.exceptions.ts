@@ -1,6 +1,6 @@
 export class ItemsException extends Error {}
 
-export class CannotFindItemException extends ItemsException {
+export class CantFindItemException extends ItemsException {
   constructor() {
     super("This item cannot be found.");
   }

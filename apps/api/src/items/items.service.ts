@@ -11,7 +11,7 @@ import { TransactionService } from "../transaction/transaction.service";
 import { ItemEntity } from "./item.entity";
 import { ItemRepository } from "./item.repository";
 
-import { CannotFindItemException } from "./items.exceptions";
+import { CantFindItemException } from "./items.exceptions";
 
 @Injectable()
 export class ItemsService {
@@ -33,7 +33,7 @@ export class ItemsService {
     const item = await this.itemRepository.findOne(conditions);
 
     if (!item) {
-      throw new CannotFindItemException();
+      throw new CantFindItemException();
     }
 
     return this.storageService.createReadableStream(item.discriminator);
@@ -46,7 +46,7 @@ export class ItemsService {
     const item = await this.itemRepository.findOne(conditions);
 
     if (!item) {
-      throw new CannotFindItemException();
+      throw new CantFindItemException();
     }
 
     await this.itemRepository.remove(item);

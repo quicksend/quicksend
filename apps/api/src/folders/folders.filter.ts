@@ -27,21 +27,13 @@ export class FoldersExceptionFilter
   implements ExceptionFilter {
   catch(exception: FoldersException, host: ArgumentsHost): void {
     switch (exception.constructor) {
-      case CantDeleteFolderException:
-        return super.catch(new ForbiddenException(exception), host);
-
       case CantFindDestinationFolderException:
-        return super.catch(new NotFoundException(exception), host);
-
       case CantFindFolderException:
         return super.catch(new NotFoundException(exception), host);
 
+      case CantDeleteFolderException:
       case CantMoveFolderException:
-        return super.catch(new ForbiddenException(exception), host);
-
       case CantMoveFolderIntoChildrenException:
-        return super.catch(new ForbiddenException(exception), host);
-
       case CantMoveFolderIntoItselfException:
         return super.catch(new ForbiddenException(exception), host);
 

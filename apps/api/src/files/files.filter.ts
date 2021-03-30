@@ -28,14 +28,8 @@ export class FilesExceptionFilter
   catch(exception: FilesException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case CantFindFileException:
-        return super.catch(new NotFoundException(exception), host);
-
       case CantFindFileDestinationException:
-        return super.catch(new NotFoundException(exception), host);
-
       case CantFindFileInvitationException:
-        return super.catch(new NotFoundException(exception), host);
-
       case CantFindFileInvitee:
         return super.catch(new NotFoundException(exception), host);
 
@@ -43,8 +37,6 @@ export class FilesExceptionFilter
         return super.catch(new ConflictException(exception), host);
 
       case FileInviteeCannotBeOwner:
-        return super.catch(new ForbiddenException(exception), host);
-
       case InsufficientPrivilegesException:
         return super.catch(new ForbiddenException(exception), host);
 
