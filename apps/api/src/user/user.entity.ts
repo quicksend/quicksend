@@ -3,7 +3,7 @@ import * as argon2 from "argon2";
 import { Column, Entity } from "typeorm";
 
 import { Exclude } from "class-transformer";
-import { IsAlphanumeric, IsEmail, ValidateIf } from "class-validator";
+import { IsAlphanumeric, IsEmail } from "class-validator";
 
 import { BaseEntity } from "../common/entities/base.entity";
 
@@ -18,14 +18,11 @@ export class UserEntity extends BaseEntity {
   activationToken!: string | null;
 
   @Column({
-    nullable: true,
-    type: "varchar",
     unique: true
   })
   @Exclude()
   @IsEmail()
-  @ValidateIf((_object, value) => value !== null)
-  email!: string; // null if user is deleted
+  email!: string;
 
   @Column({
     nullable: true,
