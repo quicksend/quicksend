@@ -1,10 +1,12 @@
-import { Request as ExpressRequest } from "express";
+import { Request as BaseRequest } from "express";
 
 import { Session } from "./session.interface";
 
-import { UserEntity } from "../../user/user.entity";
+import { Application } from "../../applications/entities/application.entity";
+import { User } from "../../user/entities/user.entity";
 
-export interface Request extends ExpressRequest {
+export interface Request extends BaseRequest {
+  application?: Application;
   session: Session;
-  user?: UserEntity;
+  user?: User;
 }

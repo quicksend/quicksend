@@ -1,8 +1,6 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-*.env
-.env.*
-!.env.example
+config.yaml
 
 # compiled output
 /dist
@@ -33,10 +31,11 @@
 /connect.lock
 /coverage
 /libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
+/migrations
 /typings
+npm-debug.log
+testem.log
+yarn-error.log
 
 # System Files
 .DS_Store

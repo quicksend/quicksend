@@ -1,26 +1,27 @@
 import { Global, Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
+
+import { MailerModule } from "../mailer/mailer.module";
+import { FoldersModule } from "../folders/folders.module";
 
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
-import { UserSubscriber } from "./user.subscriber";
 
-import { EmailConfirmationEntity } from "./entities/email-confirmation.entity";
-import { PasswordResetEntity } from "./entities/password-reset.entity";
-import { UserEntity } from "./user.entity";
+import { UserSubscriber } from "./subscribers/user.subscriber";
 
-import { FoldersModule } from "../folders/folders.module";
+import { ActivationToken } from "./entities/activation-token.entity";
+import { EmailConfirmation } from "./entities/email-confirmation.entity";
+import { PasswordReset } from "./entities/password-reset.entity";
+import { User } from "./entities/user.entity";
 
 @Global()
 @Module({
   imports: [
     FoldersModule,
 
-    TypeOrmModule.forFeature([
-      EmailConfirmationEntity,
-      PasswordResetEntity,
-      UserEntity
-    ])
+    MailerModule,
+
+    MikroOrmModule.forFeature([ActivationToken, EmailConfirmation, PasswordReset, User])
   ],
   controllers: [UserController],
   exports: [UserService],

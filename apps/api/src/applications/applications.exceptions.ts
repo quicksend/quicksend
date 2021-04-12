@@ -8,6 +8,6 @@ export class ApplicationConflictException extends ApplicationsException {
 
 export class CantFindApplicationException extends ApplicationsException {
   constructor() {
-    super("This application cannot be found.");
+    super("The application cannot be found.");
   }
 }

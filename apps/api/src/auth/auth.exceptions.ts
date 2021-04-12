@@ -1,13 +1,13 @@
-export class AuthenticationException extends Error {}
+export class AuthException extends Error {}
 
-export class InvalidLoginCredentialsException extends AuthenticationException {
+export class InvalidLoginCredentialsException extends AuthException {
   constructor() {
     super("Invalid login credentials!");
   }
 }
 
-export class UserNotActivatedException extends AuthenticationException {
+export class UserNotActivatedException extends AuthException {
   constructor() {
-    super("Your account is not activated!");
+    super("The user account is not activated.");
   }
 }

@@ -7,79 +7,83 @@ import {
   Patch,
   Post,
   UseFilters,
-  UseGuards
+  UseInterceptors
 } from "@nestjs/common";
 
+import { Auth } from "../common/decorators/auth.decorator";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
-import { UseApplicationScopes } from "../common/decorators/use-application-scopes.decorator";
 
-import { AuthGuard } from "../common/guards/auth.guard";
+import { TransactionalInterceptor } from "../common/interceptors/transactional.interceptor";
 
-import { ApplicationScopesEnum } from "../applications/enums/application-scopes.enum";
-
-import { FolderEntity } from "./folder.entity";
-import { UserEntity } from "../user/user.entity";
+import { ApplicationScopes } from "../applications/enums/application-scopes.enum";
 
 import { FoldersService } from "./folders.service";
 
-import { FoldersExceptionFilter } from "./folders.filter";
+import { Folder } from "./entities/folder.entity";
+import { User } from "../user/entities/user.entity";
 
 import { CreateFolderDto } from "./dto/create-folder.dto";
 import { MoveFolderDto } from "./dto/move-folder.dto";
 import { RenameFolderDto } from "./dto/rename-folder.dto";
 
+import { FoldersExceptionFilter } from "./folders.filter";
+
 @Controller("folders")
 @UseFilters(FoldersExceptionFilter)
-@UseGuards(AuthGuard)
 export class FolderController {
   constructor(private readonly foldersService: FoldersService) {}
 
+  @Auth({ scopes: [ApplicationScopes.CREATE_FOLDERS] })
   @Post()
-  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  create(
-    @Body() dto: CreateFolderDto,
-    @CurrentUser() user: UserEntity
-  ): Promise<FolderEntity> {
-    return this.foldersService.create(dto.name, dto.parent, user);
+  @UseInterceptors(TransactionalInterceptor)
+  create(@Body() dto: CreateFolderDto, @CurrentUser() user: User): Promise<Folder> {
+    return this.foldersService.create({
+      name: dto.name,
+      parent: { id: dto.parent },
+      user
+    });
   }
 
+  @Auth({ scopes: [ApplicationScopes.BROWSE_FOLDERS] })
   @Get(":id?")
-  @UseApplicationScopes(ApplicationScopesEnum.READ_FOLDER_METADATA)
-  find(
-    @CurrentUser() user: UserEntity,
-    @Param("id") id?: string
-  ): Promise<FolderEntity> {
+  find(@CurrentUser() user: User, @Param("id") id?: string): Promise<Folder> {
     return id
       ? this.foldersService.findOneOrFail({ id, user })
       : this.foldersService.findOneOrFail({ parent: null, user });
   }
 
+  @Auth({ scopes: [ApplicationScopes.DELETE_FOLDERS] })
   @Delete(":id/delete")
-  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
-  delete(
-    @CurrentUser() user: UserEntity,
-    @Param("id") id: string
-  ): Promise<FolderEntity> {
-    return this.foldersService.deleteOne({ id, user });
+  delete(@CurrentUser() user: User, @Param("id") id: string): Promise<Folder> {
+    return this.foldersService.deleteOne({
+      folder: { id, user }
+    });
   }
 
+  @Auth({ scopes: [ApplicationScopes.MOVE_FOLDERS] })
   @Patch(":id/move")
-  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
+  @UseInterceptors(TransactionalInterceptor)
   move(
     @Body() dto: MoveFolderDto,
-    @CurrentUser() user: UserEntity,
+    @CurrentUser() user: User,
     @Param("id") id: string
-  ): Promise<FolderEntity> {
-    return this.foldersService.move({ id, user }, { id: dto.parent, user });
+  ): Promise<Folder> {
+    return this.foldersService.move({
+      destination: { id: dto.parent, user },
+      source: { id, user }
+    });
   }
 
+  @Auth({ scopes: [ApplicationScopes.RENAME_FOLDERS] })
   @Patch(":id/rename")
-  @UseApplicationScopes(ApplicationScopesEnum.WRITE_FOLDER_METADATA)
   rename(
     @Body() dto: RenameFolderDto,
-    @CurrentUser() user: UserEntity,
+    @CurrentUser() user: User,
     @Param("id") id: string
-  ): Promise<FolderEntity> {
-    return this.foldersService.rename({ id, user }, dto.name);
+  ): Promise<Folder> {
+    return this.foldersService.rename({
+      folder: { id, user },
+      name: dto.name
+    });
   }
 }

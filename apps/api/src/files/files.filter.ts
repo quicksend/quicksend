@@ -17,14 +17,13 @@ import {
   CantFindFileInvitee,
   FileConflictException,
   FileInviteeCannotBeOwner,
+  FileInviteeCannotBeSelf,
   FilesException,
   InsufficientPrivilegesException
 } from "./files.exceptions";
 
 @Catch(FilesException)
-export class FilesExceptionFilter
-  extends HttpExceptionFilter
-  implements ExceptionFilter {
+export class FilesExceptionFilter extends HttpExceptionFilter implements ExceptionFilter {
   catch(exception: FilesException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case CantFindFileException:
@@ -37,6 +36,7 @@ export class FilesExceptionFilter
         return super.catch(new ConflictException(exception), host);
 
       case FileInviteeCannotBeOwner:
+      case FileInviteeCannotBeSelf:
       case InsufficientPrivilegesException:
         return super.catch(new ForbiddenException(exception), host);
 

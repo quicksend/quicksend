@@ -3,98 +3,131 @@ import {
   CanActivate,
   ExecutionContext,
   HttpService,
-  Inject,
   Injectable,
-  InternalServerErrorException
+  Type,
+  mixin
 } from "@nestjs/common";
 
-import { ConfigType } from "@nestjs/config";
-
-import { Reflector } from "@nestjs/core";
+import { ConfigService } from "@nestjs/config";
 
 import { Request } from "express";
+import { URL, URLSearchParams } from "url";
 
 import { getClientIp } from "request-ip";
-import { stringify } from "querystring";
 
-import { secretsNamespace } from "../../config/config.namespaces";
+import { Config } from "../../common/config/config.interface";
 
-const RECAPTCHA_FAILED = "reCAPTCHA failed, please try again!";
-const RECAPTCHA_MISSING = "Please complete the reCAPTCHA!";
-const RECAPTCHA_UNEXPECTED_RESULT = "Action or score metadata not provided for v3 reCAPTCHA!"; // prettier-ignore
-const RECAPTCHA_URL = "https://www.google.com/recaptcha/api/siteverify";
+interface RecaptchaVerificationResult {
+  action?: string; // only defined if it is recaptcha v3
+  // eslint-disable-next-line camelcase
+  challenge_ts: string; // timestamp of the challenge load (ISO format yyyy-MM-dd'T'HH:mm:ssZZ)
+  "error-codes"?: RecaptchaErrorCode[];
+  hostname: string; // the hostname of the site where the reCAPTCHA was solved
+  score?: number; // only defined if it is recaptcha v3
+  success: boolean;
+}
 
-export const RECAPTCHA_ACTION_KEY = "RECAPTCHA_ACTION";
-export const RECAPTCHA_SCORE_KEY = "RECAPTCHA_SCORE";
+type RecaptchaErrorCode =
+  | "bad-request"
+  | "invalid-input-response"
+  | "invalid-input-secret"
+  | "missing-input-response"
+  | "missing-input-secret"
+  | "timeout-or-duplicate";
 
-@Injectable()
-export class RecaptchaGuard implements CanActivate {
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly reflector: Reflector,
+export interface RecaptchaGuardOptions {
+  action: string;
+  score: number;
+}
 
-    @Inject(secretsNamespace.KEY)
-    private readonly secretsConfig: ConfigType<typeof secretsNamespace>
-  ) {}
+export const RecaptchaGuard = (options?: RecaptchaGuardOptions): Type<CanActivate> => {
+  @Injectable()
+  class RecaptchaMixinGuard implements CanActivate {
+    constructor(
+      private readonly configService: ConfigService<Config>,
+      private readonly httpService: HttpService
+    ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const action = this._getMetadata<string>(RECAPTCHA_ACTION_KEY, context);
-    const score = this._getMetadata<number>(RECAPTCHA_SCORE_KEY, context);
+    private get secret(): string {
+      const recaptcha = this.configService.get("recaptcha") as Config["recaptcha"];
 
-    const req = context.switchToHttp().getRequest<Request>();
-
-    if (!req.body.recaptcha) {
-      throw new BadRequestException(RECAPTCHA_MISSING);
+      return recaptcha.secret;
     }
 
-    const result = await this.httpService
-      .post(
-        RECAPTCHA_URL,
-        stringify({
-          remoteip: getClientIp(req),
-          response: req.body.recaptcha,
-          secret: this.secretsConfig.recaptcha
-        })
-      )
-      .toPromise()
-      .then((res) => {
-        const body = res.data;
-        const errorCodes = body["error-codes"];
-        const filterFn = (err: string) => err.endsWith("secret");
+    private get url(): string {
+      const recaptcha = this.configService.get("recaptcha") as Config["recaptcha"];
+      const url = new URL("/recaptcha/api/siteverify", recaptcha.url);
 
-        if (!errorCodes || !errorCodes.length || !errorCodes.some(filterFn)) {
-          return body;
+      return url.toString();
+    }
+
+    async canActivate(ctx: ExecutionContext): Promise<boolean> {
+      const req = ctx.switchToHttp().getRequest<Request>();
+
+      if (!req.body.recaptcha) {
+        throw new BadRequestException("Please complete the reCAPTCHA!");
+      }
+
+      const ip = getClientIp(req) || undefined;
+
+      const verification = await this.verifyRecaptchaResponse(req.body.recaptcha, ip);
+
+      if (verification["error-codes"] && verification["error-codes"].length) {
+        throw this.createExceptionFromErrorCode(verification["error-codes"][0]);
+      }
+
+      if (!verification.success) {
+        throw this.createExceptionFromErrorCode("invalid-input-response");
+      }
+
+      // For reCAPTCHA v3 only
+      if (verification.action && verification.score) {
+        if (!options) {
+          throw new Error("Action or score not provided for reCAPTCHA v3!");
         }
 
-        return { error: errorCodes.filter(filterFn).join(", ") };
-      })
-      .catch((error) => ({ error }));
-
-    if (result.error) {
-      throw new InternalServerErrorException(result.error);
-    }
-
-    if (!result.success) {
-      throw new BadRequestException(RECAPTCHA_FAILED);
-    }
-
-    if (result.action && result.score) {
-      if (!action || !score) {
-        throw new InternalServerErrorException(RECAPTCHA_UNEXPECTED_RESULT);
+        if (verification.action !== options.action || verification.score < options.score) {
+          throw this.createExceptionFromErrorCode("invalid-input-response");
+        }
       }
 
-      if (result.action !== action || result.score < score) {
-        throw new BadRequestException(RECAPTCHA_FAILED);
+      return true;
+    }
+
+    private createExceptionFromErrorCode(code: RecaptchaErrorCode): Error {
+      switch (code) {
+        case "bad-request":
+        case "invalid-input-response":
+        case "timeout-or-duplicate":
+          return new BadRequestException("reCAPTCHA failed, please try again.");
+
+        case "invalid-input-secret":
+          return new Error("Invalid reCAPTCHA secret.");
+
+        case "missing-input-response":
+          return new Error("Missing reCAPTCHA response from user.");
+
+        case "missing-input-secret":
+          return new Error("Missing reCAPTCHA secret.");
       }
     }
 
-    return true;
+    private verifyRecaptchaResponse(
+      response: string,
+      ip?: string
+    ): Promise<RecaptchaVerificationResult> {
+      const params = new URLSearchParams({
+        remoteip: ip,
+        response,
+        secret: this.secret
+      });
+
+      return this.httpService
+        .post<RecaptchaVerificationResult>(this.url, params.toString())
+        .toPromise()
+        .then((res) => res.data);
+    }
   }
 
-  private _getMetadata<T>(
-    key: string,
-    context: ExecutionContext
-  ): T | undefined {
-    return this.reflector.get<T | undefined>(key, context.getHandler());
-  }
-}
+  return mixin(RecaptchaMixinGuard);
+};

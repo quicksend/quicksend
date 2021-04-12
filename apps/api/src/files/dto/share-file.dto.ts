@@ -1,31 +1,41 @@
 import {
+  ArrayUnique,
   IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  MaxLength,
   MinDate
 } from "class-validator";
 
 import { Type } from "class-transformer";
 
-import { FileInvitationPrivilegeEnum } from "../enums/file-invitation-privilege.enum";
+import { VirtualFileInvitationPrivileges } from "../enums/virtual-file-invitation-privilege.enum";
 
 export class ShareFileDto {
   @IsDate()
   @IsOptional()
   @MinDate(new Date())
   @Type(() => Date)
-  expiresAt: Date | null = null;
+  expiresAt?: Date;
 
   @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  invitee: string | null = null;
+  invitee?: string;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
+  message?: string;
 
   @IsBoolean()
   notifyInvitee = true;
 
-  @IsEnum(FileInvitationPrivilegeEnum)
-  privilege!: FileInvitationPrivilegeEnum;
+  @ArrayUnique()
+  @IsEnum(VirtualFileInvitationPrivileges, { each: true })
+  privileges!: VirtualFileInvitationPrivileges[];
 }

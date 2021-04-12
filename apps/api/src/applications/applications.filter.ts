@@ -16,9 +16,7 @@ import {
 } from "./applications.exceptions";
 
 @Catch(ApplicationsException)
-export class ApplicationsExceptionFilter
-  extends HttpExceptionFilter
-  implements ExceptionFilter {
+export class ApplicationsExceptionFilter extends HttpExceptionFilter implements ExceptionFilter {
   catch(exception: ApplicationsException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case ApplicationConflictException:

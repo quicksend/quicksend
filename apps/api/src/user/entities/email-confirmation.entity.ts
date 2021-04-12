@@ -1,41 +1,49 @@
-import { BeforeInsert, Column, Entity, ManyToOne } from "typeorm";
+import { BeforeCreate, Entity, ManyToOne, Property, Unique } from "@mikro-orm/core";
+import { IsEmail } from "class-validator";
 
 import { BaseEntity } from "../../common/entities/base.entity";
-import { UserEntity } from "../user.entity";
+
+import { User } from "./user.entity";
 
 import { generateRandomString } from "../../common/utils/generate-random-string.util";
 
-@Entity("email_confirmation")
-export class EmailConfirmationEntity extends BaseEntity {
-  @Column()
-  expiresAt!: Date;
+@Entity()
+export class EmailConfirmation extends BaseEntity {
+  @Property()
+  expiresAt: Date = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
 
-  @Column()
+  @IsEmail()
+  @Property()
   newEmail!: string;
 
-  @Column()
+  @IsEmail()
+  @Property()
   oldEmail!: string;
 
-  @Column({
-    unique: true
-  })
+  @Property()
+  @Unique()
   token!: string;
 
-  @ManyToOne(() => UserEntity, {
+  @ManyToOne(() => User, {
     eager: true,
-    nullable: false
+    onDelete: "CASCADE"
   })
-  user!: UserEntity;
+  user!: User;
 
-  get expired() {
+  @Property({ persist: false })
+  get expired(): boolean {
     return Date.now() >= this.expiresAt.getTime();
   }
 
-  @BeforeInsert()
-  async beforeInsert() {
-    this.expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-    this.token = await generateRandomString(16);
+  @Property({ persist: false })
+  get valid(): boolean {
+    return !this.expired && this.user.activated && !this.user.deleted;
+  }
 
-    return super.beforeInsert();
+  @BeforeCreate()
+  async beforeCreate(): Promise<void> {
+    this.token = await generateRandomString(36);
+
+    return super.beforeCreate();
   }
 }

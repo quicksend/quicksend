@@ -4,59 +4,47 @@ import { BullModule, InjectQueue } from "@nestjs/bull";
 
 import {
   ClassSerializerInterceptor,
-  Global,
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod
 } from "@nestjs/common";
 
+import { ConfigModule } from "@nestjs/config";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { ScheduleModule } from "@nestjs/schedule";
 import { ThrottlerGuard, ThrottlerModule } from "nestjs-throttler";
-import { TypeOrmModule } from "@nestjs/typeorm";
 
-import { MailerModule } from "@quicksend/nestjs-mailer";
-
-import {
-  RequestContextInterceptor,
-  RequestContextModule
-} from "@quicksend/nestjs-request-context";
-
-import { BullAdapter, router, setQueues } from "bull-board";
+import { BullAdapter, router as BullBoard, setQueues } from "bull-board";
 import { Queue } from "bull";
 
-import { AppController } from "./app.controller";
-
-import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
-import { ThrottlerExceptionFilter } from "../common/filters/throttler-exception.filter";
-import { ValidationExceptionFilter } from "../common/filters/validation-exception.filter";
-
-import { RequestContext } from "../common/contexts/request.context";
-
+import { EntityManagerContextMiddleware } from "../common/middlewares/entity-manager-context.middleware";
 import { SessionCheckMiddleware } from "../common/middlewares/session-check.middleware";
 
 import { ValidationPipe } from "../common/pipes/validation.pipe";
 
 import { ApplicationsModule } from "../applications/applications.module";
 import { AuthModule } from "../auth/auth.module";
-import { ConfigModule } from "../config/config.module";
 import { FilesModule } from "../files/files.module";
 import { FoldersModule } from "../folders/folders.module";
-import { ItemsModule } from "../items/items.module";
+import { MailerModule } from "../mailer/mailer.module";
+import { RepositoriesModule } from "../repositories/repositories.module";
 import { StorageModule } from "../storage/storage.module";
-import { TransactionModule } from "../transaction/transaction.module";
 import { UserModule } from "../user/user.module";
 
-import { MailerModuleConfig } from "../config/modules/mailer-module.config";
-import { SharedBullModuleConfig } from "../config/modules/shared-bull-module.config";
-import { ThrottlerModuleConfig } from "../config/modules/throttler-module.config";
-import { TypeOrmModuleConfig } from "../config/modules/typeorm-module.config";
-
+import { MailerProcessor } from "../mailer/mailer.processor";
 import { StorageProcessor } from "../storage/storage.processor";
 
-import { TransactionInterceptor } from "../transaction/transaction.interceptor";
+import { MikroOrmModuleConfig } from "../common/config/modules/mikro-orm-module.config";
+import { SharedBullModuleConfig } from "../common/config/modules/shared-bull-module.config";
+import { ThrottlerModuleConfig } from "../common/config/modules/throttler-module.config";
 
-@Global()
+import { AllExceptionsFilter } from "../common/filters/all-exception.filter";
+import { ThrottlerExceptionFilter } from "../common/filters/throttler-exception.filter";
+import { ValidationExceptionFilter } from "../common/filters/validation-exception.filter";
+
+import { configFactory } from "../common/config/config.factory";
+
 @Module({
   imports: [
     ApplicationsModule,
@@ -67,21 +55,23 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
       useClass: SharedBullModuleConfig
     }),
 
-    ConfigModule,
+    ConfigModule.forRoot({
+      cache: true,
+      isGlobal: true,
+      load: [configFactory]
+    }),
 
     FilesModule,
 
     FoldersModule,
 
-    ItemsModule,
+    MailerModule,
 
-    MailerModule.registerAsync({
-      useClass: MailerModuleConfig
+    MikroOrmModule.forRootAsync({
+      useClass: MikroOrmModuleConfig
     }),
 
-    RequestContextModule.register({
-      context: RequestContext
-    }),
+    RepositoriesModule,
 
     ScheduleModule.forRoot(),
 
@@ -91,20 +81,12 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
       useClass: ThrottlerModuleConfig
     }),
 
-    TypeOrmModule.forRootAsync({
-      useClass: TypeOrmModuleConfig
-    }),
-
-    TransactionModule,
-
     UserModule
   ],
-  controllers: [AppController],
-  exports: [MailerModule, TransactionModule],
   providers: [
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionFilter
+      useClass: AllExceptionsFilter
     },
     {
       provide: APP_FILTER,
@@ -123,14 +105,6 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
       useClass: ClassSerializerInterceptor
     },
     {
-      provide: APP_INTERCEPTOR,
-      useClass: RequestContextInterceptor()
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: TransactionInterceptor()
-    },
-    {
       provide: APP_PIPE,
       useFactory: ValidationPipe
     }
@@ -138,18 +112,21 @@ import { TransactionInterceptor } from "../transaction/transaction.interceptor";
 })
 export class AppModule implements NestModule {
   constructor(
+    @InjectQueue(MailerProcessor.QUEUE_NAME) mailerProcessor: Queue,
     @InjectQueue(StorageProcessor.QUEUE_NAME) storageProcessor: Queue
   ) {
-    setQueues([new BullAdapter(storageProcessor)]);
+    setQueues([new BullAdapter(mailerProcessor), new BullAdapter(storageProcessor)]);
   }
 
   configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(SessionCheckMiddleware)
-      .forRoutes({ method: RequestMethod.ALL, path: "*" });
+    consumer.apply(EntityManagerContextMiddleware, SessionCheckMiddleware).forRoutes({
+      method: RequestMethod.ALL,
+      path: "*"
+    });
 
-    consumer
-      .apply(router)
-      .forRoutes({ method: RequestMethod.ALL, path: "bull" });
+    consumer.apply(BullBoard).forRoutes({
+      method: RequestMethod.ALL,
+      path: "bull"
+    });
   }
 }

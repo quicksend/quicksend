@@ -1,41 +1,33 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpStatus
-} from "@nestjs/common";
-
-import { Request, Response } from "express";
-
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from "@nestjs/common";
+import { Response } from "express";
 import { ValidationError } from "class-validator";
 
-import { ValidationExceptionResponseBody } from "../interfaces/validation-exception-response-body.interface";
+import { HttpExceptionResponseBody } from "../interfaces/http-exception-response-body.interface";
+import { ValidationExceptionResponsePayload } from "../interfaces/validation-exception-response-payload.interface";
+
+export type ValidationExceptionResponseBody = HttpExceptionResponseBody<ValidationExceptionResponsePayload>;
 
 // Wrapper class used in exception factory for validation pipe
-export class ValidationException {
-  static readonly TYPE = "VALIDATION_ERROR";
-
-  constructor(readonly details: ValidationError[]) {}
+export class ValidationException extends Error {
+  constructor(readonly details: ValidationError[]) {
+    super("Validation failed.");
+  }
 }
 
 @Catch(ValidationException)
 export class ValidationExceptionFilter implements ExceptionFilter {
   catch(exception: ValidationException, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-
-    const req = ctx.getRequest<Request>();
-    const res = ctx.getResponse<Response<ValidationExceptionResponseBody>>();
+    const res = host.switchToHttp().getResponse<Response<ValidationExceptionResponseBody>>();
 
     res.status(HttpStatus.BAD_REQUEST).json({
       error: {
+        code: "VALIDATION_ERROR",
         details: exception.details.map((detail) => ({
           constraints: detail.constraints || {},
           property: detail.property
         })),
-        type: ValidationException.TYPE
-      },
-      path: req.url,
-      timestamp: new Date().toISOString()
+        message: exception.message
+      }
     });
   }
 }

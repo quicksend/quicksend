@@ -10,16 +10,14 @@ import {
 import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
-  AuthenticationException,
+  AuthException,
   InvalidLoginCredentialsException,
   UserNotActivatedException
 } from "./auth.exceptions";
 
-@Catch(AuthenticationException)
-export class AuthExceptionFilter
-  extends HttpExceptionFilter
-  implements ExceptionFilter {
-  catch(exception: AuthenticationException, host: ArgumentsHost): void {
+@Catch(AuthException)
+export class AuthExceptionFilter extends HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: AuthException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case InvalidLoginCredentialsException:
         return super.catch(new UnauthorizedException(exception), host);

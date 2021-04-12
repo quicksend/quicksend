@@ -1,47 +1,38 @@
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  CreateDateColumn,
-  DeleteDateColumn,
-  PrimaryColumn
-} from "typeorm";
-
-import { customAlphabet } from "nanoid/async";
-
+import { BeforeCreate, BeforeUpdate, PrimaryKey, Property } from "@mikro-orm/core";
 import { Exclude } from "class-transformer";
 
-import { ValidateIf, validateOrReject } from "class-validator";
+import { validateOrReject } from "class-validator";
 
-const nanoid = customAlphabet(
-  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz",
-  21
-);
+import { generateRandomString } from "../utils/generate-random-string.util";
 
 export abstract class BaseEntity {
-  @CreateDateColumn()
-  createdAt!: Date;
+  @Property()
+  createdAt: Date = new Date();
 
-  @DeleteDateColumn()
   @Exclude()
-  @ValidateIf((_object, value) => value !== null)
-  deletedAt!: Date | null;
+  @Property({ nullable: true })
+  deletedAt?: Date;
 
-  @PrimaryColumn()
+  @PrimaryKey()
   id!: string;
 
-  @BeforeInsert()
-  async beforeInsert() {
-    this.id = await nanoid();
+  @Exclude()
+  @Property({ version: true })
+  version!: number;
 
-    return validateOrReject(this, {
-      // properties can be undefined if it's optional, so we don't want
-      // class validator to throw an error for those optional properties
-      skipUndefinedProperties: true
-    });
+  @Property({ persist: false })
+  get deleted(): boolean {
+    return !!this.deletedAt;
   }
 
+  @BeforeCreate()
+  async beforeCreate(): Promise<void> {
+    this.id = await generateRandomString();
+  }
+
+  @BeforeCreate()
   @BeforeUpdate()
-  beforeUpdate() {
+  validate(): Promise<void> {
     return validateOrReject(this);
   }
 }

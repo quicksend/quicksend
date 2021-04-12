@@ -1,8 +1,11 @@
 import { EventEmitter } from "events";
 
 export class Counter extends EventEmitter {
-  constructor(private _value = 0) {
+  private _value: number;
+
+  constructor(value = 0) {
     super();
+    this._value = value;
   }
 
   get value(): number {
@@ -29,10 +32,10 @@ export class Counter extends EventEmitter {
 
   onceItEqualsTo(n: number, cb: () => void): void {
     if (this._value === n) {
-      cb();
-    } else {
-      this.once(String(n), cb);
+      return cb();
     }
+
+    this.once(String(n), cb);
   }
 
   set(value: number): this {
@@ -43,10 +46,10 @@ export class Counter extends EventEmitter {
   }
 
   whenItEqualsTo(n: number, cb: () => void): void {
+    this.on(String(n), cb);
+
     if (this._value === n) {
       cb();
     }
-
-    this.on(String(n), cb);
   }
 }

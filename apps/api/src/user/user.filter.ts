@@ -5,16 +5,15 @@ import {
   ConflictException,
   ExceptionFilter,
   InternalServerErrorException,
-  NotFoundException,
   UnauthorizedException
 } from "@nestjs/common";
 
 import { HttpExceptionFilter } from "../common/filters/http-exception.filter";
 
 import {
-  CantFindUserException,
   EmailConflictException,
   IncorrectPasswordException,
+  InvalidActivationTokenException,
   InvalidEmailConfirmationTokenException,
   InvalidPasswordResetTokenException,
   UserException,
@@ -22,14 +21,9 @@ import {
 } from "./user.exceptions";
 
 @Catch(UserException)
-export class UserExceptionFilter
-  extends HttpExceptionFilter
-  implements ExceptionFilter {
+export class UserExceptionFilter extends HttpExceptionFilter implements ExceptionFilter {
   catch(exception: UserException, host: ArgumentsHost): void {
     switch (exception.constructor) {
-      case CantFindUserException:
-        return super.catch(new NotFoundException(exception), host);
-
       case EmailConflictException:
       case UsernameConflictException:
         return super.catch(new ConflictException(exception), host);
@@ -37,6 +31,7 @@ export class UserExceptionFilter
       case IncorrectPasswordException:
         return super.catch(new UnauthorizedException(exception), host);
 
+      case InvalidActivationTokenException:
       case InvalidEmailConfirmationTokenException:
       case InvalidPasswordResetTokenException:
         return super.catch(new BadRequestException(exception), host);

@@ -1,5 +1,5 @@
-import { Session as ExpressSession } from "express-session";
+import { Session as BaseSession } from "express-session";
 
-export interface Session extends ExpressSession {
-  uid: string;
+export interface Session extends BaseSession {
+  user: string;
 }

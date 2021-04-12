@@ -8,10 +8,10 @@
 
 ## Features
 - [x] Customizable storage engines (S3 and Google Cloud coming soon)
-- [x] File deduplication
-- [x] Folders support
+- [x] File sharing support
+- [x] File-level deduplication
+- [x] Developer dashboard for API key generation
 - [ ] Admin dashboard (soon)
-- [ ] Developer dashboard for API key generation (soon)
 
 ## Related Projects
 - [Quicksend CLI](https://github.com/quicksend/cli): A command line application to quickly upload files to Quicksend
