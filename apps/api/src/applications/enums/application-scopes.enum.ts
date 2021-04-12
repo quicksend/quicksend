@@ -1,13 +1,19 @@
-export enum ApplicationScopesEnum {
-  READ_FILE_CONTENTS = "files:content:read", // download files
-  WRITE_FILE_CONTENTS = "files:content:write", // upload files
+export enum ApplicationScopes {
+  COPY_FILES = "files:copy",
+  DELETE_FILES = "files:delete",
+  DOWNLOAD_FILES = "files:download",
+  MOVE_FILES = "files:move",
+  RENAME_FILES = "files:rename",
+  SHARE_FILES = "files:share",
+  UNSHARE_FILES = "files:unshare",
+  UPLOAD_FILES = "files:upload",
+  VIEW_FILES = "files:view",
 
-  READ_FILE_METADATA = "files:metadata:read", // view file metadata
-  WRITE_FILE_METADATA = "files:metadata:write", // copy, delete, move, or rename files
+  BROWSE_FOLDERS = "folders:browse",
+  CREATE_FOLDERS = "folders:create",
+  DELETE_FOLDERS = "folders:delete",
+  MOVE_FOLDERS = "folders:move",
+  RENAME_FOLDERS = "folders:rename",
 
-  READ_FOLDER_METADATA = "folders:metadata:read", // view folder metadata
-  WRITE_FOLDER_METADATA = "folders:metadata:write", // delete, move or rename folders
-
-  READ_USER_PROFILE = "user:profile:read", // read basic user info like email, profile picture
-  WRITE_USER_PROFILE = "user:profile:write" // change profile picture
+  READ_PROFILE = "user:profile:read"
 }

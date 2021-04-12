@@ -2,7 +2,7 @@ export class FoldersException extends Error {}
 
 export class CantDeleteFolderException extends FoldersException {
   constructor() {
-    super("This folder cannot be deleted.");
+    super("The folder cannot be deleted.");
   }
 }
 
@@ -14,13 +14,13 @@ export class CantFindDestinationFolderException extends FoldersException {
 
 export class CantFindFolderException extends FoldersException {
   constructor() {
-    super("This folder cannot be found.");
+    super("The folder cannot be found.");
   }
 }
 
 export class CantMoveFolderException extends FoldersException {
   constructor() {
-    super("This folder cannot be moved.");
+    super("The folder cannot be moved.");
   }
 }
 

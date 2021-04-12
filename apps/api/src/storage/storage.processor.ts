@@ -1,24 +1,21 @@
-import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Process, Processor } from "@nestjs/bull";
 
 import { Job } from "bull";
 
-import { StorageService } from "./storage.service";
+import { StorageManager } from "./storage.manager";
 
-import { DeleteFileJob, DELETE_FILE_JOB_NAME } from "./jobs/delete-file.job";
+import { DELETE_FILE_JOB_NAME, DeleteFileJob } from "./jobs/delete-file.job";
 
 @Injectable()
 @Processor(StorageProcessor.QUEUE_NAME)
 export class StorageProcessor {
   static readonly QUEUE_NAME = "storage";
 
-  constructor(
-    @Inject(forwardRef(() => StorageService))
-    private readonly storageService: StorageService
-  ) {}
+  constructor(private readonly storageManager: StorageManager) {}
 
   @Process(DELETE_FILE_JOB_NAME)
   deleteFile(job: Job<DeleteFileJob>): Promise<void> {
-    return this.storageService.engine.deleteFile(job.data.filename);
+    return this.storageManager.deleteByFilename(job.data.filename);
   }
 }

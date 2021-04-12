@@ -32,10 +32,7 @@
             }
           }
         },
-        "serve": {
-          "executor": "@nrwl/node:execute",
-          "options": { "buildTarget": "api:build" }
-        },
+        "serve": { "executor": "@nrwl/node:execute", "options": { "buildTarget": "api:build" } },
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": { "lintFilePatterns": ["apps/api/**/*.ts"] }
@@ -43,40 +40,7 @@
         "test": {
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/apps/api"],
-          "options": {
-            "jestConfig": "apps/api/jest.config.js",
-            "passWithNoTests": true
-          }
-        }
-      }
-    },
-    "nestjs-mailer": {
-      "root": "libs/nestjs-mailer",
-      "sourceRoot": "libs/nestjs-mailer/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["libs/nestjs-mailer/**/*.ts"] }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/nestjs-mailer"],
-          "options": {
-            "jestConfig": "libs/nestjs-mailer/jest.config.js",
-            "passWithNoTests": true
-          }
-        },
-        "build": {
-          "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
-          "options": {
-            "outputPath": "dist/libs/nestjs-mailer",
-            "tsConfig": "libs/nestjs-mailer/tsconfig.lib.json",
-            "packageJson": "libs/nestjs-mailer/package.json",
-            "main": "libs/nestjs-mailer/src/index.ts",
-            "assets": ["libs/nestjs-mailer/*.md"]
-          }
+          "options": { "jestConfig": "apps/api/jest.config.js", "passWithNoTests": true }
         }
       }
     }

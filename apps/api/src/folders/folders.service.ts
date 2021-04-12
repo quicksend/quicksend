@@ -1,13 +1,19 @@
 import { Injectable } from "@nestjs/common";
 
-import { FindConditions } from "typeorm";
+import { EntityRepository } from "@mikro-orm/postgresql";
+import { FilterQuery } from "@mikro-orm/core";
 
-import { TransactionService } from "../transaction/transaction.service";
+import { ClosureTable } from "../common/repositories/closure-table.repository";
 
-import { FolderEntity } from "./folder.entity";
-import { UserEntity } from "../user/user.entity";
+import { RepositoriesService } from "../repositories/repositories.service";
 
-import { FolderRepository } from "./folder.repository";
+import { Folder } from "./entities/folder.entity";
+import { FolderTree } from "./entities/folder-tree.entity";
+
+import { CreateFolderPayload } from "./payloads/create-folder.payload";
+import { DeleteFolderPayload } from "./payloads/delete-folder.payload";
+import { MoveFolderPayload } from "./payloads/move-folder.payload";
+import { RenameFolderPayload } from "./payloads/rename-folder.payload";
 
 import {
   CantDeleteFolderException,
@@ -22,80 +28,103 @@ import {
 
 @Injectable()
 export class FoldersService {
-  constructor(private readonly transaction: TransactionService) {}
+  constructor(private readonly repositoriesService: RepositoriesService) {}
 
-  private get folderRepository() {
-    return this.transaction.getCustomRepository(FolderRepository);
+  private get folderRepository(): EntityRepository<Folder> {
+    return this.repositoriesService.getRepository(Folder);
   }
 
-  // TODO: add method to allow copying folders maybe?
+  private get folderTreeRepository(): ClosureTable<FolderTree> {
+    return this.repositoriesService.getRepository(FolderTree);
+  }
 
   /**
    * Create a new folder if it does not exist
    */
-  async create(
-    name: string,
-    parentId: string | null,
-    user: UserEntity
-  ): Promise<FolderEntity> {
-    const parent = parentId
-      ? await this.folderRepository.findOne({ id: parentId, user })
-      : null;
+  async create(payload: CreateFolderPayload): Promise<Folder> {
+    if (payload.parent) {
+      const parent = await this.folderRepository.findOne(payload.parent);
 
-    if (!parent && parentId) {
-      throw new CantFindDestinationFolderException();
+      if (!parent) {
+        throw new CantFindDestinationFolderException();
+      }
+
+      const duplicate = await this.folderRepository.findOne({
+        name: payload.name,
+        parent,
+        user: payload.user
+      });
+
+      if (duplicate) {
+        throw new FolderConflictException();
+      }
+
+      const folder = this.folderRepository.create({
+        name: payload.name,
+        parent,
+        user: payload.user
+      });
+
+      await this.folderRepository.persistAndFlush(folder);
+      await this.folderTreeRepository.insertLeafNode(folder.id, parent.id);
+
+      return folder;
     }
 
     const duplicate = await this.folderRepository.findOne({
-      name,
-      parent,
-      user
+      name: payload.name,
+      parent: null,
+      user: payload.user
     });
 
     if (duplicate) {
       throw new FolderConflictException();
     }
 
-    const folder = this.folderRepository.create({ name, parent, user });
+    const folder = this.folderRepository.create({
+      name: payload.name,
+      parent: null,
+      user: payload.user
+    });
 
-    return this.folderRepository.save(folder);
+    await this.folderRepository.persistAndFlush(folder);
+    await this.folderTreeRepository.insertRootNode(folder.id);
+
+    return folder;
   }
 
   /**
    * Delete a folder and all its children (including files)
    */
-  async deleteOne(
-    conditions: FindConditions<FolderEntity>
-  ): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOneWithRelations(conditions);
+  async deleteOne(payload: DeleteFolderPayload): Promise<Folder> {
+    const folder = await this.folderRepository.findOne(payload.folder);
 
     if (!folder) {
       throw new CantFindFolderException();
     }
 
-    if (!folder.parent) {
+    if (!folder.parent && !payload.deleteRoot) {
       throw new CantDeleteFolderException();
     }
 
-    return this.folderRepository.remove(folder);
+    await this.folderTreeRepository.deleteSubtree(folder.id);
+    await this.folderRepository.removeAndFlush(folder);
+
+    return folder;
   }
 
   /**
-   * Find a folder or returns undefined if it does not exist
+   * Find a folder or returns null if it does not exist
    */
-  async findOne(
-    conditions: FindConditions<FolderEntity>
-  ): Promise<FolderEntity | undefined> {
-    return this.folderRepository.findOneWithRelations(conditions);
+  async findOne(conditions: FilterQuery<Folder>): Promise<Folder | null> {
+    return this.folderRepository.findOne(conditions);
   }
 
   /**
    * Find a folder or throw an error if it does not exist
    */
-  async findOneOrFail(
-    conditions: FindConditions<FolderEntity>
-  ): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOneWithRelations(conditions);
+  async findOneOrFail(conditions: FilterQuery<Folder>): Promise<Folder> {
+    const folder = await this.folderRepository.findOne(conditions);
 
     if (!folder) {
       throw new CantFindFolderException();
@@ -107,22 +136,18 @@ export class FoldersService {
   /**
    * Move a folder to a new location
    */
-  async move(
-    from: FindConditions<FolderEntity>,
-    to: FindConditions<FolderEntity>
-  ): Promise<FolderEntity> {
-    const source = await this.folderRepository.findOneWithRelations(from);
+  async move(payload: MoveFolderPayload): Promise<Folder> {
+    const source = await this.folderRepository.findOne(payload.source);
 
     if (!source) {
       throw new CantFindFolderException();
     }
 
-    // Don't move root folders
-    if (!source.parent) {
+    if (!source.parent && !payload.moveRoot) {
       throw new CantMoveFolderException();
     }
 
-    const destination = await this.folderRepository.findOneWithRelations(to);
+    const destination = await this.folderRepository.findOne(payload.destination);
 
     if (!destination) {
       throw new CantFindDestinationFolderException();
@@ -132,38 +157,39 @@ export class FoldersService {
       throw new CantMoveFolderIntoItselfException();
     }
 
-    const destinationIsChildren = await this.folderRepository.hasDescendant(
-      source,
-      destination
+    const isChildrenOfSource = await this.folderTreeRepository.containsDescendant(
+      source.id,
+      destination.id
     );
 
-    if (destinationIsChildren) {
+    if (isChildrenOfSource) {
       throw new CantMoveFolderIntoChildrenException();
     }
 
-    return this.folderRepository.move(source, destination);
+    source.parent = destination;
+
+    await this.folderRepository.persistAndFlush(source);
+    await this.folderTreeRepository.moveSubtree(source.id, destination.id);
+
+    return source;
   }
 
   /**
    * Rename a folder with a new name
    */
-  async rename(
-    conditions: FindConditions<FolderEntity>,
-    newName: string
-  ): Promise<FolderEntity> {
-    const folder = await this.folderRepository.findOneWithRelations(conditions);
+  async rename(payload: RenameFolderPayload): Promise<Folder> {
+    const folder = await this.folderRepository.findOne(payload.folder);
 
     if (!folder) {
       throw new CantFindFolderException();
     }
 
-    // Don't rename root folders
-    if (!folder.parent) {
+    if (!folder.parent && !payload.renameRoot) {
       throw new CantRenameFolderException();
     }
 
-    const duplicate = await this.folderRepository.findOneWithRelations({
-      name: newName,
+    const duplicate = await this.folderRepository.findOne({
+      name: payload.name,
       parent: folder.parent,
       user: folder.user
     });
@@ -172,8 +198,10 @@ export class FoldersService {
       throw new FolderConflictException();
     }
 
-    folder.name = newName;
+    folder.name = payload.name;
 
-    return this.folderRepository.save(folder);
+    await this.folderRepository.persistAndFlush(folder);
+
+    return folder;
   }
 }

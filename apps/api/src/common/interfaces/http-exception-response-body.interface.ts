@@ -1,10 +1,5 @@
-import { BaseResponseBody } from "./base-response-body.interface";
+import { HttpExceptionResponsePayload } from "./http-exception-response-payload.interface";
 
-export type Error = {
-  message: string;
-  type: string;
-};
-
-export interface HttpExceptionResponseBody<T = Error> extends BaseResponseBody {
+export interface HttpExceptionResponseBody<T = HttpExceptionResponsePayload> {
   error: T;
 }

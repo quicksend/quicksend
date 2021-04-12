@@ -1,15 +1,14 @@
 import { Injectable } from "@nestjs/common";
 
-import { FindConditions } from "typeorm";
+import { EntityRepository } from "@mikro-orm/postgresql";
+import { FilterQuery } from "@mikro-orm/core";
 
-import { generateRandomString } from "../common/utils/generate-random-string.util";
+import { RepositoriesService } from "../repositories/repositories.service";
 
-import { TransactionService } from "../transaction/transaction.service";
+import { Application } from "./entities/application.entity";
+import { User } from "../user/entities/user.entity";
 
-import { ApplicationEntity } from "./application.entity";
-import { UserEntity } from "../user/user.entity";
-
-import { ApplicationScopesEnum } from "./enums/application-scopes.enum";
+import { ApplicationScopes } from "./enums/application-scopes.enum";
 
 import {
   ApplicationConflictException,
@@ -18,68 +17,55 @@ import {
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(private readonly repositoriesService: RepositoriesService) {}
 
-  private get applicationRepository() {
-    return this.transactionService.getRepository(ApplicationEntity);
+  private get applicationRepository(): EntityRepository<Application> {
+    return this.repositoriesService.getRepository(Application);
   }
 
   /**
    * Create a new application if it does not exist
    */
-  async create(
-    name: string,
-    scopes: ApplicationScopesEnum[],
-    user: UserEntity
-  ): Promise<ApplicationEntity> {
+  async create(name: string, scopes: ApplicationScopes[], user: User): Promise<Application> {
     const duplicate = await this.applicationRepository.findOne({ name, user });
 
     if (duplicate) {
       throw new ApplicationConflictException();
     }
 
-    const secret = await this._generateSecret();
+    const application = this.applicationRepository.create({ name, scopes, user });
 
-    const application = this.applicationRepository.create({
-      name,
-      scopes,
-      secret,
-      user
-    });
+    await this.applicationRepository.persistAndFlush(application);
 
-    return this.applicationRepository.save(application);
+    return application;
   }
 
   /**
    * Delete an application
    */
-  async deleteOne(
-    conditions: FindConditions<ApplicationEntity>
-  ): Promise<ApplicationEntity> {
+  async deleteOne(conditions: FilterQuery<Application>): Promise<Application> {
     const application = await this.applicationRepository.findOne(conditions);
 
     if (!application) {
       throw new CantFindApplicationException();
     }
 
-    return this.applicationRepository.remove(application);
+    await this.applicationRepository.remove(application);
+
+    return application;
   }
 
   /**
    * Find an application or returns undefined if it does not exist
    */
-  async findOne(
-    conditions: FindConditions<ApplicationEntity>
-  ): Promise<ApplicationEntity | undefined> {
+  async findOne(conditions: FilterQuery<Application>): Promise<Application | null> {
     return this.applicationRepository.findOne(conditions);
   }
 
   /**
    * Find an application or throw an error if it does not exist
    */
-  async findOneOrFail(
-    conditions: FindConditions<ApplicationEntity>
-  ): Promise<ApplicationEntity> {
+  async findOneOrFail(conditions: FilterQuery<Application>): Promise<Application> {
     const application = await this.applicationRepository.findOne(conditions);
 
     if (!application) {
@@ -92,21 +78,17 @@ export class ApplicationsService {
   /**
    * Generate a new secret for an application and return the formatted token
    */
-  async regenerateSecret(
-    conditions: FindConditions<ApplicationEntity>
-  ): Promise<ApplicationEntity> {
+  async regenerateSecret(conditions: FilterQuery<Application>): Promise<Application> {
     const application = await this.applicationRepository.findOne(conditions);
 
     if (!application) {
       throw new CantFindApplicationException();
     }
 
-    application.secret = await this._generateSecret();
+    application.secret = await application.generateSecret();
 
-    return this.applicationRepository.save(application);
-  }
+    await this.applicationRepository.persistAndFlush(application);
 
-  private _generateSecret(): Promise<string> {
-    return generateRandomString(10);
+    return application;
   }
 }

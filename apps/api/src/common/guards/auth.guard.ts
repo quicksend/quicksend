@@ -3,112 +3,116 @@ import {
   ExecutionContext,
   ForbiddenException,
   Injectable,
-  UnauthorizedException
+  Type,
+  UnauthorizedException,
+  mixin
 } from "@nestjs/common";
 
 import { Reflector } from "@nestjs/core";
 
 import { Request } from "../interfaces/request.interface";
 
-import { ApplicationScopesEnum } from "../../applications/enums/application-scopes.enum";
-
 import { ApplicationsService } from "../../applications/applications.service";
 import { UserService } from "../../user/user.service";
 
-import { REQUIRED_APPLICATION_SCOPES } from "../../common/decorators/use-application-scopes.decorator";
+import { ApplicationScopes } from "../../applications/enums/application-scopes.enum";
 
-import { atob } from "../utils/atob.util";
+import { Maybe } from "../types/maybe.type";
 
-export const AUTH_GUARD_OPTIONAL = "AUTH_GUARD_OPTIONAL";
+const INVALID_APPLICATION_SECRET_ERROR = new UnauthorizedException("Invalid application token.");
+const INSUFFICIENT_SCOPES_ERROR = new ForbiddenException("Insufficient application scopes.");
 
-@Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(
-    private readonly applicationsService: ApplicationsService,
-    private readonly reflector: Reflector,
-    private readonly userService: UserService
-  ) {}
+const NOT_ACTIVATED_ERROR = new ForbiddenException("The account is not activated.");
+const NOT_LOGGED_IN_ERROR = new UnauthorizedException("Not logged in.");
 
-  async canActivate(ctx: ExecutionContext): Promise<boolean> {
-    const optional = this._getMetadata<boolean>(AUTH_GUARD_OPTIONAL, ctx);
+export const APPLICATION_SCOPES = "APPLICATION_SCOPES";
 
-    const req = ctx.switchToHttp().getRequest<Request>();
+export const AuthGuard = (optional = false): Type<CanActivate> => {
+  @Injectable()
+  class AuthMixinGuard implements CanActivate {
+    constructor(
+      private readonly applicationsService: ApplicationsService,
+      private readonly reflector: Reflector,
+      private readonly userService: UserService
+    ) {}
 
-    try {
-      return req.headers.authorization
-        ? await this._handleApplicationToken(req, ctx)
-        : await this._handleSession(req);
-    } catch (error) {
-      if (!optional) {
-        throw error;
+    canActivate(ctx: ExecutionContext): Promise<boolean> {
+      const req = ctx.switchToHttp().getRequest<Request>();
+
+      if (req.headers.authorization) {
+        return this.handleApplication(ctx);
       }
+
+      return this.handleSession(ctx);
+    }
+
+    private getMetadata<T>(key: string, ctx: ExecutionContext): Maybe<T> {
+      return this.reflector.get<Maybe<T>>(key, ctx.getHandler());
+    }
+
+    private async handleApplication(ctx: ExecutionContext): Promise<boolean> {
+      const req = ctx.switchToHttp().getRequest<Request>();
+
+      const secret = req.headers.authorization;
+
+      if (!secret) {
+        return this.throw(INVALID_APPLICATION_SECRET_ERROR);
+      }
+
+      const application = await this.applicationsService.findOne({ secret });
+
+      if (!application) {
+        return this.throw(INVALID_APPLICATION_SECRET_ERROR);
+      }
+
+      const scopes = this.getMetadata<ApplicationScopes[]>(APPLICATION_SCOPES, ctx);
+
+      if (!scopes) {
+        return this.throw(INSUFFICIENT_SCOPES_ERROR);
+      }
+
+      const hasSufficientScopes = scopes.every((scope) => application.scopes.includes(scope));
+
+      if (!hasSufficientScopes) {
+        return this.throw(INSUFFICIENT_SCOPES_ERROR);
+      }
+
+      req.application = application;
+      req.user = application.user;
 
       return true;
     }
+
+    private async handleSession(ctx: ExecutionContext): Promise<boolean> {
+      const req = ctx.switchToHttp().getRequest<Request>();
+
+      if (!req.session || !req.session.user) {
+        return this.throw(NOT_LOGGED_IN_ERROR);
+      }
+
+      const user = await this.userService.findOne({ id: req.session.user });
+
+      if (!user || user.deleted) {
+        return this.throw(NOT_LOGGED_IN_ERROR);
+      }
+
+      if (!user.activated) {
+        return this.throw(NOT_ACTIVATED_ERROR);
+      }
+
+      req.user = user;
+
+      return true;
+    }
+
+    private throw(exception: Error): boolean | never {
+      if (optional) {
+        return true;
+      }
+
+      throw exception;
+    }
   }
 
-  private async _handleApplicationToken(
-    req: Request,
-    ctx: ExecutionContext
-  ): Promise<boolean> {
-    const scopes = this._getMetadata<ApplicationScopesEnum[]>(
-      REQUIRED_APPLICATION_SCOPES,
-      ctx
-    );
-
-    const token = req.headers.authorization && atob(req.headers.authorization);
-
-    if (!token) {
-      throw new UnauthorizedException("Invalid application token!");
-    }
-
-    const [id, secret] = token.split(":");
-
-    if (!id || !secret) {
-      throw new UnauthorizedException("Invalid application token!");
-    }
-
-    const application = await this.applicationsService.findOne({ id, secret });
-
-    if (!application) {
-      throw new UnauthorizedException("Invalid application token!");
-    }
-
-    // Only allow routes that has UseApplicationScopes() to allow the usage of an application token
-    const hasSufficientScopes = scopes?.every((scope) =>
-      application.scopes.includes(scope)
-    );
-
-    if (!hasSufficientScopes) {
-      throw new ForbiddenException("Insufficient scopes!");
-    }
-
-    req.user = application.user;
-
-    return true;
-  }
-
-  private async _handleSession(req: Request): Promise<boolean> {
-    if (!req.session || !req.session.uid) {
-      throw new UnauthorizedException("You are not logged in!");
-    }
-
-    const user = await this.userService.findOne({ id: req.session.uid });
-
-    if (!user) {
-      throw new UnauthorizedException("You are not logged in!");
-    }
-
-    if (!user.activated) {
-      throw new ForbiddenException("Your account is not activated!");
-    }
-
-    req.user = user;
-
-    return true;
-  }
-
-  private _getMetadata<T>(key: string, ctx: ExecutionContext): T | undefined {
-    return this.reflector.get<T | undefined>(key, ctx.getHandler());
-  }
-}
+  return mixin(AuthMixinGuard);
+};

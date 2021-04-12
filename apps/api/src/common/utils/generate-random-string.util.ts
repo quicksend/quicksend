@@ -1,13 +1,9 @@
-import crypto from "crypto";
+import { customAlphabet } from "nanoid/async";
 
-export const generateRandomString = (size = 4): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    crypto.randomBytes(size, (error, buffer) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(buffer.toString("hex"));
-      }
-    });
-  });
+const ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
+
+export const generateRandomString = (size = 21): Promise<string> => {
+  const generator = customAlphabet(ALPHABET, size);
+
+  return generator();
 };

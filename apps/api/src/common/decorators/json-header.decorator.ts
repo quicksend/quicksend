@@ -7,6 +7,8 @@ import {
 
 import { Request } from "express";
 
+import { Maybe } from "../types/maybe.type";
+
 export interface JSONHeaderOptions {
   exceptionFactory: (field?: string) => HttpException;
   field: string;
@@ -14,25 +16,23 @@ export interface JSONHeaderOptions {
 }
 
 export const DEFAULT_JSON_HEADER_OPTIONS: JSONHeaderOptions = {
-  exceptionFactory: (field?: string) => {
-    return new BadRequestException(
-      `Header '${field || DEFAULT_JSON_HEADER_OPTIONS.field}' must be JSON!`
-    );
+  exceptionFactory: (field = DEFAULT_JSON_HEADER_OPTIONS.field) => {
+    return new BadRequestException(`Header '${field}' must be JSON!`);
   },
   field: "Quicksend-API-Args",
   optional: false
 };
 
 export const JSONHeader = createParamDecorator(
-  (options: Partial<JSONHeaderOptions> | undefined, ctx: ExecutionContext) => {
-    const { headers } = ctx.switchToHttp().getRequest<Request>();
-
+  (options: Maybe<Partial<JSONHeaderOptions>>, ctx: ExecutionContext) => {
     const { exceptionFactory, field, optional } = {
       ...DEFAULT_JSON_HEADER_OPTIONS,
       ...options
     };
 
-    const parse = (value: unknown) => {
+    const { headers } = ctx.switchToHttp().getRequest<Request>();
+
+    const parse = <T extends Record<string, unknown>>(value: unknown): T => {
       if (typeof value !== "string") {
         throw exceptionFactory(field);
       }
@@ -48,7 +48,6 @@ export const JSONHeader = createParamDecorator(
       return parse(headers[field.toLowerCase()]);
     } catch (error) {
       if (optional) {
-        // don't throw JSON syntax errors
         return {};
       }
 

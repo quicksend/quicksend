@@ -22,9 +22,7 @@ import {
 } from "./folders.exceptions";
 
 @Catch(FoldersException)
-export class FoldersExceptionFilter
-  extends HttpExceptionFilter
-  implements ExceptionFilter {
+export class FoldersExceptionFilter extends HttpExceptionFilter implements ExceptionFilter {
   catch(exception: FoldersException, host: ArgumentsHost): void {
     switch (exception.constructor) {
       case CantFindDestinationFolderException:

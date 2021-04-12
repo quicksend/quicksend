@@ -1,8 +1,10 @@
 {
   "name": "quicksend",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "GPL-3.0",
+  "private": true,
   "scripts": {
+    "db": "mikro-orm",
     "nx": "nx",
     "start": "nx serve",
     "build": "nx build",
@@ -25,22 +27,21 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help"
   },
-  "private": true,
   "dependencies": {
+    "@mikro-orm/core": "^4.5.1",
+    "@mikro-orm/nestjs": "^4.2.0",
+    "@mikro-orm/postgresql": "^4.5.1",
     "@nestjs/bull": "^0.3.1",
     "@nestjs/common": "^7.0.0",
     "@nestjs/config": "^0.6.3",
     "@nestjs/core": "^7.0.0",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/schedule": "^0.4.3",
-    "@nestjs/typeorm": "^7.1.5",
-    "@quicksend/nestjs-request-context": "^1.0.1",
     "@quicksend/nestjs-transmit": "^1.0.2",
     "@quicksend/transmit": "^1.0.9",
     "argon2": "^0.27.1",
     "bull": "^3.20.1",
     "bull-board": "^1.4.1",
-    "busboy": "^0.3.1",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "connect-redis": "^5.1.0",
@@ -50,19 +51,20 @@
     "helmet": "^4.4.1",
     "ioredis": "^4.23.0",
     "joi": "^17.4.0",
+    "js-yaml": "^4.0.0",
     "mjml": "^4.9.0",
     "nanoid": "^3.1.20",
     "nestjs-throttler": "^0.3.0",
     "nestjs-throttler-storage-redis": "^0.1.11",
-    "pg": "^8.5.1",
+    "nodemailer": "^6.5.0",
     "pg-query-stream": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "request-ip": "^2.1.3",
     "rxjs": "~6.6.3",
-    "tslib": "^2.0.0",
-    "typeorm": "^0.2.31"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
+    "@mikro-orm/cli": "^4.5.1",
     "@nestjs/schematics": "^7.0.0",
     "@nestjs/testing": "^7.0.0",
     "@nrwl/cli": "11.4.0",
@@ -74,13 +76,14 @@
     "@nrwl/tao": "11.4.0",
     "@nrwl/workspace": "11.4.0",
     "@types/bull": "^3.15.0",
-    "@types/busboy": "^0.2.3",
     "@types/connect-redis": "^0.0.16",
     "@types/express": "^4.17.11",
     "@types/express-session": "^1.17.3",
     "@types/jest": "26.0.8",
+    "@types/js-yaml": "^4.0.0",
     "@types/mjml": "^4.7.0",
     "@types/node": "^14.14.34",
+    "@types/nodemailer": "^6.4.1",
     "@types/request-ip": "^0.0.35",
     "@typescript-eslint/eslint-plugin": "4.3.0",
     "@typescript-eslint/parser": "4.3.0",
@@ -92,5 +95,12 @@
     "ts-jest": "26.4.0",
     "ts-node": "~9.1.1",
     "typescript": "~4.0.3"
+  },
+  "mikro-orm": {
+    "configPaths": [
+      "./apps/api/mikro-orm.config.ts"
+    ],
+    "tsConfigPath": "./apps/api/tsconfig.app.json",
+    "useTsNode": true
   }
 }

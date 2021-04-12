@@ -1,15 +1,7 @@
-import {
-  ArrayUnique,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength
-} from "class-validator";
-
+import { ArrayUnique, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { Transform } from "class-transformer";
 
-import { ApplicationScopesEnum } from "../enums/application-scopes.enum";
+import { ApplicationScopes } from "../enums/application-scopes.enum";
 
 export class CreateApplicationDto {
   @IsNotEmpty()
@@ -18,14 +10,15 @@ export class CreateApplicationDto {
   name!: string;
 
   @ArrayUnique()
-  @IsEnum(ApplicationScopesEnum, { each: true })
+  @IsEnum(ApplicationScopes, { each: true })
   @IsOptional()
   @Transform(({ value: scopes }) => [
     ...new Set([
-      ApplicationScopesEnum.READ_FOLDER_METADATA,
-      ApplicationScopesEnum.READ_USER_PROFILE,
+      ApplicationScopes.BROWSE_FOLDERS,
+      ApplicationScopes.READ_PROFILE,
+      ApplicationScopes.VIEW_FILES,
       ...scopes
     ])
   ])
-  scopes!: ApplicationScopesEnum[];
+  scopes!: ApplicationScopes[];
 }

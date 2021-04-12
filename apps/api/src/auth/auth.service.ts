@@ -2,12 +2,9 @@ import { Injectable } from "@nestjs/common";
 
 import { UserService } from "../user/user.service";
 
-import { UserEntity } from "../user/user.entity";
+import { User } from "../user/entities/user.entity";
 
-import {
-  InvalidLoginCredentialsException,
-  UserNotActivatedException
-} from "./auth.exceptions";
+import { InvalidLoginCredentialsException, UserNotActivatedException } from "./auth.exceptions";
 
 @Injectable()
 export class AuthService {
@@ -16,8 +13,11 @@ export class AuthService {
   /**
    * Returns the user entity if it is activated and the passwords match
    */
-  async login(username: string, password: string): Promise<UserEntity> {
-    const user = await this.userService.findOne({ username });
+  async login(username: string, password: string): Promise<User> {
+    const user = await this.userService.findOne({
+      deletedAt: null,
+      username
+    });
 
     if (!user) {
       throw new InvalidLoginCredentialsException();

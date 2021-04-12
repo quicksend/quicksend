@@ -4,62 +4,52 @@ import session from "express-session";
 import Redis from "ioredis";
 import RedisStore from "connect-redis";
 
-import { ConfigType } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { NestFactory } from "@nestjs/core";
 
 import { AppModule } from "./app/app.module";
 
-import {
-  httpNamespace,
-  redisNamespace,
-  secretsNamespace
-} from "./config/config.namespaces";
+import { Config } from "./common/config/config.interface";
 
-(async () => {
+(async (): Promise<void> => {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const httpConfig = app.get<ConfigType<typeof httpNamespace>>(
-    httpNamespace.KEY
-  );
+  const config = app.get<ConfigService<Config>>(ConfigService);
 
-  const redisConfig = app.get<ConfigType<typeof redisNamespace>>(
-    redisNamespace.KEY
-  );
-
-  const secretsConfig = app.get<ConfigType<typeof secretsNamespace>>(
-    secretsNamespace.KEY
-  );
+  const redis = config.get("redis") as Config["redis"];
+  const secrets = config.get("secrets") as Config["secrets"];
+  const urls = config.get("urls") as Config["urls"];
 
   app.setGlobalPrefix("api");
 
   app.enableCors({
     credentials: true,
-    origin: httpConfig.frontendUrl.toString()
+    origin: urls.frontend
   });
 
-  app.use(helmet()).use(
+  app.use(helmet());
+
+  app.use(
     session({
       cookie: {
         maxAge: 14 * 8.64e7,
         sameSite: "strict",
-        secure: httpConfig.frontendUrl.protocol.startsWith("https")
+        secure: process.env.NODE_ENV === "production"
       },
       name: "sid.the.science.kid",
       resave: false,
       saveUninitialized: false,
-      secret: secretsConfig.sessions,
+      secret: secrets.sessions,
       store: new (RedisStore(session))({
-        client: new Redis({
-          host: redisConfig.hostname,
-          port: redisConfig.port
-        })
+        client: new Redis(redis)
       })
     })
   );
 
-  app.listen(httpConfig.port, () => {
-    Logger.log(`Listening on port ${httpConfig.port}`, "NestApplication");
-  });
+  app
+    .listen(config.get("port") as number)
+    .then(() => app.getUrl())
+    .then((url) => Logger.log(`Listening on ${url}`, "NestApplication"));
 })();

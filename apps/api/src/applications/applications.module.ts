@@ -1,14 +1,14 @@
 import { Global, Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 import { ApplicationsController } from "./applications.controller";
 import { ApplicationsService } from "./applications.service";
 
-import { ApplicationEntity } from "./application.entity";
+import { Application } from "./entities/application.entity";
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([ApplicationEntity])],
+  imports: [MikroOrmModule.forFeature([Application])],
   controllers: [ApplicationsController],
   exports: [ApplicationsService],
   providers: [ApplicationsService]

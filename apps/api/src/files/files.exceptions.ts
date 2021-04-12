@@ -2,25 +2,25 @@ export class FilesException extends Error {}
 
 export class CantFindFileException extends FilesException {
   constructor() {
-    super("This file cannot be found.");
+    super("The file cannot be found.");
   }
 }
 
 export class CantFindFileDestinationException extends FilesException {
   constructor() {
-    super("This file destination cannot be found.");
+    super("The file destination cannot be found.");
   }
 }
 
 export class CantFindFileInvitationException extends FilesException {
   constructor() {
-    super("This file invitation cannot be found.");
+    super("The file invitation cannot be found.");
   }
 }
 
 export class CantFindFileInvitee extends FilesException {
   constructor() {
-    super("This file invitee cannot be found.");
+    super("The file invitee cannot be found.");
   }
 }
 
@@ -33,6 +33,12 @@ export class FileConflictException extends FilesException {
 export class FileInviteeCannotBeOwner extends FilesException {
   constructor() {
     super("The file invitee cannot be the owner of the file.");
+  }
+}
+
+export class FileInviteeCannotBeSelf extends FilesException {
+  constructor() {
+    super("The file invitee cannot be yourself.");
   }
 }
 

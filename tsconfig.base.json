@@ -12,9 +12,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
-    "paths": {
-      "@quicksend/nestjs-mailer": ["libs/nestjs-mailer/src/index.ts"]
-    },
+    "paths": {},
     "rootDir": ".",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,

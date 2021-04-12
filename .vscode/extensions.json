@@ -1,7 +1,10 @@
 {
   "recommendations": [
-    "ms-vscode.vscode-typescript-tslint-plugin",
+    "attilabuti.vscode-mjml",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "embertooling.prettier-for-handlebars-vscode",
     "esbenp.prettier-vscode",
-    "firsttris.vscode-jest-runner"
+    "nrwl.angular-console"
   ]
 }
