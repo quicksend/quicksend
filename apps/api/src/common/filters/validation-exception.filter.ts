@@ -23,6 +23,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
       error: {
         code: "VALIDATION_ERROR",
         details: exception.details.map((detail) => ({
+          children: detail.children || [],
           constraints: detail.constraints || {},
           property: detail.property
         })),

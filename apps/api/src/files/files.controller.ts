@@ -22,8 +22,6 @@ import { JSONHeader } from "../common/decorators/json-header.decorator";
 
 import { TransactionalInterceptor } from "../common/interceptors/transactional.interceptor";
 
-import { ValidationPipe } from "../common/pipes/validation.pipe";
-
 import { Maybe } from "../common/types/maybe.type";
 
 import { ApplicationScopes } from "../applications/enums/application-scopes.enum";
@@ -135,7 +133,9 @@ export class FilesController {
     return this.filesService.share({
       expiresAt: dto.expiresAt,
       file: { id },
-      invitee: dto.invitee && { id: dto.invitee },
+      invitee: dto.invitee && {
+        id: dto.invitee
+      },
       inviter: user,
       notifyInvitee: dto.notifyInvitee,
       privileges: dto.privileges
@@ -161,12 +161,17 @@ export class FilesController {
   upload(
     @CurrentUser() user: User,
     @Files() files: File[], // guaranteed to have at least 1 file
-    @JSONHeader(ValidationPipe({ validateCustomDecorators: true })) dto: UploadFileDto
+    @JSONHeader() dto: UploadFileDto
   ): Promise<VirtualFile> {
     return this.filesService.save({
       folder: { id: dto.destination, user },
-      isPublic: dto.isPublic,
-      metadata: files[0]
+      metadata: files[0],
+      sharing: dto.sharing && {
+        ...dto.sharing,
+        invitee: dto.sharing.invitee && {
+          id: dto.sharing.invitee
+        }
+      }
     });
   }
 }

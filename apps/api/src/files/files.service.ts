@@ -327,18 +327,12 @@ export class FilesService {
 
     await this.virtualFileRepository.persistAndFlush(virtualFile);
 
-    if (payload.isPublic) {
-      const invitation = this.virtualFileInvitationRepository.create({
+    if (payload.sharing) {
+      await this.share({
+        ...payload.sharing,
         file: virtualFile,
-        invitee: null,
-        inviter: parent.user,
-        privileges: [
-          VirtualFileInvitationPrivileges.CAN_CREATE_COPY,
-          VirtualFileInvitationPrivileges.CAN_DOWNLOAD
-        ]
+        inviter: virtualFile.user
       });
-
-      await this.virtualFileInvitationRepository.persistAndFlush(invitation);
     }
 
     return virtualFile;
