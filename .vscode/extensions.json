@@ -5,6 +5,7 @@
     "EditorConfig.EditorConfig",
     "embertooling.prettier-for-handlebars-vscode",
     "esbenp.prettier-vscode",
+    "firsttris.vscode-jest-runner",
     "nrwl.angular-console"
   ]
 }

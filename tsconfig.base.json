@@ -12,7 +12,9 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
-    "paths": {},
+    "paths": {
+      "@quicksend/bull-board": ["libs/bull-board/src/index.ts"]
+    },
     "rootDir": ".",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,

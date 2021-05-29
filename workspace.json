@@ -1,22 +1,123 @@
 {
   "version": 2,
-  "cli": { "defaultCollection": "@nrwl/nest" },
-  "defaultProject": "api",
+  "cli": {
+    "defaultCollection": "@nrwl/nest"
+  },
+  "defaultProject": "polymer",
   "projects": {
-    "api": {
-      "root": "apps/api",
-      "sourceRoot": "apps/api/src",
+    "polymer": {
+      "root": "apps/polymer",
+      "sourceRoot": "apps/polymer/src",
       "projectType": "application",
-      "prefix": "api",
+      "prefix": "polymer",
       "targets": {
         "build": {
           "executor": "@nrwl/node:build",
-          "outputs": ["{options.outputPath}"],
+          "outputs": [
+            "{options.outputPath}"
+          ],
           "options": {
-            "outputPath": "dist/apps/api",
-            "main": "apps/api/src/main.ts",
-            "tsConfig": "apps/api/tsconfig.app.json",
-            "assets": ["apps/api/src/assets"]
+            "generatePackageJson": true,
+            "assets": [
+              "apps/polymer/src/assets"
+            ],
+            "main": "apps/polymer/src/main.ts",
+            "outputPath": "dist/apps/polymer",
+            "tsConfig": "apps/polymer/tsconfig.app.json"
+          },
+          "configurations": {
+            "production": {
+              "extractLicenses": true,
+              "inspect": false,
+              "optimization": true,
+              "fileReplacements": [
+                {
+                  "replace": "apps/polymer/src/environments/environment.ts",
+                  "with": "apps/polymer/src/environments/environment.prod.ts"
+                }
+              ]
+            }
+          }
+        },
+        "deploy": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              "nx build polymer",
+              "docker build -f ./apps/polymer/Dockerfile . -t quicksend_polymer"
+            ],
+            "parallel": false
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "apps/polymer/**/*.ts"
+            ]
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "polymer:build"
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/apps/polymer"
+          ],
+          "options": {
+            "jestConfig": "apps/polymer/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "bull-board": {
+      "root": "libs/bull-board",
+      "sourceRoot": "libs/bull-board/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": [
+              "libs/bull-board/**/*.ts"
+            ]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": [
+            "coverage/libs/bull-board"
+          ],
+          "options": {
+            "jestConfig": "libs/bull-board/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "phantom": {
+      "root": "apps/phantom",
+      "sourceRoot": "apps/phantom/src",
+      "projectType": "application",
+      "prefix": "phantom",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/node:build",
+          "outputs": [
+            "{options.outputPath}"
+          ],
+          "options": {
+            "outputPath": "dist/apps/phantom",
+            "main": "apps/phantom/src/main.ts",
+            "tsConfig": "apps/phantom/tsconfig.app.json",
+            "assets": [
+              "apps/phantom/src/assets"
+            ]
           },
           "configurations": {
             "production": {
@@ -25,22 +126,36 @@
               "inspect": false,
               "fileReplacements": [
                 {
-                  "replace": "apps/api/src/environments/environment.ts",
-                  "with": "apps/api/src/environments/environment.prod.ts"
+                  "replace": "apps/phantom/src/environments/environment.ts",
+                  "with": "apps/phantom/src/environments/environment.prod.ts"
                 }
               ]
             }
           }
         },
-        "serve": { "executor": "@nrwl/node:execute", "options": { "buildTarget": "api:build" } },
+        "serve": {
+          "executor": "@nrwl/node:execute",
+          "options": {
+            "buildTarget": "phantom:build"
+          }
+        },
         "lint": {
           "executor": "@nrwl/linter:eslint",
-          "options": { "lintFilePatterns": ["apps/api/**/*.ts"] }
+          "options": {
+            "lintFilePatterns": [
+              "apps/phantom/**/*.ts"
+            ]
+          }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/apps/api"],
-          "options": { "jestConfig": "apps/api/jest.config.js", "passWithNoTests": true }
+          "outputs": [
+            "coverage/apps/phantom"
+          ],
+          "options": {
+            "jestConfig": "apps/phantom/jest.config.js",
+            "passWithNoTests": true
+          }
         }
       }
     }
