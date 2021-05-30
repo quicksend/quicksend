@@ -1,3 +1,8 @@
 module.exports = {
-  projects: ["<rootDir>/apps/api", "<rootDir>/libs/bull-board", "<rootDir>/apps/phantom"]
+  projects: [
+    "<rootDir>/apps/api",
+    "<rootDir>/libs/bull-board",
+    "<rootDir>/apps/phantom",
+    "<rootDir>/apps/platypus"
+  ]
 };

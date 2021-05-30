@@ -4,6 +4,19 @@
     "defaultCollection": "@nrwl/nest"
   },
   "defaultProject": "polymer",
+  "generators": {
+    "@nrwl/react": {
+      "application": {
+        "babel": true
+      }
+    },
+    "@nrwl/next": {
+      "application": {
+        "style": "styled-components",
+        "linter": "eslint"
+      }
+    }
+  },
   "projects": {
     "polymer": {
       "root": "apps/polymer",
@@ -13,14 +26,10 @@
       "targets": {
         "build": {
           "executor": "@nrwl/node:build",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "generatePackageJson": true,
-            "assets": [
-              "apps/polymer/src/assets"
-            ],
+            "assets": ["apps/polymer/src/assets"],
             "main": "apps/polymer/src/main.ts",
             "outputPath": "dist/apps/polymer",
             "tsConfig": "apps/polymer/tsconfig.app.json"
@@ -52,9 +61,7 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "apps/polymer/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/polymer/**/*.ts"]
           }
         },
         "serve": {
@@ -65,9 +72,7 @@
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/apps/polymer"
-          ],
+          "outputs": ["coverage/apps/polymer"],
           "options": {
             "jestConfig": "apps/polymer/jest.config.js",
             "passWithNoTests": true
@@ -83,16 +88,12 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "libs/bull-board/**/*.ts"
-            ]
+            "lintFilePatterns": ["libs/bull-board/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/libs/bull-board"
-          ],
+          "outputs": ["coverage/libs/bull-board"],
           "options": {
             "jestConfig": "libs/bull-board/jest.config.js",
             "passWithNoTests": true
@@ -108,16 +109,12 @@
       "targets": {
         "build": {
           "executor": "@nrwl/node:build",
-          "outputs": [
-            "{options.outputPath}"
-          ],
+          "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/phantom",
             "main": "apps/phantom/src/main.ts",
             "tsConfig": "apps/phantom/tsconfig.app.json",
-            "assets": [
-              "apps/phantom/src/assets"
-            ]
+            "assets": ["apps/phantom/src/assets"]
           },
           "configurations": {
             "production": {
@@ -142,19 +139,92 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": [
-              "apps/phantom/**/*.ts"
-            ]
+            "lintFilePatterns": ["apps/phantom/**/*.ts"]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": [
-            "coverage/apps/phantom"
-          ],
+          "outputs": ["coverage/apps/phantom"],
           "options": {
             "jestConfig": "apps/phantom/jest.config.js",
             "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "platypus": {
+      "root": "apps/platypus",
+      "sourceRoot": "apps/platypus",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/next:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "root": "apps/platypus",
+            "outputPath": "dist/apps/platypus"
+          },
+          "configurations": {
+            "production": {}
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/next:server",
+          "options": {
+            "buildTarget": "platypus:build",
+            "dev": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "platypus:build:production",
+              "dev": false
+            }
+          }
+        },
+        "export": {
+          "executor": "@nrwl/next:export",
+          "options": {
+            "buildTarget": "platypus:build:production"
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/platypus"],
+          "options": {
+            "jestConfig": "apps/platypus/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/platypus/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "platypus-e2e": {
+      "root": "apps/platypus-e2e",
+      "sourceRoot": "apps/platypus-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/platypus-e2e/cypress.json",
+            "tsConfig": "apps/platypus-e2e/tsconfig.e2e.json",
+            "devServerTarget": "platypus:serve"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "platypus:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["apps/platypus-e2e/**/*.{js,ts}"]
           }
         }
       }
