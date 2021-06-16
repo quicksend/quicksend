@@ -4,12 +4,22 @@
   </a>
 </p>
   
-<p align="center">A self-hosted file sharing service</p>
-
 ## Monorepo Structure
 
-| Project                   |   Description    |
-| ------------------------- | :--------------: |
-| [Polymer](apps/polymer)   |     Core API     |
-| [Platypus](apps/platypus) | Next.js Frontend |
-| [Phantom](apps/phantom)   |    CLI Client    |
+| Project                           | Description                    |
+| --------------------------------- | ------------------------------ |
+| [Applications](apps/applications) | Developer Applications Service |
+| [CLI](apps/cli)                   | CLI Client                     |
+| [Files](apps/files)               | Files + Invitations Service    |
+| [Gateway](apps/gateway)           | Gateway API for Clients        |
+| [Mailer](apps/mailer)             | Email Service                  |
+| [Storage](apps/storage)           | Storage Service                |
+| [Users](apps/users)               | Users Service                  |
+| [Web](apps/web)                   | Next.js Client                 |
+
+| Library                                    | Description                               |
+| ------------------------------------------ | ----------------------------------------- |
+| [@quicksend/common](libs/common)           | Common utility library                    |
+| [@quicksend/nestjs-nats](libs/nestjs-nats) | NATS JetStream transporter for NestJS     |
+| [@quicksend/sdk](libs/sdk)                 | Quicksend SDK for extending functionality |
+| [@quicksend/types](libs/types)             | Common types                              |

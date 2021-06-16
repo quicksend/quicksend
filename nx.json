@@ -23,21 +23,45 @@
     }
   },
   "projects": {
-    "polymer": {
-      "tags": []
-    },
     "bull-board": {
       "tags": []
     },
-    "phantom": {
+    "files": {
       "tags": []
     },
-    "platypus": {
+    "applications": {
       "tags": []
     },
-    "platypus-e2e": {
+    "users": {
+      "tags": []
+    },
+    "mailer": {
+      "tags": []
+    },
+    "gateway": {
+      "tags": []
+    },
+    "web": {
+      "tags": []
+    },
+    "web-e2e": {
       "tags": [],
-      "implicitDependencies": ["platypus"]
+      "implicitDependencies": ["web"]
+    },
+    "cli": {
+      "tags": []
+    },
+    "common": {
+      "tags": []
+    },
+    "types": {
+      "tags": []
+    },
+    "storage": {
+      "tags": []
+    },
+    "nestjs-nats": {
+      "tags": []
     }
   }
 }

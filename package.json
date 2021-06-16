@@ -41,6 +41,7 @@
     "@nestjs/core": "^7.0.0",
     "@nestjs/event-emitter": "^0.0.3",
     "@nestjs/mapped-types": "^0.4.1",
+    "@nestjs/microservices": "^7.6.17",
     "@nestjs/platform-express": "^7.0.0",
     "@nestjs/schedule": "^0.4.3",
     "@nrwl/next": "12.3.5",
@@ -64,6 +65,7 @@
     "js-yaml": "^4.0.0",
     "mjml": "^4.9.0",
     "nanoid": "^3.1.20",
+    "nats": "^2.0.6",
     "nestjs-throttler": "^0.3.0",
     "nestjs-throttler-storage-redis": "^0.1.11",
     "next": "10.2.0",
@@ -135,9 +137,9 @@
   },
   "mikro-orm": {
     "configPaths": [
-      "./apps/polymer/mikro-orm.config.ts"
+      "./apps/users/mikro-orm.config.ts"
     ],
-    "tsConfigPath": "./apps/polymer/tsconfig.app.json",
+    "tsConfigPath": "./tsconfig.base.json",
     "useTsNode": true
   }
 }

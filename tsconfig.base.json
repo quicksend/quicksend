@@ -13,7 +13,10 @@
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@quicksend/bull-board": ["libs/bull-board/src/index.ts"]
+      "@quicksend/bull-board": ["libs/bull-board/src/index.ts"],
+      "@quicksend/common": ["libs/common/src/index.ts"],
+      "@quicksend/types": ["libs/types/src/index.ts"],
+      "@quicksend/nestjs-nats": ["libs/nestjs-nats/src/index.ts"]
     },
     "rootDir": ".",
     "skipDefaultLibCheck": true,
