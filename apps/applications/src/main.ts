@@ -18,6 +18,9 @@ import { Config } from "./config/config.interface";
       connection: {
         servers: [configService.get("NATS_URL") as string]
       },
+      consumer: {
+        durable_name: "applications"
+      },
       queue: "applications-service",
       streams: [
         {
