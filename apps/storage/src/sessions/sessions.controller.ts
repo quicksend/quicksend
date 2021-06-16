@@ -88,10 +88,7 @@ export class SessionsController {
     return session;
   }
 
-  @EventPattern<UserDeletedPattern>({
-    event: "user-deleted",
-    service: "users"
-  })
+  @EventPattern<UserDeletedPattern>("users.user.deleted")
   handleUserDeletion(payload: UserDeletedPayload): Promise<void[]> {
     return Promise.all([
       this.sessionsService.deleteDownloadSessions({ owner: payload.user.id }),
