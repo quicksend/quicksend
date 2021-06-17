@@ -10,11 +10,11 @@ import {
   ValidationRpcExceptionFilter
 } from "@quicksend/common";
 
-import { Config } from "../config/config.interface";
+import { Config } from "./config/config.interface";
 
-import { MailerModule } from "../mailer/mailer.module";
+import { MailerModule } from "./mailer/mailer.module";
 
-import { configSchema } from "../config/config.schema";
+import { configSchema } from "./config/config.schema";
 
 @Module({
   imports: [
