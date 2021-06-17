@@ -1,11 +1,10 @@
+import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 
-import { ConfigService } from "@nestjs/config";
-
 import { AppModule } from "./app/app.module";
 
-import { Config } from "./config/config.interface";
+import { Config } from "./app/config/config.interface";
 
 (async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);

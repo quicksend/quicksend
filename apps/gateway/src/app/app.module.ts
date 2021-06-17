@@ -9,13 +9,13 @@ import {
   ValidationPipe
 } from "@quicksend/common";
 
-import { AllExceptionFilter } from "../common/filters/all-exception.filter";
+import { AllExceptionFilter } from "./common/filters/all-exception.filter";
 
 import { AppController } from "./app.controller";
 
-import { UsersModule } from "../users/users.module";
+import { UsersModule } from "./users/users.module";
 
-import { configSchema } from "../config/config.schema";
+import { configSchema } from "./config/config.schema";
 
 @Module({
   imports: [
