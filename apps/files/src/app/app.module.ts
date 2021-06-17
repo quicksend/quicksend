@@ -13,13 +13,13 @@ import {
   ValidationRpcExceptionFilter
 } from "@quicksend/common";
 
-import { Config } from "../config/config.interface";
+import { Config } from "./config/config.interface";
 
-import { FilesModule } from "../files/files.module";
-import { InvitationsModule } from "../invitations/invitations.module";
-import { TrashModule } from "../trash/trash.module";
+import { FilesModule } from "./files/files.module";
+import { InvitationsModule } from "./invitations/invitations.module";
+import { TrashModule } from "./trash/trash.module";
 
-import { configSchema } from "../config/config.schema";
+import { configSchema } from "./config/config.schema";
 
 @Module({
   imports: [
