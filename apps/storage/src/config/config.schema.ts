@@ -12,7 +12,7 @@ export const configSchema = Joi.object<Config>({
 
   NATS_URL: Joi.string().default("nats://localhost:4222"),
 
-  PORT: Joi.number().port().default(3000),
+  PORT: Joi.number().port().default(3001),
 
   REDIS_HOSTNAME: Joi.string().default("localhost"),
   REDIS_PASSWORD: Joi.string().empty(null),

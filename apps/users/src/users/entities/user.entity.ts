@@ -10,7 +10,14 @@ import {
   Unique
 } from "@mikro-orm/core";
 
-import { IsAlphanumeric, IsEmail, MaxLength, MinLength, validateOrReject } from "class-validator";
+import {
+  IsAlphanumeric,
+  IsEmail,
+  IsNotEmpty,
+  MaxLength,
+  MinLength,
+  validateOrReject
+} from "class-validator";
 
 import { User as IUser } from "@quicksend/types";
 
@@ -48,6 +55,7 @@ export class User implements IUser {
   password!: string;
 
   @IsAlphanumeric()
+  @IsNotEmpty()
   @MaxLength(32)
   @MinLength(2)
   @Property({ length: 32 })

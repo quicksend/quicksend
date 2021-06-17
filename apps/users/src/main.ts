@@ -13,27 +13,32 @@ import { Config } from "./config/config.interface";
 
   const configService = app.get<ConfigService<Config>>(ConfigService);
 
-  const microservice = app.connectMicroservice<MicroserviceOptions>({
-    strategy: new NatsTransportStrategy({
-      connection: {
-        servers: [configService.get("NATS_URL") as string]
-      },
-      queue: "users-service",
-      streams: [
-        {
-          name: "users-events",
-          subjects: [
-            "users.email-confirmation.created",
-            "users.password-reset.created",
-            "users.user.created",
-            "users.user.deleted",
-            "users.user.email-changed",
-            "users.user.password-changed"
-          ]
-        }
-      ]
-    })
-  });
+  const microservice = app.connectMicroservice<MicroserviceOptions>(
+    {
+      strategy: new NatsTransportStrategy({
+        connection: {
+          servers: [configService.get("NATS_URL") as string]
+        },
+        queue: "users-service",
+        streams: [
+          {
+            name: "users-events",
+            subjects: [
+              "users.email-confirmation.created",
+              "users.password-reset.created",
+              "users.user.created",
+              "users.user.deleted",
+              "users.user.email-changed",
+              "users.user.password-changed"
+            ]
+          }
+        ]
+      })
+    },
+    {
+      inheritAppConfig: true
+    }
+  );
 
   await microservice.listenAsync();
 })();

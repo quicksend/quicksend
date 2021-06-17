@@ -1,9 +1,21 @@
-import { Controller, Get, Param, Post, UseFilters, UseInterceptors } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseFilters,
+  UseInterceptors,
+  UsePipes
+} from "@nestjs/common";
+
 import { EventPattern, MessagePattern, Payload } from "@nestjs/microservices";
 
-import { File as UploadedFile } from "@quicksend/transmit";
-import { Files as UploadedFiles, TransmitInterceptor } from "@quicksend/nestjs-transmit";
+import { File } from "@quicksend/transmit";
+import { Files, TransmitInterceptor } from "@quicksend/nestjs-transmit";
+
 import { UserDeletedPattern, UserDeletedPayload } from "@quicksend/types";
+
+import { ValidationPipe, ValidationRpcExceptionFilter } from "@quicksend/common";
 
 import { SessionsExceptionFilter } from "./sessions.filter";
 import { SessionsService } from "./sessions.service";
@@ -19,6 +31,7 @@ import { UploadSessionByIdPipe } from "./pipes/upload-session-by-id.pipe";
 
 @Controller()
 @UseFilters(SessionsExceptionFilter)
+@UsePipes(ValidationPipe())
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}
 
@@ -29,16 +42,17 @@ export class SessionsController {
     return this.sessionsService.streamFileContents(session);
   }
 
-  @UseInterceptors(TransmitInterceptor({ field: "file" }))
   @Post(":session/upload")
+  @UseInterceptors(TransmitInterceptor({ field: "file" }))
   upload(
     @Param("session", UploadSessionByIdPipe) session: UploadSession,
-    @UploadedFiles() files: UploadedFile[]
+    @Files() files: File[]
   ): Promise<void> {
     return this.sessionsService.commitUploadSession(session, files[0]);
   }
 
   @MessagePattern({ cmd: "create-download-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   createDownloadSession(
     @Payload() payload: CreateDownloadSessionPayload
   ): Promise<DownloadSession> {
@@ -50,11 +64,13 @@ export class SessionsController {
   }
 
   @MessagePattern({ cmd: "create-upload-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   createUploadSession(@Payload() payload: CreateUploadSessionPayload): Promise<UploadSession> {
     return this.sessionsService.createUploadSession(payload.owner, payload.expiresAt);
   }
 
   @MessagePattern({ cmd: "delete-download-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   deleteDownloadSession(
     @Payload(DownloadSessionByIdPipe) session: DownloadSession
   ): Promise<DownloadSession> {
@@ -62,6 +78,7 @@ export class SessionsController {
   }
 
   @MessagePattern({ cmd: "delete-upload-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   deleteUploadSession(
     @Payload(UploadSessionByIdPipe) session: UploadSession
   ): Promise<UploadSession> {
@@ -69,21 +86,25 @@ export class SessionsController {
   }
 
   @MessagePattern({ cmd: "delete-download-sessions", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   deleteDownloadSessions(@Payload() owner: string): Promise<void> {
     return this.sessionsService.deleteDownloadSessions({ owner });
   }
 
   @MessagePattern({ cmd: "delete-upload-sessions", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   deleteUploadSessions(@Payload() owner: string): Promise<void> {
     return this.sessionsService.deleteUploadSessions({ owner });
   }
 
   @MessagePattern({ cmd: "find-download-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   findDownloadSession(@Payload(DownloadSessionByIdPipe) session: DownloadSession): DownloadSession {
     return session;
   }
 
   @MessagePattern({ cmd: "find-upload-session", service: "sessions" })
+  @UseFilters(ValidationRpcExceptionFilter)
   findUploadSession(@Payload(UploadSessionByIdPipe) session: UploadSession): UploadSession {
     return session;
   }

@@ -1,1 +1,1 @@
-export * from "./pipes/extract-property.pipe";
+export * from "./pipes/validation.pipe";

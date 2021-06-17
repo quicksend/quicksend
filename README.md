@@ -15,7 +15,7 @@
 | [Mailer](apps/mailer)             | Email Service                  |
 | [Storage](apps/storage)           | Storage Service                |
 | [Users](apps/users)               | Users Service                  |
-| [Web](apps/web)                   | Next.js Client                 |
+| [Web](apps/web)                   | Next.js Web Client             |
 
 | Library                                    | Description                               |
 | ------------------------------------------ | ----------------------------------------- |

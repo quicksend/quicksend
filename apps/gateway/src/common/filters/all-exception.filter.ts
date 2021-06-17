@@ -1,46 +1,27 @@
 import {
   ArgumentsHost,
-  BadRequestException,
   Catch,
-  ExceptionFilter,
   HttpException,
   InternalServerErrorException,
   Logger
 } from "@nestjs/common";
 
-import { ValidationException } from "@quicksend/types";
-
-import { HttpExceptionFilter } from "./http-exception.filter";
+import { HttpExceptionFilter } from "@quicksend/common";
 
 @Catch()
-export class AllExceptionsFilter extends HttpExceptionFilter implements ExceptionFilter {
+export class AllExceptionFilter extends HttpExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     if (exception instanceof HttpException) {
       return super.catch(exception, host);
     }
 
-    if (this.isValidationError(exception)) {
-      return super.catch(new BadRequestException(exception), host);
-    }
-
-    if (exception instanceof Error) {
-      Logger.error(exception.message, exception.stack);
-    } else {
-      Logger.error(exception);
-    }
+    exception instanceof Error
+      ? Logger.error(exception.message, exception.stack)
+      : Logger.error(exception);
 
     return super.catch(
-      new InternalServerErrorException(
-        "The server was unable to fulfill your request. Please try again later."
-      ),
+      new InternalServerErrorException("An error has occurred, please try again later!"),
       host
-    );
-  }
-
-  private isValidationError(exception: unknown): exception is ValidationException {
-    return (
-      typeof exception === "object" &&
-      (exception as ValidationException).type === "VALIDATION_ERROR"
     );
   }
 }

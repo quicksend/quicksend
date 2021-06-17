@@ -13,20 +13,25 @@ import { Config } from "./config/config.interface";
 
   const configService = app.get<ConfigService<Config>>(ConfigService);
 
-  const microservice = app.connectMicroservice<MicroserviceOptions>({
-    strategy: new NatsTransportStrategy({
-      connection: {
-        servers: [configService.get("NATS_URL") as string]
-      },
-      queue: "files-service",
-      streams: [
-        {
-          name: "files-events",
-          subjects: []
-        }
-      ]
-    })
-  });
+  const microservice = app.connectMicroservice<MicroserviceOptions>(
+    {
+      strategy: new NatsTransportStrategy({
+        connection: {
+          servers: [configService.get("NATS_URL") as string]
+        },
+        queue: "files-service",
+        streams: [
+          {
+            name: "files-events",
+            subjects: []
+          }
+        ]
+      })
+    },
+    {
+      inheritAppConfig: true
+    }
+  );
 
   await microservice.listenAsync();
 })();

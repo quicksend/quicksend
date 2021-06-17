@@ -1,6 +1,14 @@
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
+
 import { BullModule } from "@nestjs/bull";
+import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { Module } from "@nestjs/common";
+
+import {
+  RpcExceptionFilter,
+  ValidationPipe,
+  ValidationRpcExceptionFilter
+} from "@quicksend/common";
 
 import { Config } from "../config/config.interface";
 
@@ -29,6 +37,23 @@ import { configSchema } from "../config/config.schema";
 
     MailerModule
   ],
-  providers: []
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: RpcExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ValidationRpcExceptionFilter
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor
+    },
+    {
+      provide: APP_PIPE,
+      useFactory: ValidationPipe
+    }
+  ]
 })
 export class AppModule {}

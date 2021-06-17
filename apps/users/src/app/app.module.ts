@@ -1,6 +1,6 @@
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from "@nestjs/core";
 
-import { ClassSerializerInterceptor, Module, ValidationPipe } from "@nestjs/common";
+import { ClassSerializerInterceptor, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 
@@ -8,9 +8,10 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 
 import {
-  ValidationException,
-  ValidationExceptionFilter
-} from "../common/filters/validation-exception.filter";
+  RpcExceptionFilter,
+  ValidationPipe,
+  ValidationRpcExceptionFilter
+} from "@quicksend/common";
 
 import { Config } from "../config/config.interface";
 
@@ -47,7 +48,11 @@ import { configSchema } from "../config/config.schema";
   providers: [
     {
       provide: APP_FILTER,
-      useClass: ValidationExceptionFilter
+      useClass: RpcExceptionFilter
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ValidationRpcExceptionFilter
     },
     {
       provide: APP_INTERCEPTOR,
@@ -55,15 +60,7 @@ import { configSchema } from "../config/config.schema";
     },
     {
       provide: APP_PIPE,
-      useValue: new ValidationPipe({
-        exceptionFactory: (errors): ValidationException => new ValidationException(errors),
-        transform: true,
-        validationError: {
-          target: false,
-          value: false
-        },
-        whitelist: true
-      })
+      useFactory: ValidationPipe
     }
   ]
 })

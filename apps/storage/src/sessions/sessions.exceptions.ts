@@ -1,4 +1,6 @@
-export class SessionsException extends Error {}
+import { RpcException } from "@nestjs/microservices";
+
+export class SessionsException extends RpcException {}
 
 export class DownloadSessionNotFoundException extends SessionsException {
   constructor() {
