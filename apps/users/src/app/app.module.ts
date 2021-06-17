@@ -13,11 +13,11 @@ import {
   ValidationRpcExceptionFilter
 } from "@quicksend/common";
 
-import { Config } from "../config/config.interface";
+import { Config } from "./config/config.interface";
 
-import { UsersModule } from "../users/users.module";
+import { UsersModule } from "./users/users.module";
 
-import { configSchema } from "../config/config.schema";
+import { configSchema } from "./config/config.schema";
 
 @Module({
   imports: [
