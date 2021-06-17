@@ -7,7 +7,7 @@ import { NatsTransportStrategy } from "@quicksend/nestjs-nats";
 
 import { AppModule } from "./app/app.module";
 
-import { Config } from "./config/config.interface";
+import { Config } from "./app/config/config.interface";
 
 (async (): Promise<void> => {
   const app = await NestFactory.create(AppModule);

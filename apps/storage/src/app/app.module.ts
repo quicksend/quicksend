@@ -9,11 +9,11 @@ import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 
 import { HttpExceptionFilter, ValidationHttpExceptionFilter } from "@quicksend/common";
 
-import { StorageModule } from "../storage/storage.module";
+import { StorageModule } from "./storage/storage.module";
 
-import { Config } from "../config/config.interface";
+import { Config } from "./config/config.interface";
 
-import { configSchema } from "../config/config.schema";
+import { configSchema } from "./config/config.schema";
 
 @Module({
   imports: [
