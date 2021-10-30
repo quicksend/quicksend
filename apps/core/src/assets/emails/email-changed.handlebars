@@ -1,0 +1,60 @@
+<mjml>
+  <mj-head>
+    <mj-attributes>
+      <mj-button
+        background-color="#395eca"
+        border-radius="6px"
+        font-family="Roboto"
+        font-weight="500"
+        inner-padding="16px 24px"
+      ></mj-button>
+      <mj-font
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap"
+        name="Roboto"
+      ></mj-font>
+      <mj-section background-color="#fff" padding="40px 20px"></mj-section>
+      <mj-text font-family="Roboto"></mj-text>
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#111f51">
+    <mj-section background-color="transparent" padding-bottom="0">
+      <mj-column>
+        <mj-image src="https://imgur.com/download/oMYywJ2/" width="250px"></mj-image>
+      </mj-column>
+    </mj-section>
+    <mj-wrapper padding="40px">
+      <mj-section border-radius="6px">
+        <mj-column>
+          <mj-text color="#1a202c" font-size="30px" font-weight="700" padding-bottom="16px">
+            Hey
+            {{username}}
+            ,
+          </mj-text>
+          <mj-text color="#2d3748" font-size="18px" font-weight="500" line-height="30px">
+            Your email address has been changed to
+            {{newEmail}}
+            on
+            {{date}}
+            .
+          </mj-text>
+          <mj-text color="#2d3748" font-size="18px" font-weight="500" line-height="30px">
+            If this was not you, your account has been compromised. Please reset your password by
+            using the button below.
+          </mj-text>
+          <mj-button font-size="16px" href="{{url}}" padding-top="24px">
+            Reset password
+          </mj-button>
+          <mj-spacer></mj-spacer>
+          <mj-text font-size="14px" line-height="20px">
+            Button not working? Copy and paste this link into your browser's address bar.
+          </mj-text>
+          <mj-text padding-top="0px">
+            <a href="{{url}}" style="color: #395eca">
+              {{url}}
+            </a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+    </mj-wrapper>
+  </mj-body>
+</mjml>

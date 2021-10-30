@@ -1,0 +1,72 @@
+{
+  "root": "apps/core",
+  "sourceRoot": "apps/core/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "assets": ["apps/core/src/assets"],
+        "generatePackageJson": true,
+        "main": "apps/core/src/main.ts",
+        "outputPath": "dist/apps/core",
+        "tsConfig": "apps/core/tsconfig.app.json",
+        "tsPlugins": [
+          {
+            "name": "@nestjs/swagger/plugin",
+            "options": {
+              "dtoFileNameSuffix": [".dto.ts", ".resource.ts"],
+              "introspectComments": true
+            }
+          }
+        ]
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/core/src/environments/environment.ts",
+              "with": "apps/core/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/core/**/*.ts"]
+      }
+    },
+    "mikro-orm": {
+      "executor": "@alexy4744/nx-mikro-orm-cli:run",
+      "options": {
+        "config": {
+          "configPaths": ["./mikro-orm.config.ts"],
+          "tsConfigPath": "./tsconfig.json",
+          "useTsNode": true
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:execute",
+      "options": {
+        "buildTarget": "core:build"
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/core"],
+      "options": {
+        "jestConfig": "apps/core/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

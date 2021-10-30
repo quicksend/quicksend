@@ -1,0 +1,45 @@
+[database]
+debug = true
+hostname = "localhost"
+name = "quicksend"
+password = "quicksend"
+port = 5432
+username = "quicksend"
+
+[http]
+domain = "localhost:3001"
+port = 3001
+
+[jwt]
+access_token_secret = "MY_ACCESS_TOKEN_SECRET"
+refresh_token_secret = "MY_REFRESH_TOKEN_SECRET"
+
+[logs]
+directory = "/var/log/quicksend/core"
+
+[nats]
+hostname = "localhost"
+password =
+port = "4222"
+username =
+
+[redis]
+hostname = "localhost"
+password =
+port = "6379"
+
+[smtp]
+from =
+hostname =
+password =
+port = 465
+username =
+
+[storage.limits]
+max_file_size = 10485760
+
+[storage.manager]
+type = "disk"
+
+[storage.manager.options]
+directory = "/home/quicksend"

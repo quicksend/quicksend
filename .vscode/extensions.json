@@ -1,7 +1,11 @@
 {
   "recommendations": [
-    
-    "nrwl.angular-console",
-    "esbenp.prettier-vscode"
+    "attilabuti.vscode-mjml",
+    "dbaeumer.vscode-eslint",
+    "EditorConfig.EditorConfig",
+    "embertooling.prettier-for-handlebars-vscode",
+    "esbenp.prettier-vscode",
+    "firsttris.vscode-jest-runner",
+    "nrwl.angular-console"
   ]
 }
