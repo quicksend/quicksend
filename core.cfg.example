@@ -18,9 +18,8 @@ refresh_token_secret = "MY_REFRESH_TOKEN_SECRET"
 directory = "/var/log/quicksend/core"
 
 [nats]
-hostname = "localhost"
 password =
-port = "4222"
+servers = ["localhost:4222"]
 username =
 
 [redis]
