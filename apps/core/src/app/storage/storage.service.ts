@@ -43,21 +43,7 @@ export class StorageService {
     return this.entityManagerService.getRepository(File);
   }
 
-  async create(uploaded: UploadedFile): Promise<[File, boolean]> {
-    const duplicate = await this.fileRepository.findOne({
-      hash: uploaded.hash
-    });
-
-    if (duplicate) {
-      await this.storageProcessor.add(DELETE_FILE, {
-        file: {
-          id: uploaded.id
-        }
-      });
-
-      return [duplicate, true];
-    }
-
+  async create(uploaded: UploadedFile): Promise<File> {
     const file = new File(uploaded);
 
     await this.fileRepository.persistAndFlush(file);
@@ -70,7 +56,7 @@ export class StorageService {
       created: file
     });
 
-    return [file, false];
+    return file;
   }
 
   async deleteOne(filter: FilterQuery<File>): Promise<File> {

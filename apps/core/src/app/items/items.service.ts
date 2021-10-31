@@ -155,7 +155,7 @@ export class ItemsService {
       throw new ItemOperationNotPermittedException(parent.name);
     }
 
-    const [file] = await this.storageService.create(uploadedFile);
+    const file = await this.storageService.create(uploadedFile);
 
     const item = new Item({
       capabilities: data.capabilities,
