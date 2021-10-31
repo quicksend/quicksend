@@ -14,9 +14,6 @@ import { Promisable } from "type-fest";
 import { Queue } from "bull";
 import { Writable } from "stream";
 
-import { ApiKeyGuard } from "../common/guards/api-key.guard";
-import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
-
 import { Config } from "../common/config/config.schema";
 
 import { BullBoardService } from "../bull-board/bull-board.service";
