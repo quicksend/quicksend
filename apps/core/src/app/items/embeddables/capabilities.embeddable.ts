@@ -3,52 +3,52 @@ import { Embeddable, Property } from "@mikro-orm/core";
 @Embeddable()
 export class Capabilities {
   @Property()
-  canAddChildren: boolean = false;
+  canAddChildren = false;
 
   @Property()
-  canCopy: boolean = false;
+  canCopy = false;
 
   @Property()
-  canDelete: boolean = false;
+  canDelete = false;
 
   @Property()
-  canDeleteChildren: boolean = false;
+  canDeleteChildren = false;
 
   @Property()
-  canDownload: boolean = false;
+  canDownload = false;
 
   @Property()
-  canListChildren: boolean = false;
+  canListChildren = false;
 
   @Property()
-  canLock: boolean = false;
+  canLock = false;
 
   @Property()
-  canMove: boolean = false;
+  canMove = false;
 
   @Property()
-  canRename: boolean = false;
+  canRename = false;
 
   @Property()
-  canRestore: boolean = false;
+  canRestore = false;
 
   @Property()
-  canShare: boolean = false;
+  canShare = false;
 
   @Property()
-  canTransfer: boolean = false;
+  canTransfer = false;
 
   @Property()
-  canTrash: boolean = false;
+  canTrash = false;
 
   @Property()
-  canTrashChildren: boolean = false;
+  canTrashChildren = false;
 
   @Property()
-  canUntrash: boolean = false;
+  canUntrash = false;
 
   @Property()
-  canUnshare: boolean = false;
+  canUnshare = false;
 
   constructor(capabilities: Partial<Capabilities> = {}) {
     Object.assign(this, capabilities);
