@@ -6,7 +6,7 @@ import { Config, configSchema } from "./config.schema";
 
 export const loadTomlConfig = async (path?: string): Promise<Config> => {
   const result = await fs.promises
-    .readFile(path || "quicksend.cfg")
+    .readFile(path || "core.cfg")
     .then((buffer) => buffer.toString())
     .then((raw) => toml.parse.async(raw))
     .then((config) => configSchema.safeParseAsync(config));
