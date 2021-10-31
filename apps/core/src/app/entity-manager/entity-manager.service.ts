@@ -6,7 +6,7 @@ import { EntityName, GetRepository } from "@mikro-orm/core";
 import { RequestContext } from "../common/contexts/request.context";
 
 @Injectable()
-export class RepositoriesService {
+export class EntityManagerService {
   constructor(private readonly entityManager: EntityManager<PostgreSqlDriver>) {}
 
   getEntityManager(): EntityManager<PostgreSqlDriver> {

@@ -6,7 +6,7 @@ import { EntityRepository } from "@mikro-orm/postgresql";
 import { Job } from "bull";
 
 import { BrokerService } from "../broker/broker.service";
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 
 import { STORAGE_MANAGER } from "./storage.constants";
 
@@ -27,15 +27,15 @@ export class StorageProcessor {
   static readonly QUEUE_NAME = "storage";
 
   constructor(
-    @Inject(STORAGE_MANAGER)
-    private readonly storageManager: BaseManager,
-
     private readonly brokerService: BrokerService,
-    private readonly repositoriesService: RepositoriesService
+    private readonly entityManagerService: EntityManagerService,
+
+    @Inject(STORAGE_MANAGER)
+    private readonly storageManager: BaseManager
   ) {}
 
   private get fileRepository(): EntityRepository<File> {
-    return this.repositoriesService.getRepository(File);
+    return this.entityManagerService.getRepository(File);
   }
 
   @Process(DELETE_FILE)

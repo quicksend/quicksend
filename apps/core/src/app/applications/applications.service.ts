@@ -4,7 +4,7 @@ import { EntityRepository } from "@mikro-orm/postgresql";
 import { FilterQuery } from "@mikro-orm/core";
 
 import { BrokerService } from "../broker/broker.service";
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 
 import { Application } from "./entities/application.entity";
 
@@ -21,11 +21,11 @@ import {
 export class ApplicationsService {
   constructor(
     private readonly brokerService: BrokerService,
-    private readonly repositoriesService: RepositoriesService
+    private readonly entityManagerService: EntityManagerService
   ) {}
 
   private get applicationRepository(): EntityRepository<Application> {
-    return this.repositoriesService.getRepository(Application);
+    return this.entityManagerService.getRepository(Application);
   }
 
   async create(options: {

@@ -12,7 +12,7 @@ import { Readable } from "stream";
 import { LTreeRepository } from "../common/repositories/ltree.repository";
 
 import { BrokerService } from "../broker/broker.service";
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 import { StorageService } from "../storage/storage.service";
 
 import { ItemsProcessor } from "./items.processor";
@@ -58,24 +58,24 @@ import {
 @Injectable()
 export class ItemsService {
   constructor(
-    @InjectQueue(ItemsProcessor.QUEUE_NAME)
-    private readonly itemsProcessor: Queue,
-
     private readonly brokerService: BrokerService,
-    private readonly repositoriesService: RepositoriesService,
-    private readonly storageService: StorageService
+    private readonly entityManagerService: EntityManagerService,
+    private readonly storageService: StorageService,
+
+    @InjectQueue(ItemsProcessor.QUEUE_NAME)
+    private readonly itemsProcessor: Queue
   ) {}
 
   private get invitationRepository(): LTreeRepository<Invitation> {
-    return this.repositoriesService.getRepository(Invitation);
+    return this.entityManagerService.getRepository(Invitation);
   }
 
   private get itemRepository(): LTreeRepository<Item> {
-    return this.repositoriesService.getRepository(Item);
+    return this.entityManagerService.getRepository(Item);
   }
 
   private get versionRepository(): EntityRepository<Version> {
-    return this.repositoriesService.getRepository(Version);
+    return this.entityManagerService.getRepository(Version);
   }
 
   /**

@@ -8,7 +8,7 @@ import { JsonWebTokenError } from "jsonwebtoken";
 
 import { Config } from "../common/config/config.schema";
 
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 import { UsersService } from "../users/users.service";
 
 import { Token } from "./entities/token.entity";
@@ -31,13 +31,13 @@ const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 export class AuthService {
   constructor(
     private readonly configService: ConfigService<Config>,
+    private readonly entityManagerService: EntityManagerService,
     private readonly jwtService: JwtService,
-    private readonly repositoriesService: RepositoriesService,
     private readonly usersService: UsersService
   ) {}
 
   private get tokenRepository(): EntityRepository<Token> {
-    return this.repositoriesService.getRepository(Token);
+    return this.entityManagerService.getRepository(Token);
   }
 
   async blacklistAccessToken(accessToken: string): Promise<void> {

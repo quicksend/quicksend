@@ -4,7 +4,7 @@ import { EntityRepository } from "@mikro-orm/postgresql";
 import { FilterQuery } from "@mikro-orm/core";
 
 import { BrokerService } from "../broker/broker.service";
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 
 import { Profile } from "./entities/profile.entity";
 
@@ -16,11 +16,11 @@ import { ProfileNotFoundException, UserConflictException } from "./profiles.exce
 export class ProfilesService {
   constructor(
     private readonly brokerService: BrokerService,
-    private readonly repositoriesService: RepositoriesService
+    private readonly entityManagerService: EntityManagerService
   ) {}
 
   private get profileRepository(): EntityRepository<Profile> {
-    return this.repositoriesService.getRepository(Profile);
+    return this.entityManagerService.getRepository(Profile);
   }
 
   async create(user: any): Promise<Profile> {

@@ -6,7 +6,7 @@ import { EntityRepository } from "@mikro-orm/postgresql";
 import { FilterQuery } from "@mikro-orm/core";
 
 import { BrokerService } from "../broker/broker.service";
-import { RepositoriesService } from "../repositories/repositories.service";
+import { EntityManagerService } from "../entity-manager/entity-manager.service";
 
 import { EmailConfirmation } from "./entities/email-confirmation.entity";
 import { PasswordReset } from "./entities/password-reset.entity";
@@ -27,19 +27,19 @@ import {
 export class UsersService {
   constructor(
     private readonly brokerService: BrokerService,
-    private readonly repositoriesService: RepositoriesService
+    private readonly entityManagerService: EntityManagerService
   ) {}
 
   private get emailConfirmationRepository(): EntityRepository<EmailConfirmation> {
-    return this.repositoriesService.getRepository(EmailConfirmation);
+    return this.entityManagerService.getRepository(EmailConfirmation);
   }
 
   private get passwordResetRepository(): EntityRepository<PasswordReset> {
-    return this.repositoriesService.getRepository(PasswordReset);
+    return this.entityManagerService.getRepository(PasswordReset);
   }
 
   private get userRepository(): EntityRepository<User> {
-    return this.repositoriesService.getRepository(User);
+    return this.entityManagerService.getRepository(User);
   }
 
   async changePassword(

@@ -35,10 +35,10 @@ import { ApplicationsModule } from "./applications/applications.module";
 import { AuthModule } from "./auth/auth.module";
 import { BrokerModule } from "./broker/broker.module";
 import { BullBoardModule } from "./bull-board/bull-board.module";
+import { EntityManagerModule } from "./entity-manager/entity-manager.module";
 import { ItemsModule } from "./items/items.module";
 import { MailerModule } from "./mailer/mailer.module";
 import { ProfilesModule } from "./profiles/profiles.module";
-import { RepositoriesModule } from "./repositories/repositories.module";
 import { StorageModule } from "./storage/storage.module";
 import { UsersModule } from "./users/users.module";
 
@@ -75,6 +75,8 @@ import { Trash } from "./items/embeddables/trash.embeddable";
       isGlobal: true,
       load: [loadTomlConfig]
     }),
+
+    EntityManagerModule,
 
     ItemsModule,
 
@@ -119,8 +121,6 @@ import { Trash } from "./items/embeddables/trash.embeddable";
     }),
 
     ProfilesModule,
-
-    RepositoriesModule,
 
     StorageModule,
 
