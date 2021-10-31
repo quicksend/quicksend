@@ -6,4 +6,5 @@
 /migrations
 /node_modules
 
+**/*.handlebars
 **/*.mjml
