@@ -9,7 +9,7 @@ import { RequestContext } from "../contexts/request.context";
 export class TransactionalInterceptor implements NestInterceptor {
   async intercept(_ctx: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
     const entityManager = RequestContext.getItem("entityManager");
-    console.log(RequestContext.getStore());
+
     const result = await this.withTransaction(entityManager, () => next.handle());
 
     return of(result);
