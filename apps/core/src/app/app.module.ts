@@ -126,7 +126,7 @@ import { Trash } from "./items/embeddables/trash.embeddable";
 
     UsersModule
   ],
-  exports: [BrokerModule, BullBoardModule],
+  exports: [BrokerModule, BullBoardModule, EntityManagerModule],
   providers: [
     {
       provide: APP_FILTER,
