@@ -59,7 +59,7 @@ import { DELETE_EXPIRED_VERSIONS } from "./jobs/delete-expired-versions.job";
           handleFile: (file): Promisable<Writable> => storageManager.createWritableStream(file.id),
           removeFile: (file): Promisable<void> => storageManager.removeFile(file.id)
         },
-        maxFileSize: configService.get("storage")
+        maxFileSize: configService.get("storage").limits.max_file_size
       })
     })
   ],
