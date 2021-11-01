@@ -58,7 +58,7 @@ export class ItemsService {
   }
 
   listVersions(payload: ListItemVersionsPayload): Observable<Version[]> {
-    return this.client.send("items.item.versions", payload);
+    return this.client.send("items.item.list-versions", payload);
   }
 
   lockItem(payload: LockItemPayload): Observable<Item> {

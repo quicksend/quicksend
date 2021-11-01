@@ -179,7 +179,7 @@ export class ItemsController {
     });
   }
 
-  @MessagePattern("items.item.versions")
+  @MessagePattern("items.item.list-versions")
   listVersions(@Payload() payload: ListItemVersionsPayload): Promise<Version[]> {
     return this.itemsService.listVersions(payload.item, {
       user: payload.user
