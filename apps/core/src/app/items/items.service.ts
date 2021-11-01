@@ -495,29 +495,21 @@ export class ItemsService {
   }
 
   /**
-   * Find a version of an item.
+   * Lists all versions of an item
    */
-  async findVersion(
+  async listVersions(
     filter: FilterQuery<Item>,
     options: {
       user: string;
-      version: string;
     }
-  ): Promise<Version> {
+  ): Promise<Version[]> {
     const item = await this.findItem(filter, {
       user: options.user
     });
 
-    const version = await this.versionRepository.findOne({
-      id: options.version,
+    return this.versionRepository.find({
       item
     });
-
-    if (!version) {
-      throw new VersionNotFoundException(item.id);
-    }
-
-    return version;
   }
 
   /**

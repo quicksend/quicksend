@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
-export class FindVersionPayload {
+export class ListItemVersionsPayload {
   @IsNotEmpty()
   @IsString()
   item!: string;
@@ -9,8 +9,4 @@ export class FindVersionPayload {
   @IsOptional()
   @IsString()
   user!: string;
-
-  @IsNotEmpty()
-  @IsString()
-  version!: string;
 }

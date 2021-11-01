@@ -41,7 +41,7 @@ import { CreateFolderPayload } from "./payloads/create-folder.payload";
 import { DeleteItemPayload } from "./payloads/delete-item.payload";
 import { FindInvitationPayload } from "./payloads/find-invitation.payload";
 import { FindItemPayload } from "./payloads/find-item.payload";
-import { FindVersionPayload } from "./payloads/find-version.payload";
+import { ListItemVersionsPayload } from "./payloads/list-item-versions.payload";
 import { LockItemPayload } from "./payloads/lock-item.payload";
 import { MoveItemPayload } from "./payloads/move-item.payload";
 import { RenameItemPayload } from "./payloads/rename-item.payload";
@@ -179,11 +179,10 @@ export class ItemsController {
     });
   }
 
-  @MessagePattern("items.version.find")
-  findVersion(@Payload() payload: FindVersionPayload): Promise<Version> {
-    return this.itemsService.findVersion(payload.item, {
-      user: payload.user,
-      version: payload.version
+  @MessagePattern("items.item.versions")
+  listVersions(@Payload() payload: ListItemVersionsPayload): Promise<Version[]> {
+    return this.itemsService.listVersions(payload.item, {
+      user: payload.user
     });
   }
 
