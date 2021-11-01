@@ -203,16 +203,14 @@ export class ItemsController {
     });
   }
 
-  @Get(":item_id/versions/:version_id")
-  findVersion(
+  @Get(":item_id/versions")
+  listVersions(
     @CurrentUser() user: string,
-    @Param("item_id") itemId: string,
-    @Param("version_id") versionId: string
-  ): Observable<Version> {
-    return this.itemsService.findVersion({
+    @Param("item_id") itemId: string
+  ): Observable<Version[]> {
+    return this.itemsService.listVersions({
       item: itemId,
-      user,
-      version: versionId
+      user
     });
   }
 

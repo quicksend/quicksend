@@ -12,7 +12,7 @@ import { CreateInvitationPayload } from "./payloads/create-invitation.payload";
 import { DeleteItemPayload } from "./payloads/delete-item.payload";
 import { FindInvitationPayload } from "./payloads/find-invitation.payload";
 import { FindItemPayload } from "./payloads/find-item.payload";
-import { FindVersionPayload } from "./payloads/find-version.payload";
+import { ListItemVersionsPayload } from "./payloads/list-item-versions.payload";
 import { LockItemPayload } from "./payloads/lock-item.payload";
 import { MoveItemPayload } from "./payloads/move-item.payload";
 import { RenameItemPayload } from "./payloads/rename-item.payload";
@@ -57,8 +57,8 @@ export class ItemsService {
     return this.client.send("items.item.find", payload);
   }
 
-  findVersion(payload: FindVersionPayload): Observable<Version> {
-    return this.client.send("items.version.find", payload);
+  listVersions(payload: ListItemVersionsPayload): Observable<Version[]> {
+    return this.client.send("items.item.versions", payload);
   }
 
   lockItem(payload: LockItemPayload): Observable<Item> {
