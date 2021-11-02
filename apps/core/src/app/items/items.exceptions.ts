@@ -20,7 +20,7 @@ export class InsufficientPrivilegesException extends PermissionDeniedRpcExceptio
 
 export class InvitationConflictException extends AlreadyExistsRpcException {
   constructor() {
-    super("An invitation already exists");
+    super("An invitation already exists for this user");
   }
 }
 
