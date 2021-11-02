@@ -5,7 +5,6 @@ import {
   EntityRepositoryType,
   Filter,
   IdentifiedReference,
-  Index,
   ManyToOne,
   Property,
   Reference,
@@ -93,12 +92,6 @@ export class Item extends LTreeNode {
   parent?: IdentifiedReference<Item>;
 
   @Exclude()
-  @Index({
-    type: "gist"
-  })
-  @Property({
-    columnType: "ltree"
-  })
   @Unique()
   path!: string;
 

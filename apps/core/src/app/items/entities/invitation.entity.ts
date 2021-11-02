@@ -3,7 +3,6 @@ import {
   Entity,
   EntityRepositoryType,
   Enum,
-  Index,
   Property,
   Unique
 } from "@mikro-orm/core";
@@ -46,14 +45,6 @@ export class Invitation extends LTreeNode {
   @Property()
   notifyInvitee: boolean;
 
-  @Index({
-    type: "gist"
-  })
-  @Property({
-    columnType: "ltree"
-  })
-  path!: string;
-
   @Enum(() => InvitationRole)
   role: InvitationRole;
 
@@ -64,7 +55,7 @@ export class Invitation extends LTreeNode {
     invitee: string;
     message?: string;
     notifyInvitee?: boolean;
-    path: string;
+    path?: string;
     role: InvitationRole;
   }) {
     super();
@@ -74,8 +65,11 @@ export class Invitation extends LTreeNode {
     this.invitee = invitation.invitee;
     this.message = invitation.message;
     this.notifyInvitee = invitation.notifyInvitee || true;
-    this.path = invitation.path;
     this.role = invitation.role;
+
+    if (invitation.path) {
+      this.setPath(invitation.path);
+    }
   }
 
   @BeforeCreate()

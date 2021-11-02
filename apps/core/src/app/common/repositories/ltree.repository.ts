@@ -1,4 +1,4 @@
-import { BaseEntity, EntityData, PrimaryKey, QueryOrder } from "@mikro-orm/core";
+import { BaseEntity, EntityData, Index, PrimaryKey, Property, QueryOrder } from "@mikro-orm/core";
 
 import { EntityRepository, QueryBuilder } from "@mikro-orm/postgresql";
 
@@ -14,6 +14,12 @@ export abstract class LTreeNode extends BaseEntity<LTreeNode, "id"> {
   @PrimaryKey()
   readonly id: string;
 
+  @Index({
+    type: "gist"
+  })
+  @Property({
+    columnType: "ltree"
+  })
   path: string;
 
   constructor() {
