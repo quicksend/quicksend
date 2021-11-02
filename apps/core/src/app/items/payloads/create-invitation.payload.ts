@@ -49,5 +49,6 @@ export class CreateInvitationPayload {
   notifyInvitee?: boolean;
 
   @IsEnum(InvitationRole)
+  @Transform(({ value }) => (isNaN(value) ? InvitationRole[value] : value)) // Handle reverse mappings for typescript enums
   role!: InvitationRole;
 }
