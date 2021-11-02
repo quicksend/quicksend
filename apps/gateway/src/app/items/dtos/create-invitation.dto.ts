@@ -31,10 +31,6 @@ export class CreateInvitationDto {
   invitee!: string;
 
   @IsNotEmpty()
-  @IsString()
-  item!: string;
-
-  @IsNotEmpty()
   @IsOptional()
   @IsString()
   @MaxLength(512)
