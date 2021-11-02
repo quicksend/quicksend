@@ -23,6 +23,7 @@ import { STORAGE_MANAGER } from "../storage/storage.constants";
 import { BaseManager } from "../storage/managers/base.manager";
 
 import { StorageModule } from "../storage/storage.module";
+import { UsersModule } from "../users/users.module";
 
 import { ItemsController } from "./items.controller";
 import { ItemsProcessor } from "./items.processor";
@@ -61,7 +62,9 @@ import { DELETE_EXPIRED_VERSIONS } from "./jobs/delete-expired-versions.job";
         },
         maxFileSize: configService.get("storage").limits.max_file_size
       })
-    })
+    }),
+
+    UsersModule
   ],
   controllers: [ItemsController],
   exports: [ItemsService],

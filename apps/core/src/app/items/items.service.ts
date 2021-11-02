@@ -14,6 +14,7 @@ import { LTreeRepository } from "../common/repositories/ltree.repository";
 import { BrokerService } from "../broker/broker.service";
 import { EntityManagerService } from "../entity-manager/entity-manager.service";
 import { StorageService } from "../storage/storage.service";
+import { UsersService } from "../users/users.service";
 
 import { ItemsProcessor } from "./items.processor";
 
@@ -45,6 +46,7 @@ import {
   InvitedByAncestorException,
   InviteeCannotBeInviterException,
   InviteeCannotBeOwnerException,
+  InviteeNotFoundException,
   ItemConflictException,
   ItemOperationNotPermittedException,
   ItemLockedByUserException,
@@ -61,6 +63,7 @@ export class ItemsService {
     private readonly brokerService: BrokerService,
     private readonly entityManagerService: EntityManagerService,
     private readonly storageService: StorageService,
+    private readonly usersService: UsersService,
 
     @InjectQueue(ItemsProcessor.QUEUE_NAME)
     private readonly itemsProcessor: Queue
@@ -260,6 +263,14 @@ export class ItemsService {
 
     if (!item.capabilities.canShare) {
       throw new ItemOperationNotPermittedException(item.name);
+    }
+
+    const invitee = await this.usersService.findOne({
+      id: options.invitee
+    });
+
+    if (!invitee) {
+      throw new InviteeNotFoundException();
     }
 
     if (item.owner === options.invitee) {

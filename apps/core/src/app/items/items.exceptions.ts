@@ -48,6 +48,12 @@ export class InviteeCannotBeOwnerException extends InvalidArgumentRpcException {
   }
 }
 
+export class InviteeNotFoundException extends NotFoundRpcException {
+  constructor() {
+    super("The invitee is not a valid user");
+  }
+}
+
 export class ItemConflictException extends AlreadyExistsRpcException {
   constructor(source: string, destination: string) {
     super(`Item '${source}' already exists at '${destination}'`);
