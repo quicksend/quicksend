@@ -6,6 +6,7 @@ import {
   Property,
   Unique
 } from "@mikro-orm/core";
+import { Exclude } from "class-transformer";
 
 import { validateOrReject } from "class-validator";
 
@@ -44,6 +45,9 @@ export class Invitation extends LTreeNode {
 
   @Property()
   notifyInvitee: boolean;
+
+  @Exclude()
+  path!: string;
 
   @Enum(() => InvitationRole)
   role: InvitationRole;
