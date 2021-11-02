@@ -130,7 +130,7 @@ export class Item extends LTreeNode {
 
   setParent(parent?: Item): void {
     this.parent = parent && Reference.create(parent);
-    this.setPath(...(parent ? [parent.path] : []));
+    this.setParentPath(...(parent ? [parent.path] : []));
   }
 
   @BeforeCreate()

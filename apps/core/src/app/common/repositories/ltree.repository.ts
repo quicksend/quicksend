@@ -40,8 +40,12 @@ export abstract class LTreeNode extends BaseEntity<LTreeNode, "id"> {
     return paths.join(LTreeNode.PATH_DELIMITER);
   }
 
-  setPath(...pathLike: PathLike[]): void {
+  setParentPath(...pathLike: PathLike[]): void {
     this.path = LTreeNode.joinPaths(...pathLike, this.id);
+  }
+
+  setPath(...pathLike: PathLike[]): void {
+    this.path = LTreeNode.joinPaths(...pathLike);
   }
 }
 
