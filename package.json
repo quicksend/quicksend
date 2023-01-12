@@ -54,7 +54,7 @@
     "argon2": "^0.28.2",
     "bull": "^4.0.0",
     "class-transformer": "^0.4.0",
-    "class-validator": "^0.13.1",
+    "class-validator": "^0.14.0",
     "core-js": "^3.6.5",
     "handlebars": "^4.7.7",
     "helmet": "^4.6.0",
