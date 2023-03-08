@@ -39,7 +39,7 @@
     "@nestjs/bull": "^0.4.2",
     "@nestjs/common": "^8.1.2",
     "@nestjs/config": "^1.0.3",
-    "@nestjs/core": "^8.1.2",
+    "@nestjs/core": "^9.0.5",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/microservices": "^8.1.2",
     "@nestjs/platform-express": "^8.1.2",
